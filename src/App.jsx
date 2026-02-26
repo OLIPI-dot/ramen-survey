@@ -60,29 +60,46 @@ function App() {
   const [showingTerms, setShowingTerms] = useState(false);
   const [showingContact, setShowingContact] = useState(false);
   const [contactType, setContactType] = useState('削除依頼');
+  const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
+  const [contactHoneypot, setContactHoneypot] = useState(''); // 🍯 罠
+  const [isHuman, setIsHuman] = useState(false); // 🤖 チェック
 
   const handleSendInquiry = async () => {
+    // 砦1：罠
+    if (contactHoneypot) return;
+
+    // 砦2：連投制限（5分間）
+    const lastTime = localStorage.getItem('last_inquiry_time');
+    if (lastTime && new Date().getTime() - Number(lastTime) < 300000) {
+      return alert("連投防止のため、少し時間を置いてから送ってくださいね。🍵");
+    }
+
+    if (!isHuman) return alert("「私はロボットではありません」にチェックをお願いします。🛡️");
     if (!contactMessage.trim()) return alert("内容を入力してくださいね");
+    if (!contactEmail.trim() || !contactEmail.includes('@')) return alert("正しいメールアドレスを入力してくださいね。");
 
     try {
-      // 🚀 Supabaseの「inquiries」テーブルにお問い合わせを保存する魔法
       const { error } = await supabase
         .from('inquiries')
         .insert([{
           type: contactType,
+          email: contactEmail,
           message: contactMessage,
-          user_id: user?.id || null // ログインしてたらその人のIDも一緒に保存
+          target_survey: currentSurvey ? currentSurvey.title : 'なし',
+          user_id: user?.id || null
         }]);
 
       if (error) throw error;
 
-      alert("お問い合わせを送信しました！スタッフが大切に拝見させていただきます。✨");
+      localStorage.setItem('last_inquiry_time', new Date().getTime().toString());
+      alert("お問い合わせを送信しました！内容を確認し、必要に応じてご連絡いたします。✨");
       setShowingContact(false);
       setContactMessage('');
+      setIsHuman(false);
     } catch (error) {
       console.error("送信エラー:", error);
-      alert("申し訳ありません、送信に失敗しました。後でもう一度お試しください。");
+      alert("申し訳ありません、送信に失敗しました。");
     }
   };
 
@@ -703,6 +720,29 @@ function App() {
                   className="contact-textarea"
                 />
               </div>
+
+              {/* 🍯 ロボットを釣る罠（人間には見えません） */}
+              <div style={{ display: 'none' }}>
+                <input
+                  type="text"
+                  value={contactHoneypot}
+                  onChange={(e) => setContactHoneypot(e.target.value)}
+                  tabIndex="-1"
+                  autoComplete="off"
+                />
+              </div>
+
+              {/* 🛡️ 人間チェック */}
+              <div className="bot-check-area">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={isHuman}
+                    onChange={(e) => setIsHuman(e.target.checked)}
+                  /> 🦺 私はロボットではありません
+                </label>
+              </div>
+
               <div className="contact-notice">
                 ※ 悪質な依頼（いたずら）には対応いたしかねます。内容を確認のうえ、運営が判断させていただきます。
               </div>

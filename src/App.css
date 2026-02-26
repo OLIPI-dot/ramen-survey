@@ -1277,3 +1277,31 @@ body {
   border-left: 4px solid #6366f1;
 }
 
+
+
+/* ??? スパム対策エリアの装飾 ??? */
+.bot-check-area {
+  background: #fdf2f2;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #fee2e2;
+  text-align: left;
+}
+
+.bot-check-area .checkbox-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #c53030 !important;
+  cursor: pointer;
+}
+
+.bot-check-area input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
