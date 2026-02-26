@@ -38,7 +38,16 @@ function App() {
   const [setupOptions, setSetupOptions] = useState([]);
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
-  const [deadline, setDeadline] = useState('');
+
+  // 今日の23:59（一日の終わり）を初期値にする魔法
+  const getInitialDeadline = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}T23:59`;
+  };
+  const [deadline, setDeadline] = useState(getInitialDeadline());
 
   // --- 実行中のタイマーState ---
   const [timeLeft, setTimeLeft] = useState(0);
@@ -347,8 +356,16 @@ function App() {
             </div>
             {useTimer && (
               <div className="setting-item-block">
-                <label>いつまで？:</label>
-                <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
+                <label>いつまで？：</label>
+                <input
+                  type="datetime-local"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  className="time-input"
+                />
+                <div className="deadline-preview">
+                  📅 決定：<strong>{formatWithDay(deadline)}</strong>
+                </div>
               </div>
             )}
             <button onClick={handleStartSurvey} className="start-button">公開する！</button>
