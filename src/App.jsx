@@ -39,13 +39,15 @@ function App() {
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
 
-  // 今日の23:59（一日の終わり）を初期値にする魔法
+  // 今の時刻を初期値にする魔法
   const getInitialDeadline = () => {
     const d = new Date();
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}T23:59`;
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day}T${hh}:${mm}`;
   };
   const [deadline, setDeadline] = useState(getInitialDeadline());
 
