@@ -343,77 +343,109 @@ function App() {
     }
   };
 
+  // 共通のサイドバーコンポーネント
+  const Sidebar = () => (
+    <div className="live-feed-sidebar">
+      <div className="live-feed-title">✨ 広場の最新ニュース</div>
+      <div className="live-feed-content">
+        {liveSurveys.length === 0 ? (
+          <div className="empty-msg">まだお題はありません…</div>
+        ) : (
+          liveSurveys.slice(0, 3).map(s => (
+            <div key={s.id} className="live-item">
+              <strong>{s.title}</strong> が公開されました！
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="live-feed-title" style={{ marginTop: '24px' }}>🔥 人気ランキング</div>
+      <div className="live-feed-content">
+        {popularSurveys.map((s, idx) => (
+          <div key={s.id} className="live-item popular">
+            <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉'}</span>
+            <strong>{s.title}</strong>
+            <div className="live-item-meta">{s.total_votes || 0} 票</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   // 画面：一覧
   if (view === 'list') {
     return (
       <div className="app-container">
-        <div className="survey-card">
-          <div className="auth-header">
-            {user ? (
-              <div className="user-info">
-                {user.user_metadata?.avatar_url && (
-                  <img src={user.user_metadata.avatar_url} alt="user avatar" className="user-avatar" />
-                )}
-                <span className="user-name">
-                  {user.user_metadata?.full_name || user.email.split('@')[0]}さん
-                </span>
-                <button className="logout-button" onClick={handleLogout}>ログアウト</button>
-              </div>
-            ) : (
-              <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
-            )}
-          </div>
-          <button className="create-new-button" onClick={() => user ? setView('create') : alert("ログインしてね！")}>
-            ＋ 新しいアンケートを作る
-          </button>
+        <div className="create-layout"> {/* create-layoutという名前ですが共通で使います */}
+          <div className="survey-card">
+            <div className="auth-header">
+              {user ? (
+                <div className="user-info">
+                  {user.user_metadata?.avatar_url && (
+                    <img src={user.user_metadata.avatar_url} alt="user avatar" className="user-avatar" />
+                  )}
+                  <span className="user-name">
+                    {user.user_metadata?.full_name || user.email.split('@')[0]}さん
+                  </span>
+                  <button className="logout-button" onClick={handleLogout}>ログアウト</button>
+                </div>
+              ) : (
+                <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
+              )}
+            </div>
+            <button className="create-new-button" onClick={() => user ? setView('create') : alert("ログインしてね！")}>
+              ＋ 新しいアンケートを作る
+            </button>
 
-          <div className="tab-switcher">
-            <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
-            <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
-          </div>
+            <div className="tab-switcher">
+              <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
+              <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+            </div>
 
-          <div className="survey-list">
-            {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
-              [...surveys]
-                .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
-                .map((s, index) => {
-                  const isEnded = s.deadline && new Date(s.deadline) < new Date();
-                  const showBadge = sortMode === 'popular' && index < 3;
-                  const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
+            <div className="survey-list">
+              {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
+                [...surveys]
+                  .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
+                  .map((s, index) => {
+                    const isEnded = s.deadline && new Date(s.deadline) < new Date();
+                    const showBadge = sortMode === 'popular' && index < 3;
+                    const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
 
-                  return (
-                    <div key={s.id} className="survey-item-card" onClick={() => {
-                      setCurrentSurvey(s);
-                      setIsTimeUp(isEnded);
-                      setView('details');
-                    }}>
-                      {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
-                      <div className="survey-item-content">
-                        <div className="survey-item-info">
-                          <span className="survey-item-title">
-                            {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
-                            {s.title}
-                          </span>
-                          <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
-                            {isEnded ? '終了' : '受付中'}
-                          </span>
-                        </div>
-                        <div className="survey-item-meta-row">
-                          {s.deadline && (
-                            <span className="survey-item-deadline">
-                              〆切: {formatWithDay(s.deadline)}
+                    return (
+                      <div key={s.id} className="survey-item-card" onClick={() => {
+                        setCurrentSurvey(s);
+                        setIsTimeUp(isEnded);
+                        setView('details');
+                      }}>
+                        {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
+                        <div className="survey-item-content">
+                          <div className="survey-item-info">
+                            <span className="survey-item-title">
+                              {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
+                              {s.title}
                             </span>
-                          )}
-                          <span className="survey-item-votes">
-                            🗳️ {s.total_votes || 0} 票
-                          </span>
+                            <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                              {isEnded ? '終了' : '受付中'}
+                            </span>
+                          </div>
+                          <div className="survey-item-meta-row">
+                            {s.deadline && (
+                              <span className="survey-item-deadline">
+                                〆切: {formatWithDay(s.deadline)}
+                              </span>
+                            )}
+                            <span className="survey-item-votes">
+                              🗳️ {s.total_votes || 0} 票
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-            )}
+                    );
+                  })
+              )}
+            </div>
           </div>
+          <Sidebar />
         </div>
       </div>
     );
@@ -429,9 +461,7 @@ function App() {
               <button className="back-button" onClick={() => setView('list')}>← 戻る</button>
               <h2 className="setup-title">📝 新しく作る</h2>
             </div>
-
             <div className="create-form">
-              {/* --- 以前と同じフォームの内容 --- */}
               <div className="setting-item-block">
                 <label>お題（タイトル）:</label>
                 <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
@@ -460,53 +490,20 @@ function App() {
               {useTimer && (
                 <div className="setting-item-block">
                   <label>いつまで？：</label>
-                  <input
-                    type="datetime-local"
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    className="time-input"
-                  />
+                  <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
                   <div className="quick-time-buttons">
                     <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
                     <button onClick={() => setDeadlineFromNow(10)}>⚡ 10分</button>
                     <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
                     <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
                   </div>
-                  <div className="deadline-preview">
-                    📅 決定：<strong>{formatWithDay(deadline)}</strong>
-                  </div>
+                  <div className="deadline-preview">📅 決定：<strong>{formatWithDay(deadline)}</strong></div>
                 </div>
               )}
               <button onClick={handleStartSurvey} className="start-button">公開する！</button>
             </div>
           </div>
-
-          {/* 🌟 ライブ実況サイドバー */}
-          <div className="live-feed-sidebar">
-            <div className="live-feed-title">✨ 広場の最新ニュース</div>
-            <div className="live-feed-content">
-              {liveSurveys.length === 0 ? (
-                <div className="empty-msg">まだお題はありません…</div>
-              ) : (
-                liveSurveys.slice(0, 3).map(s => (
-                  <div key={s.id} className="live-item">
-                    <strong>{s.title}</strong> が公開されました！
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="live-feed-title" style={{ marginTop: '24px' }}>🔥 人気ランキング</div>
-            <div className="live-feed-content">
-              {popularSurveys.map((s, idx) => (
-                <div key={s.id} className="live-item popular">
-                  <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉'}</span>
-                  <strong>{s.title}</strong>
-                  <div className="live-item-meta">{s.total_votes || 0} 票</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Sidebar />
         </div>
       </div>
     );
@@ -515,80 +512,68 @@ function App() {
   // 画面：詳細
   return (
     <div className="app-container">
-      <div className="survey-card">
-        <div className="card-header">
-          <button className="back-button" onClick={() => setView('list')}>← 広場へ戻る</button>
-        </div>
-
-        {currentSurvey.image_url && (
-          <div className="survey-banner">
-            <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
+      <div className="create-layout">
+        <div className="survey-card">
+          <div className="card-header">
+            <button className="back-button" onClick={() => setView('list')}>← 広場へ戻る</button>
           </div>
-        )}
-
-        {currentSurvey.deadline && (
-          <div className="detail-deadline-box">
-            ⏰ 〆切: {formatWithDay(currentSurvey.deadline)}
-          </div>
-        )}
-
-        <h1 className="survey-title">{currentSurvey.title}</h1>
-
-        {currentSurvey.deadline && !votedOption && !isTimeUp && (
-          <div className={`timer-container ${timeLeft <= 60 && timeLeft > 0 ? 'danger' : ''}`}>
-            <span>残り時間: </span>
-            <span className="time-number">
-              {timeLeft > 3600
-                ? `${Math.floor(timeLeft / 3600)}時間${Math.floor((timeLeft % 3600) / 60)}分${timeLeft % 60}秒`
-                : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`
-              }
-            </span>
-          </div>
-        )}
-        {isTimeUp && !votedOption && <div className="timeup-message">このアンケートは終了しました。⏳</div>}
-
-        <div className="options-container">
-          {options.map((option) => {
-            const isVoted = votedOption === option.name;
-            if (votedOption || isTimeUp) {
-              const percentage = isTotalVotes > 0 ? Math.round((option.votes / isTotalVotes) * 100) : 0;
-              return (
-                <div key={option.id} className={`result-bar-container ${isVoted ? 'selected' : ''}`}>
-                  <div className="result-info">
-                    <span>{option.name} {isVoted && '✅'} <small>({option.votes}票)</small></span>
-                    <span>{percentage}%</span>
+          {currentSurvey.image_url && (
+            <div className="survey-banner">
+              <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
+            </div>
+          )}
+          {currentSurvey.deadline && (
+            <div className="detail-deadline-box">⏰ 〆切: {formatWithDay(currentSurvey.deadline)}</div>
+          )}
+          <h1 className="survey-title">{currentSurvey.title}</h1>
+          {currentSurvey.deadline && !votedOption && !isTimeUp && (
+            <div className={`timer-container ${timeLeft <= 60 && timeLeft > 0 ? 'danger' : ''}`}>
+              <span>残り時間: </span>
+              <span className="time-number">
+                {timeLeft > 3600
+                  ? `${Math.floor(timeLeft / 3600)}時間${Math.floor((timeLeft % 3600) / 60)}分${timeLeft % 60}秒`
+                  : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`
+                }
+              </span>
+            </div>
+          )}
+          {isTimeUp && !votedOption && <div className="timeup-message">このアンケートは終了しました。⏳</div>}
+          <div className="options-container">
+            {options.map((option) => {
+              const isVoted = votedOption === option.name;
+              if (votedOption || isTimeUp) {
+                const percentage = isTotalVotes > 0 ? Math.round((option.votes / isTotalVotes) * 100) : 0;
+                return (
+                  <div key={option.id} className={`result-bar-container ${isVoted ? 'selected' : ''}`}>
+                    <div className="result-info">
+                      <span>{option.name} {isVoted && '✅'} <small>({option.votes}票)</small></span>
+                      <span>{percentage}%</span>
+                    </div>
+                    <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${percentage}%` }}></div></div>
                   </div>
-                  <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${percentage}%` }}></div></div>
-                </div>
-              );
-            }
-            return (
-              <button key={option.id} className="option-button" onClick={() => handleVote(option)}>{option.name}</button>
-            );
-          })}
-        </div>
-        <div className="share-actions">
-          <button className="share-button" onClick={handleShare}>
-            📢 このアンケートを友達に教える（シェア）
-          </button>
-        </div>
-
-        {/* 倉庫の名札（user_id）と今のユーザーIDが一致すれば削除ボタンを出す */}
-        {user && currentSurvey.user_id === user.id && (
-          <div className="admin-actions">
-            <button className="delete-button" onClick={handleDeleteSurvey}>
-              🗑 このアンケートをお掃除する
-            </button>
+                );
+              }
+              return <button key={option.id} className="option-button" onClick={() => handleVote(option)}>{option.name}</button>;
+            })}
           </div>
-        )}
-
-        <div className="bottom-nav">
-          <button className="back-to-list-link" onClick={() => setView('list')}>
-            ← 広場に戻る
-          </button>
+          <div className="share-actions">
+            <button className="share-button" onClick={handleShare}>📢 このアンケートを友達に教える（シェア）</button>
+          </div>
+          {user && currentSurvey.user_id === user.id && (
+            <div className="admin-actions">
+              <button className="delete-button" onClick={handleDeleteSurvey}>🗑 このアンケートをお掃除する</button>
+            </div>
+          )}
+          <div className="bottom-nav">
+            <button className="back-link" onClick={() => setView('list')}>← 広場に戻る</button>
+          </div>
         </div>
+        <Sidebar />
       </div>
     </div>
+  );
+
+    </div >
   );
 }
 
