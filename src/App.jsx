@@ -23,6 +23,14 @@ function App() {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
+        // --- 投票済みの情報をブラウザから読み込む ---
+        const savedVote = localStorage.getItem('voted_ramen');
+        if (savedVote) {
+          setVotedOption(savedVote);
+          // 投票済みなら、設定画面を飛ばしてアンケート画面を出す
+          setIsTimerStarted(true);
+        }
+
         // Supabaseからデータを取得します
         const { data, error } = await supabase
           .from('options')
@@ -40,6 +48,7 @@ function App() {
     };
     fetchOptions();
   }, []);
+
 
   // タイマーがスタートしたときだけカウントダウンする
   useEffect(() => {
@@ -84,6 +93,9 @@ function App() {
 
     try {
       const updatedVotes = Number(selectedItem.votes) + 1;
+
+      // --- ブラウザの記憶箱に保存する ---
+      localStorage.setItem('voted_ramen', selectedItem.name);
 
       // Supabaseのデータを更新します
       const { data, error } = await supabase
@@ -188,7 +200,8 @@ function App() {
 
         <div className="options-container">
           {options.map((option) => {
-            if (votedOption) {
+            // 「投票済み」または「タイムアップ時」は結果のバーを表示する
+            if (votedOption || isTimeUp) {
               const isSelected = option.name === votedOption;
               const percentage = isTotalVotes > 0
                 ? Math.round((option.votes / (isTotalVotes)) * 100)
