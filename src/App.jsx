@@ -247,9 +247,10 @@ function App() {
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
     try {
-      // お題の言葉（キーワード）を使って、ぴったりの写真を自動で探してくる魔法
+      // お題のキーワードを使って、毎回違う素敵な写真を探してくる魔法
       const keyword = encodeURIComponent(surveyTitle);
-      const finalImage = surveyImage || `https://loremflickr.com/800/400/${keyword}`;
+      const randomSeed = Math.floor(Math.random() * 1000);
+      const finalImage = surveyImage || `https://loremflickr.com/800/400/${keyword}?random=${randomSeed}`;
 
       const { data: surveyData, error: surveyError } = await supabase
         .from('surveys')
@@ -345,23 +346,37 @@ function App() {
         {liveSurveys.length === 0 ? (
           <div className="empty-msg">まだお題はありません…</div>
         ) : (
-          liveSurveys.slice(0, 3).map(s => (
-            <div key={s.id} className="live-item">
-              <strong>{s.title}</strong> が公開されました！
-            </div>
-          ))
+          liveSurveys.slice(0, 3).map(s => {
+            const isEnded = s.deadline && new Date(s.deadline) < new Date();
+            return (
+              <div key={s.id} className="live-item clickable" onClick={() => {
+                setCurrentSurvey(s);
+                setIsTimeUp(isEnded);
+                setView('details');
+              }}>
+                <strong>{s.title}</strong> が公開されました！
+              </div>
+            );
+          })
         )}
       </div>
 
       <div className="live-feed-title" style={{ marginTop: '24px' }}>🔥 人気ランキング</div>
       <div className="live-feed-content">
-        {popularSurveys.map((s, idx) => (
-          <div key={s.id} className="live-item popular">
-            <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉'}</span>
-            <strong>{s.title}</strong>
-            <div className="live-item-meta">{s.total_votes || 0} 票</div>
-          </div>
-        ))}
+        {popularSurveys.map((s, idx) => {
+          const isEnded = s.deadline && new Date(s.deadline) < new Date();
+          return (
+            <div key={s.id} className="live-item popular clickable" onClick={() => {
+              setCurrentSurvey(s);
+              setIsTimeUp(isEnded);
+              setView('details');
+            }}>
+              <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥇' : '🥉'}</span>
+              <strong>{s.title}</strong>
+              <div className="live-item-meta">{s.total_votes || 0} 票</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

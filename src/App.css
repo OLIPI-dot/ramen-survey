@@ -667,3 +667,18 @@ body {
   gap: 8px;
 }
 
+
+
+.live-item.clickable:hover {
+  background: #f8fafc;
+  border-color: #6366f1;
+  transform: translateX(5px);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.live-item.clickable:active {
+  transform: scale(0.98);
+}
+
