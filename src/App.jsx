@@ -412,7 +412,7 @@ function App() {
   );
 
   return (
-    <div className="app-container">
+    <div className="survey-main-portal">
       <div className="main-wrap">
         <div className="create-layout">
           <div className="survey-card">

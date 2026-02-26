@@ -943,3 +943,125 @@ body {
   background: #2563eb;
 }
 
+
+
+/* レイアウトの最終修正：フッターを一番下に */
+.app-container {
+  display: flex;
+  flex-direction: column; /* 常に上から下へ並べる */
+  align-items: center;    /* 中央に寄せる */
+  min-height: 100vh;
+}
+
+.main-wrap {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  flex: 1; /* 可能な限り縦方向に広がる */
+}
+
+.app-footer {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 40px;
+  padding: 30px 20px;
+  text-align: center;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+
+
+/* ?? 【緊急】フッターを絶対に一番下に固定する指示 ?? */
+#root > .app-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+}
+
+.main-wrap {
+  display: block !important; /* 横並びの邪魔をさせない */
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+.app-footer {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-top: 50px !important;
+  padding: 30px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important; /* 背景色をつけて場所をはっきりさせる */
+  text-align: center !important;
+  clear: both !important;
+}
+
+
+
+/* ?? これでトドメ！フッターを完全に一番下へ ?? */
+#root {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#root > .app-container {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+.app-footer {
+  margin-top: auto !important; /* コンテンツが少なくても一番下へ */
+  padding: 40px 0 !important;
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+
+
+/* ?? 究極のレイアウト修正：新しい箱専用の指示 ?? */
+.survey-main-portal {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  background-color: #f8fafc; /* 背景を優しく */
+}
+
+.survey-main-portal > .main-wrap {
+  display: flex !important;
+  flex-direction: column !important; /* メイン部分も一度縦にしてから子要素を配置 */
+  align-items: center !important;
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+.survey-main-portal .create-layout {
+  display: flex !important;
+  flex-direction: row !important; /* ここだけは横並び（アンケートとサイドバー） */
+  justify-content: center !important;
+  gap: 30px !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  padding: 40px 20px !important;
+}
+
+.survey-main-portal .app-footer {
+  margin-top: auto !important;
+  width: 100% !important;
+  background: white !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 40px 0 !important;
+  text-align: center !important;
+}
+
