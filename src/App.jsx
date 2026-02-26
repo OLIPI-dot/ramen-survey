@@ -7,6 +7,21 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// 日付と曜日を綺麗に表示する魔法
+const formatWithDay = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const day = weekdays[date.getDay()];
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+
+  return `${y}/${m}/${d} (${day}) ${hh}:${mm}`;
+};
+
 function App() {
   const [view, setView] = useState('list'); // 'list', 'create', 'details'
   const [user, setUser] = useState(null);
@@ -279,7 +294,11 @@ function App() {
                           {isEnded ? '終了' : '受付中'}
                         </span>
                       </div>
-                      {s.deadline && <div className="survey-item-deadline">〆切: {new Date(s.deadline).toLocaleString('ja-JP')}</div>}
+                      {s.deadline && (
+                        <div className="survey-item-deadline">
+                          〆切: {formatWithDay(s.deadline)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -350,6 +369,12 @@ function App() {
         {currentSurvey.image_url && (
           <div className="survey-banner">
             <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
+          </div>
+        )}
+
+        {currentSurvey.deadline && (
+          <div className="detail-deadline-box">
+            ⏰ 〆切: {formatWithDay(currentSurvey.deadline)}
           </div>
         )}
 
