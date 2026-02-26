@@ -353,7 +353,8 @@ function App() {
   // X（旧Twitter）へ爆速シェア！
   const handleShare = () => {
     const currentUrl = window.location.href; // いま開いているページのURL
-    const shareText = `🌟 アンケート広場で「${currentSurvey.title}」の投票を受け付けてるよ！\nみんなの意見を聞かせてね！\n#アンケート広場\n`;
+    const shareImage = currentSurvey.image_url ? `\n(画像: ${currentSurvey.image_url})\n` : "";
+    const shareText = `🌟 アンケート広場で「${currentSurvey.title}」の投票を受け付けてるよ！\nみんなの意見を聞かせてね！${shareImage}\n#アンケート広場\n`;
     const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`;
 
     // Xの投稿画面を別ウィンドウで開く魔法
