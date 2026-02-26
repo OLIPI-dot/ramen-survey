@@ -834,3 +834,13 @@ body {
     transform: translateY(0);
   }
 }
+
+.back-to-list-link {
+  border-style: solid;
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-transform: none;
+}
+
