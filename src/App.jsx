@@ -463,7 +463,10 @@ function App() {
           <div className={`timer-container ${timeLeft <= 60 && timeLeft > 0 ? 'danger' : ''}`}>
             <span>残り時間: </span>
             <span className="time-number">
-              {timeLeft > 3600 ? `${Math.floor(timeLeft / 3600)}時${Math.floor((timeLeft % 3600) / 60)}分` : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`}
+              {timeLeft > 3600
+                ? `${Math.floor(timeLeft / 3600)}時間${Math.floor((timeLeft % 3600) / 60)}分${timeLeft % 60}秒`
+                : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`
+              }
             </span>
           </div>
         )}
