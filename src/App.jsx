@@ -148,8 +148,9 @@ function App() {
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
     try {
-      // 画像がなければ、お題からそれっぽい写真をUnsplashから借りてくる魔法
-      const finalImage = surveyImage || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`;
+      // お題の言葉（キーワード）を使って、ぴったりの写真を自動で探してくる魔法
+      const keyword = encodeURIComponent(surveyTitle);
+      const finalImage = surveyImage || `https://loremflickr.com/800/400/${keyword}`;
 
       const { data: surveyData, error: surveyError } = await supabase
         .from('surveys')
@@ -157,7 +158,7 @@ function App() {
           title: surveyTitle,
           deadline: useTimer ? deadline : null,
           user_id: user.id,
-          image_url: finalImage // ここに画像のURLを保存！
+          image_url: finalImage // ここに自動で選んだ画像のURLを保存！
         }])
         .select();
       if (surveyError) throw surveyError;
@@ -398,6 +399,12 @@ function App() {
             </button>
           </div>
         )}
+
+        <div className="bottom-nav">
+          <button className="back-to-list-link" onClick={() => setView('list')}>
+            ← 広場に戻る
+          </button>
+        </div>
       </div>
     </div>
   );
