@@ -566,3 +566,77 @@ body {
   height: fit-content;
 }
 
+
+
+.tab-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.tab-switcher button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-switcher button.active {
+  background: white;
+  color: #6366f1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.rank-badge {
+  font-size: 20px;
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.votes-count {
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: 700;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-left: 8px;
+}
+
+.survey-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+
+.survey-item-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 11px;
+}
+
+.rank-emoji {
+  font-size: 1.2em;
+  margin-right: 4px;
+}
+
+.survey-item-votes {
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  color: #6366f1;
+}
+

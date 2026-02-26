@@ -39,6 +39,9 @@ function App() {
   const [surveyTitle, setSurveyTitle] = useState('');
   const [surveyImage, setSurveyImage] = useState('');
   const [setupOptions, setSetupOptions] = useState([]);
+
+  // 表示モード（新着 or 人気）
+  const [sortMode, setSortMode] = useState('latest');
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
 
@@ -110,10 +113,17 @@ function App() {
     try {
       const { data, error } = await supabase
         .from('surveys')
-        .select('*')
+        .select('*, options(votes)')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setSurveys(data || []);
+
+      // 各アンケートの合計投票数を計算
+      const surveysWithVotes = (data || []).map(s => {
+        const total = (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0);
+        return { ...s, total_votes: total };
+      });
+
+      setSurveys(surveysWithVotes);
     } catch (error) {
       console.error("アンケート一覧の取得に失敗しました", error);
     }
@@ -319,37 +329,55 @@ function App() {
               <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
             )}
           </div>
-          <h1 className="app-main-title">🌟 アンケート広場</h1>
           <button className="create-new-button" onClick={() => user ? setView('create') : alert("ログインしてね！")}>
             ＋ 新しいアンケートを作る
           </button>
+
+          <div className="tab-switcher">
+            <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
+            <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+          </div>
+
           <div className="survey-list">
             {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
-              surveys.map(s => {
-                const isEnded = s.deadline && new Date(s.deadline) < new Date();
-                return (
-                  <div key={s.id} className="survey-item-card" onClick={() => {
-                    setCurrentSurvey(s);
-                    setIsTimeUp(isEnded);
-                    setView('details');
-                  }}>
-                    {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
-                    <div className="survey-item-content">
-                      <div className="survey-item-info">
-                        <span className="survey-item-title">{s.title}</span>
-                        <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
-                          {isEnded ? '終了' : '受付中'}
-                        </span>
-                      </div>
-                      {s.deadline && (
-                        <div className="survey-item-deadline">
-                          〆切: {formatWithDay(s.deadline)}
+              [...surveys]
+                .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
+                .map((s, index) => {
+                  const isEnded = s.deadline && new Date(s.deadline) < new Date();
+                  const showBadge = sortMode === 'popular' && index < 3;
+                  const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
+
+                  return (
+                    <div key={s.id} className="survey-item-card" onClick={() => {
+                      setCurrentSurvey(s);
+                      setIsTimeUp(isEnded);
+                      setView('details');
+                    }}>
+                      {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
+                      <div className="survey-item-content">
+                        <div className="survey-item-info">
+                          <span className="survey-item-title">
+                            {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
+                            {s.title}
+                          </span>
+                          <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                            {isEnded ? '終了' : '受付中'}
+                          </span>
                         </div>
-                      )}
+                        <div className="survey-item-meta-row">
+                          {s.deadline && (
+                            <span className="survey-item-deadline">
+                              〆切: {formatWithDay(s.deadline)}
+                            </span>
+                          )}
+                          <span className="survey-item-votes">
+                            🗳️ {s.total_votes || 0} 票
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })
+                  );
+                })
             )}
           </div>
         </div>
