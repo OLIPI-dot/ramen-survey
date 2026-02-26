@@ -112,19 +112,29 @@ function App() {
   // アンケート一覧を取得する
   const fetchSurveys = async () => {
     try {
-      const { data, error } = await supabase
+      // 1. まずアンケートを全部持ってくる（シンプルに！）
+      const { data: surveysData, error: surveysError } = await supabase
         .from('surveys')
-        .select('*, options(votes)')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
+        .select('*');
+      if (surveysError) throw surveysError;
 
-      // 各アンケートの合計投票数を計算
-      const surveysWithVotes = (data || []).map(s => {
-        const total = (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0);
+      // 2. 次に全ての選択肢を持ってきて、あとで集計する
+      const { data: optionsData, error: optionsError } = await supabase
+        .from('options')
+        .select('survey_id, votes');
+      if (optionsError) throw optionsError;
+
+      // 各アンケートに合計表をくっつける魔法
+      const result = (surveysData || []).map(s => {
+        const total = (optionsData || [])
+          .filter(o => o.survey_id === s.id)
+          .reduce((sum, opt) => sum + (opt.votes || 0), 0);
         return { ...s, total_votes: total };
       });
 
-      setSurveys(surveysWithVotes);
+      // 最後にしっかり「新しい順」に並び替える
+      const sorted = result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setSurveys(sorted);
     } catch (error) {
       console.error("アンケート一覧の取得に失敗しました", error);
     }
