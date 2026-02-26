@@ -187,44 +187,38 @@ function App() {
     }
   }, [view, currentSurvey]);
 
-  // 広場の実況：新しいお題が作られたら通知を受け取る魔法
-  useEffect(() => {
-    const fetchLatest = async () => {
-      const { data } = await supabase.from('surveys').select('*, options(votes)').order('created_at', { ascending: false }).limit(5);
-      if (data) {
-        const withVotes = data.map(s => ({
-          ...s,
-          total_votes: (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0)
-        }));
-        setLiveSurveys(withVotes);
-      }
-    };
-    const fetchPopular = async () => {
-      const { data } = await supabase.from('surveys').select('*, options(votes)');
-      if (data) {
-        const withVotes = data.map(s => ({
-          ...s,
-          total_votes: (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0)
-        })).sort((a, b) => b.total_votes - a.total_votes).slice(0, 3);
-        setPopularSurveys(withVotes);
-      }
-    };
-    fetchLatest();
-    fetchPopular();
+  // 広場の実況：サイドバー用のデータを取得する魔法
+  const refreshSidebar = async () => {
+    try {
+      const { data: surveysData } = await supabase.from('surveys').select('*');
+      const { data: optionsData } = await supabase.from('options').select('survey_id, votes');
 
-    const surveyChannel = supabase
-      .channel('live-surveys')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => {
-        fetchLatest();
-        fetchPopular();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => {
-        fetchLatest();
-        fetchPopular();
-      })
+      if (surveysData && optionsData) {
+        const withVotes = surveysData.map(s => ({
+          ...s,
+          total_votes: optionsData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0)
+        }));
+
+        // 最新3件
+        setLiveSurveys([...withVotes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3));
+        // 人気トップ3
+        setPopularSurveys([...withVotes].sort((a, b) => b.total_votes - a.total_votes).slice(0, 3));
+      }
+    } catch (e) {
+      console.error("サイドバーの更新に失敗しました", e);
+    }
+  };
+
+  useEffect(() => {
+    refreshSidebar();
+
+    const channel = supabase
+      .channel('sidebar-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => refreshSidebar())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => refreshSidebar())
       .subscribe();
 
-    return () => supabase.removeChannel(surveyChannel);
+    return () => supabase.removeChannel(channel);
   }, []);
 
   // タイマー
@@ -573,8 +567,6 @@ function App() {
     </div>
   );
 
-    </div >
-  );
 }
 
 export default App;
