@@ -59,6 +59,21 @@ function App() {
   const [deadline, setDeadline] = useState(getInitialDeadline());
   const [showingTerms, setShowingTerms] = useState(false);
   const [showingContact, setShowingContact] = useState(false);
+  const [contactType, setContactType] = useState('削除依頼');
+  const [contactMessage, setContactMessage] = useState('');
+
+  const handleSendInquiry = () => {
+    if (!contactMessage.trim()) return alert("内容を入力してくださいね");
+
+    // X(Twitter)のDMや、メールへ誘導する文章を作る魔法
+    const text = `【お問い合わせ】\n種別: ${contactType}\n内容: ${contactMessage}`;
+    const xUrl = `https://twitter.com/messages/compose?recipient_id=YOUR_X_ID&text=${encodeURIComponent(text)}`;
+
+    // 今回は、まずは「開発者への連絡手段」としてアラートを出して、方法を案内します
+    alert("ありがとうございます！内容をコピーして、X(Twitter)やメールでお送りいただければ幸いです。\n（※実際にはここに自動送信の仕組みをつけることもできます）");
+    setShowingContact(false);
+    setContactMessage('');
+  };
 
   // 〇〇分後、〇時間後をパッと計算する魔法
   const setDeadlineFromNow = (minutesToAdd) => {
@@ -644,10 +659,32 @@ function App() {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3>📩 お問い合わせ</h3>
             <div className="modal-body">
-              <p>削除依頼、不具合報告などは運営までご連絡ください。</p>
-              <div className="contact-notice">現在は準備中です。緊急の際は運営のX（Twitter）までお願いいたします。</div>
+              <div className="contact-form-item">
+                <label>お問い合わせの種類:</label>
+                <select value={contactType} onChange={(e) => setContactType(e.target.value)} className="contact-select">
+                  <option value="削除依頼">🗑 削除してほしい</option>
+                  <option value="不具合報告">🐛 バグを見つけた</option>
+                  <option value="ご意見・ご要望">✨ こうしてほしい！</option>
+                  <option value="その他">💬 その他</option>
+                </select>
+              </div>
+              <div className="contact-form-item">
+                <label>具体的な内容:</label>
+                <textarea
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  placeholder="ここに詳しく書いてね"
+                  className="contact-textarea"
+                />
+              </div>
+              <div className="contact-notice">
+                ※ 現在は運営の個人SNS（X）にてお受けしております。送信ボタンを押すと案内が表示されます。
+              </div>
             </div>
-            <button onClick={() => setShowingContact(false)} className="modal-close-btn">閉じる</button>
+            <div className="modal-actions-contact">
+              <button onClick={handleSendInquiry} className="send-btn">内容を確定する</button>
+              <button onClick={() => setShowingContact(false)} className="cancel-btn">戻る</button>
+            </div>
           </div>
         </div>
       )}

@@ -1177,3 +1177,73 @@ body {
   }
 }
 
+
+
+/* ?? Ç®ñ‚Ç¢çáÇÌÇπÉtÉHÅ[ÉÄÇÃëïè¸ ?? */
+.contact-form-item {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.contact-form-item label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.contact-select, .contact-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.contact-select:focus, .contact-textarea:focus {
+  border-color: #6366f1;
+  background: white;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.contact-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.modal-actions-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.send-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
