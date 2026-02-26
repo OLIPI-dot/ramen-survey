@@ -147,6 +147,7 @@ function App() {
       setDeadline('');
     } catch (error) {
       console.error("作成に失敗しました", error);
+      alert("作成に失敗しました: " + (error.message || "原因不明のエラーです"));
     }
   };
 
@@ -164,8 +165,10 @@ function App() {
       setVotedOption(option.name);
     } catch (error) {
       console.error("投票に失敗しました", error);
+      alert("投票に失敗しました: " + (error.message || "原因不明のエラーです"));
     }
   };
+
 
   const handleAddSetupOption = () => {
     if (tempOption.trim()) {
