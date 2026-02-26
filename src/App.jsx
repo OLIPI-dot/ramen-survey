@@ -30,6 +30,9 @@ function App() {
   const [options, setOptions] = useState([]);
   const [newOption, setNewOption] = useState('');
   const [votedOption, setVotedOption] = useState(null);
+
+  // ライブ実況用の最新お題リスト
+  const [liveSurveys, setLiveSurveys] = useState([]);
   const [isTotalVotes, setIsTotalVotes] = useState(0);
 
   // --- アンケート作成用のState ---
@@ -157,9 +160,29 @@ function App() {
           filter: `survey_id=eq.${currentSurvey.id}`
         }, () => fetchOptions(currentSurvey.id))
         .subscribe();
-      return () => supabase.removeChannel(optionsChannel);
+      return () => {
+        supabase.removeChannel(optionsChannel);
+      };
     }
   }, [view, currentSurvey]);
+
+  // 広場の実況：新しいお題が作られたら通知を受け取る魔法
+  useEffect(() => {
+    const fetchLatest = async () => {
+      const { data } = await supabase.from('surveys').select('*').order('created_at', { ascending: false }).limit(5);
+      if (data) setLiveSurveys(data);
+    };
+    fetchLatest();
+
+    const surveyChannel = supabase
+      .channel('live-surveys')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'surveys' }, (payload) => {
+        setLiveSurveys(prev => [payload.new, ...prev].slice(0, 5));
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(surveyChannel);
+  }, []);
 
   // タイマー
   useEffect(() => {
@@ -338,58 +361,76 @@ function App() {
   if (view === 'create') {
     return (
       <div className="app-container">
-        <div className="survey-card">
-          <div className="card-header">
-            <button className="back-button" onClick={() => setView('list')}>← 戻る</button>
-            <h2 className="setup-title">📝 新しく作る</h2>
-          </div>
-          <div className="settings-container">
-            <div className="setting-item-block">
-              <label>お題（タイトル）:</label>
-              <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
+        <div className="create-layout">
+          <div className="survey-card">
+            <div className="card-header">
+              <button className="back-button" onClick={() => setView('list')}>← 戻る</button>
+              <h2 className="setup-title">📝 新しく作る</h2>
             </div>
-            <div className="setting-item-block">
-              <label>イメージ写真のURL（空でもOK）:</label>
-              <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
-            </div>
-            <div className="setting-item-block">
-              <label>項目を追加:</label>
-              <div className="setup-add-container">
-                <input type="text" value={tempOption} onChange={(e) => setTempOption(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()} className="add-input" placeholder="項目を入力..." />
-                <button onClick={handleAddSetupOption} className="add-button">＋</button>
-              </div>
-              <div className="setup-options-list">
-                {setupOptions.map((opt, i) => (
-                  <div key={i} className="setup-option-tag">{opt}
-                    <span onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))} className="remove-tag">×</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="setting-item-block">
-              <label className="checkbox-label"><input type="checkbox" checked={useTimer} onChange={(e) => setUseTimer(e.target.checked)} /> 締め切りを決める</label>
-            </div>
-            {useTimer && (
+
+            <div className="create-form">
+              {/* --- 以前と同じフォームの内容 --- */}
               <div className="setting-item-block">
-                <label>いつまで？：</label>
-                <input
-                  type="datetime-local"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="time-input"
-                />
-                <div className="quick-time-buttons">
-                  <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
-                  <button onClick={() => setDeadlineFromNow(10)}>⚡ 10分</button>
-                  <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
-                  <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
+                <label>お題（タイトル）:</label>
+                <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
+              </div>
+              <div className="setting-item-block">
+                <label>イメージ写真のURL（空でもOK）:</label>
+                <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
+              </div>
+              <div className="setting-item-block">
+                <label>項目を追加:</label>
+                <div className="setup-add-container">
+                  <input type="text" value={tempOption} onChange={(e) => setTempOption(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()} className="add-input" placeholder="項目を入力..." />
+                  <button onClick={handleAddSetupOption} className="add-button">＋</button>
                 </div>
-                <div className="deadline-preview">
-                  📅 決定：<strong>{formatWithDay(deadline)}</strong>
+                <div className="setup-options-list">
+                  {setupOptions.map((opt, i) => (
+                    <div key={i} className="setup-option-tag">{opt}
+                      <span onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))} className="remove-tag">×</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+              <div className="setting-item-block">
+                <label className="checkbox-label"><input type="checkbox" checked={useTimer} onChange={(e) => setUseTimer(e.target.checked)} /> 締め切りを決める</label>
+              </div>
+              {useTimer && (
+                <div className="setting-item-block">
+                  <label>いつまで？：</label>
+                  <input
+                    type="datetime-local"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="time-input"
+                  />
+                  <div className="quick-time-buttons">
+                    <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
+                    <button onClick={() => setDeadlineFromNow(10)}>⚡ 10分</button>
+                    <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
+                    <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
+                  </div>
+                  <div className="deadline-preview">
+                    📅 決定：<strong>{formatWithDay(deadline)}</strong>
+                  </div>
+                </div>
+              )}
+              <button onClick={handleStartSurvey} className="start-button">公開する！</button>
+            </div>
+          </div>
+
+          {/* 🌟 ライブ実況サイドバー */}
+          <div className="live-feed-sidebar">
+            <div className="live-feed-title">✨ 広場の最新ニュース</div>
+            {liveSurveys.length === 0 ? (
+              <div className="empty-msg">まだお題はありません…</div>
+            ) : (
+              liveSurveys.map(s => (
+                <div key={s.id} className="live-item">
+                  <strong>{s.title}</strong> が公開されました！
+                </div>
+              ))
             )}
-            <button onClick={handleStartSurvey} className="start-button">公開する！</button>
           </div>
         </div>
       </div>
