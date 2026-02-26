@@ -134,7 +134,7 @@ body {
   box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-/* 一覧リスチE*/
+/* 荳隕ｧ繝ｪ繧ｹ繝・*/
 .survey-list {
   display: flex;
   flex-direction: column;
@@ -226,7 +226,7 @@ body {
   color: #94a3b8;
 }
 
-/* 作�E画面 & 詳細画面共送E*/
+/* 菴懈・逕ｻ髱｢ & 隧ｳ邏ｰ逕ｻ髱｢蜈ｱ騾・*/
 .card-header {
   display: flex;
   align-items: center;
@@ -252,10 +252,10 @@ body {
   flex: 1;
   margin: 0;
   margin-right: 40px;
-  /* バランス用 */
+  /* 繝舌Λ繝ｳ繧ｹ逕ｨ */
 }
 
-/* 前回のスタイルを流用・微調整 */
+/* 蜑榊屓縺ｮ繧ｹ繧ｿ繧､繝ｫ繧呈ｵ∫畑繝ｻ蠕ｮ隱ｿ謨ｴ */
 .setting-item-block {
   display: flex;
   flex-direction: column;
@@ -454,18 +454,33 @@ body {
 }
 
 .back-to-list-link {
-  background: none;
-  border: none;
-  color: #94a3b8;
+  background: white;
+  border: 2px solid #e2e8f0;
+  color: #64748b;
+  padding: 10px 24px;
+  border-radius: 999px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
 }
 
 .back-to-list-link:hover {
+  background: #f8fafc;
   color: #6366f1;
-  text-decoration: underline;
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.back-to-list-link:active {
+  transform: translateY(0);
 }
 
 .detail-deadline-box {
@@ -496,9 +511,8 @@ body {
   background: white;
   outline: none;
 }
- 
 
-.deadline-preview {
+  .deadline-preview {
   margin-top: 8px;
   font-size: 14px;
   color: #6366f1;
@@ -512,7 +526,8 @@ body {
 
 .quick-time-buttons {
   display: flex;
-  gap: 12px; /* �����]�T���������܂� */
+  gap: 12px;
+  /* 少し余裕を持たせます */
   margin-top: 14px;
   margin-bottom: 24px;
 }
@@ -527,9 +542,10 @@ body {
   border-radius: 20px;
   color: #64748b;
   cursor: pointer;
-  white-space: nowrap; /* ?? ��΂ɉ��s�����Ȃ����@ */
+  white-space: nowrap;
+  /* ?? 絶対に改行させない魔法 */
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 .quick-time-buttons button:hover {
@@ -562,7 +578,7 @@ body {
   border-radius: 24px;
   padding: 24px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   height: fit-content;
 }
 
@@ -591,7 +607,7 @@ body {
 .tab-switcher button.active {
   background: white;
   color: #6366f1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .rank-badge {
@@ -808,7 +824,13 @@ body {
 }
 
 @keyframes slideInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
