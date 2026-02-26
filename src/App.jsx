@@ -62,17 +62,28 @@ function App() {
   const [contactType, setContactType] = useState('削除依頼');
   const [contactMessage, setContactMessage] = useState('');
 
-  const handleSendInquiry = () => {
+  const handleSendInquiry = async () => {
     if (!contactMessage.trim()) return alert("内容を入力してくださいね");
 
-    // X(Twitter)のDMや、メールへ誘導する文章を作る魔法
-    const text = `【お問い合わせ】\n種別: ${contactType}\n内容: ${contactMessage}`;
-    const xUrl = `https://twitter.com/messages/compose?recipient_id=YOUR_X_ID&text=${encodeURIComponent(text)}`;
+    try {
+      // 🚀 Supabaseの「inquiries」テーブルにお問い合わせを保存する魔法
+      const { error } = await supabase
+        .from('inquiries')
+        .insert([{
+          type: contactType,
+          message: contactMessage,
+          user_id: user?.id || null // ログインしてたらその人のIDも一緒に保存
+        }]);
 
-    // 今回は、まずは「開発者への連絡手段」としてアラートを出して、方法を案内します
-    alert("ありがとうございます！内容をコピーして、X(Twitter)やメールでお送りいただければ幸いです。\n（※実際にはここに自動送信の仕組みをつけることもできます）");
-    setShowingContact(false);
-    setContactMessage('');
+      if (error) throw error;
+
+      alert("お問い合わせを送信しました！スタッフが大切に拝見させていただきます。✨");
+      setShowingContact(false);
+      setContactMessage('');
+    } catch (error) {
+      console.error("送信エラー:", error);
+      alert("申し訳ありません、送信に失敗しました。後でもう一度お試しください。");
+    }
   };
 
   // 〇〇分後、〇時間後をパッと計算する魔法
@@ -678,7 +689,7 @@ function App() {
                 />
               </div>
               <div className="contact-notice">
-                ※ 現在は運営の個人SNS（X）にてお受けしております。送信ボタンを押すと案内が表示されます。
+                ※ 送信された内容は運営スタッフが大切に拝見し、必要に応じて対応させていただきます。
               </div>
             </div>
             <div className="modal-actions-contact">
