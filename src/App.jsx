@@ -142,7 +142,9 @@ function App() {
 
   // 画面遷移をURLと同期させる関数
   const navigateTo = (nextView, survey = null) => {
-    const url = new URL(window.location);
+    // 古いおまじない（v=freshなど）を全部消した「きれいなURL」をまず作る魔法
+    const url = new URL(window.location.origin + window.location.pathname);
+
     if (nextView === 'details' && survey) {
       url.searchParams.set('s', survey.id);
       window.history.pushState({}, '', url);
@@ -150,7 +152,7 @@ function App() {
       const isEnded = survey.deadline && new Date(survey.deadline) < new Date();
       setIsTimeUp(isEnded);
     } else if (nextView === 'list') {
-      url.searchParams.delete('s');
+      // 一覧に戻るときはパラメータを完全に消す
       window.history.pushState({}, '', url);
     }
     setView(nextView);
@@ -409,223 +411,188 @@ function App() {
     </div>
   );
 
-  // 画面：一覧
-  if (view === 'list') {
-    return (
-      <div className="app-container">
-        <div className="create-layout"> {/* create-layoutという名前ですが共通で使います */}
-          <div className="survey-card">
-            <div className="auth-header">
-              {user ? (
-                <div className="user-info">
-                  {user.user_metadata?.avatar_url && (
-                    <img src={user.user_metadata.avatar_url} alt="user avatar" className="user-avatar" />
-                  )}
-                  <span className="user-name">
-                    {user.user_metadata?.full_name || user.email.split('@')[0]}さん
-                  </span>
-                  <button className="logout-button" onClick={handleLogout}>ログアウト</button>
-                </div>
-              ) : (
-                <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
-              )}
-            </div>
-            <button className="create-new-button" onClick={() => user ? navigateTo('create') : alert("ログインしてね！")}>
-              ＋ 新しいアンケートを作る
-            </button>
-
-            <div className="tab-switcher">
-              <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
-              <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
-            </div>
-
-            <div className="survey-list">
-              {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
-                [...surveys]
-                  .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
-                  .map((s, index) => {
-                    const isEnded = s.deadline && new Date(s.deadline) < new Date();
-                    const showBadge = sortMode === 'popular' && index < 3;
-                    const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
-
-                    return (
-                      <div key={s.id} className="survey-item-card" onClick={() => navigateTo('details', s)}>
-                        {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
-                        <div className="survey-item-content">
-                          <div className="survey-item-info">
-                            <span className="survey-item-title">
-                              {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
-                              {s.title}
-                            </span>
-                            <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
-                              {isEnded ? '終了' : '受付中'}
-                            </span>
-                          </div>
-                          <div className="survey-item-meta-row">
-                            {s.deadline && (
-                              <span className="survey-item-deadline">
-                                〆切: {formatWithDay(s.deadline)}
-                              </span>
-                            )}
-                            <span className="survey-item-votes">
-                              🗳️ {s.total_votes || 0} 票
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-          <Sidebar />
-        </div>
-      </div>
-    );
-  }
-
-  // 画面：作成
-  if (view === 'create') {
-    return (
-      <div className="app-container">
-        <div className="create-layout">
-          <div className="survey-card">
-            <div className="card-header">
-              <button className="back-button" onClick={() => navigateTo('list')}>← 戻る</button>
-              <h2 className="setup-title">📝 新しく作る</h2>
-            </div>
-            <div className="create-form">
-              <div className="setting-item-block">
-                <label>お題（タイトル）:</label>
-                <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
-              </div>
-              <div className="setting-item-block">
-                <label>イメージ写真のURL（空でもOK）:</label>
-                <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
-              </div>
-              <div className="setting-item-block">
-                <label className="setting-label">🗳️ 投票項目を決める：</label>
-                <div className="setup-add-container">
-                  <input
-                    type="text"
-                    value={tempOption}
-                    onChange={(e) => setTempOption(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()}
-                    className="add-input"
-                    placeholder="例：チョコレート、バニラ..."
-                  />
-                  <button onClick={handleAddSetupOption} className="add-button">追加</button>
-                </div>
-
-                {setupOptions.length > 0 && (
-                  <div className="options-count-status">
-                    現在の項目数: <strong>{setupOptions.length}</strong> / 10
-                  </div>
-                )}
-
-                <div className="setup-options-vertical-list">
-                  {setupOptions.map((opt, i) => (
-                    <div key={i} className="setup-option-item">
-                      <span className="option-number">{i + 1}</span>
-                      <span className="option-text">{opt}</span>
-                      <button
-                        className="remove-option-btn"
-                        onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                  {setupOptions.length < 2 && (
-                    <div className="option-hint">※ あと {2 - setupOptions.length} つ以上追加してね ✨</div>
-                  )}
-                </div>
-              </div>
-              <div className="setting-item-block">
-                <label className="checkbox-label"><input type="checkbox" checked={useTimer} onChange={(e) => setUseTimer(e.target.checked)} /> 締め切りを決める</label>
-              </div>
-              {useTimer && (
-                <div className="setting-item-block">
-                  <label>いつまで？：</label>
-                  <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
-                  <div className="quick-time-buttons">
-                    <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
-                    <button onClick={() => setDeadlineFromNow(10)}>⚡ 10分</button>
-                    <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
-                    <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
-                  </div>
-                  <div className="deadline-preview">📅 決定：<strong>{formatWithDay(deadline)}</strong></div>
-                </div>
-              )}
-              <button onClick={handleStartSurvey} className="start-button">公開する！</button>
-            </div>
-          </div>
-          <Sidebar />
-        </div>
-      </div>
-    );
-  }
-
-  // 画面：詳細
   return (
     <div className="app-container">
-      <div className="create-layout">
-        <div className="survey-card">
-          <div className="card-header">
-            <button className="back-button" onClick={() => navigateTo('list')}>← 広場へ戻る</button>
-          </div>
-          {currentSurvey.image_url && (
-            <div className="survey-banner">
-              <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
-            </div>
-          )}
-          {currentSurvey.deadline && (
-            <div className="detail-deadline-box">⏰ 〆切: {formatWithDay(currentSurvey.deadline)}</div>
-          )}
-          <h1 className="survey-title">{currentSurvey.title}</h1>
-          {currentSurvey.deadline && !votedOption && !isTimeUp && (
-            <div className={`timer-container ${timeLeft <= 60 && timeLeft > 0 ? 'danger' : ''}`}>
-              <span>残り時間: </span>
-              <span className="time-number">
-                {timeLeft > 3600
-                  ? `${Math.floor(timeLeft / 3600)}時間${Math.floor((timeLeft % 3600) / 60)}分${timeLeft % 60}秒`
-                  : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`
-                }
-              </span>
-            </div>
-          )}
-          {isTimeUp && !votedOption && <div className="timeup-message">このアンケートは終了しました。⏳</div>}
-          <div className="options-container">
-            {options.map((option) => {
-              const isVoted = votedOption === option.name;
-              if (votedOption || isTimeUp) {
-                const percentage = isTotalVotes > 0 ? Math.round((option.votes / isTotalVotes) * 100) : 0;
-                return (
-                  <div key={option.id} className={`result-bar-container ${isVoted ? 'selected' : ''}`}>
-                    <div className="result-info">
-                      <span>{option.name} {isVoted && '✅'} <small>({option.votes}票)</small></span>
-                      <span>{percentage}%</span>
+      <div className="main-wrap">
+        <div className="create-layout">
+          <div className="survey-card">
+
+            {/* 一覧画面の内容 */}
+            {view === 'list' && (
+              <>
+                <div className="auth-header">
+                  {user ? (
+                    <div className="user-info">
+                      {user.user_metadata?.avatar_url && (
+                        <img src={user.user_metadata.avatar_url} alt="user avatar" className="user-avatar" />
+                      )}
+                      <span className="user-name">
+                        {user.user_metadata?.full_name || user.email.split('@')[0]}さん
+                      </span>
+                      <button className="logout-button" onClick={handleLogout}>ログアウト</button>
                     </div>
-                    <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${percentage}%` }}></div></div>
+                  ) : (
+                    <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
+                  )}
+                </div>
+                <button className="create-new-button" onClick={() => user ? navigateTo('create') : alert("ログインしてね！")}>
+                  ＋ 新しいアンケートを作る
+                </button>
+
+                <div className="tab-switcher">
+                  <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
+                  <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+                </div>
+
+                <div className="survey-list">
+                  {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
+                    [...surveys]
+                      .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
+                      .map((s, index) => {
+                        const isEnded = s.deadline && new Date(s.deadline) < new Date();
+                        const showBadge = sortMode === 'popular' && index < 3;
+                        const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
+
+                        return (
+                          <div key={s.id} className="survey-item-card" onClick={() => navigateTo('details', s)}>
+                            {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
+                            <div className="survey-item-content">
+                              <div className="survey-item-info">
+                                <span className="survey-item-title">
+                                  {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
+                                  {s.title}
+                                </span>
+                                <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                                  {isEnded ? '終了' : '受付中'}
+                                </span>
+                              </div>
+                              <div className="survey-item-meta-row">
+                                {s.deadline && (
+                                  <span className="survey-item-deadline">
+                                    〆切: {formatWithDay(s.deadline)}
+                                  </span>
+                                )}
+                                <span className="survey-item-votes">
+                                  🗳️ {s.total_votes || 0} 票
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* 作成画面の内容 */}
+            {view === 'create' && (
+              <>
+                <div className="card-header">
+                  <button className="back-button" onClick={() => navigateTo('list')}>← 戻る</button>
+                  <h2 className="setup-title">📝 新しく作る</h2>
+                </div>
+                <div className="create-form">
+                  <div className="setting-item-block">
+                    <label>お題（タイトル）:</label>
+                    <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
                   </div>
-                );
-              }
-              return <button key={option.id} className="option-button" onClick={() => handleVote(option)}>{option.name}</button>;
-            })}
+                  <div className="setting-item-block">
+                    <label>イメージ写真のURL（空でもOK）:</label>
+                    <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
+                  </div>
+                  <div className="setting-item-block">
+                    <label className="setting-label">🗳️ 投票項目を決める：</label>
+                    <div className="setup-add-container">
+                      <input
+                        type="text"
+                        value={tempOption}
+                        onChange={(e) => setTempOption(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()}
+                        className="add-input"
+                        placeholder="例：チョコレート、バニラ..."
+                      />
+                      <button onClick={handleAddSetupOption} className="add-button">追加</button>
+                    </div>
+
+                    <div className="setup-options-vertical-list">
+                      {setupOptions.map((opt, i) => (
+                        <div key={i} className="setup-option-item">
+                          <span className="option-number">{i + 1}</span>
+                          <span className="option-text">{opt}</span>
+                          <button className="remove-option-btn" onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))}>×</button>
+                        </div>
+                      ))}
+                      {setupOptions.length < 2 && (
+                        <div className="option-hint">※ あと {2 - setupOptions.length} つ以上追加してね</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="setting-item-block">
+                    <label className="checkbox-label"><input type="checkbox" checked={useTimer} onChange={(e) => setUseTimer(e.target.checked)} /> 締め切りを決める</label>
+                  </div>
+                  {useTimer && (
+                    <div className="setting-item-block">
+                      <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
+                      <div className="quick-time-buttons">
+                        <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
+                        <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
+                        <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
+                      </div>
+                    </div>
+                  )}
+                  <button onClick={handleStartSurvey} className="start-button">公開する！</button>
+                </div>
+              </>
+            )}
+
+            {/* 詳細画面の内容 */}
+            {view === 'details' && currentSurvey && (
+              <>
+                <div className="card-header">
+                  <button className="back-button" onClick={() => navigateTo('list')}>← 広場へ戻る</button>
+                </div>
+                {currentSurvey.image_url && (
+                  <div className="survey-banner">
+                    <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
+                  </div>
+                )}
+                <h1 className="survey-title">{currentSurvey.title}</h1>
+                <div className="options-container">
+                  {options.map((option) => {
+                    const isVoted = votedOption === option.name;
+                    if (votedOption || isTimeUp) {
+                      const percentage = isTotalVotes > 0 ? Math.round((option.votes / isTotalVotes) * 100) : 0;
+                      return (
+                        <div key={option.id} className={`result-bar-container ${isVoted ? 'selected' : ''}`}>
+                          <div className="result-info">
+                            <span>{option.name} {isVoted && '✅'} <small>({option.votes}票)</small></span>
+                            <span>{percentage}%</span>
+                          </div>
+                          <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${percentage}%` }}></div></div>
+                        </div>
+                      );
+                    }
+                    return <button key={option.id} className="option-button" onClick={() => handleVote(option)}>{option.name}</button>;
+                  })}
+                </div>
+                <div className="share-actions">
+                  <button className="share-button" onClick={handleShare}>🚀 X(Twitter)でシェアする</button>
+                </div>
+                {user && currentSurvey.user_id === user.id && (
+                  <div className="admin-actions">
+                    <button className="delete-button" onClick={handleDeleteSurvey}>🗑 このアンケートをお掃除する</button>
+                  </div>
+                )}
+                <div className="bottom-nav">
+                  <button className="back-to-list-link" onClick={() => navigateTo('list')}>← 広場に戻る</button>
+                </div>
+              </>
+            )}
+
           </div>
-          <div className="share-actions">
-            <button className="share-button" onClick={handleShare}>🚀 X(Twitter)でシェアする</button>
-          </div>
-          {user && currentSurvey.user_id === user.id && (
-            <div className="admin-actions">
-              <button className="delete-button" onClick={handleDeleteSurvey}>🗑 このアンケートをお掃除する</button>
-            </div>
-          )}
-          <div className="bottom-nav">
-            <button className="back-to-list-link" onClick={() => navigateTo('list')}>← 広場に戻る</button>
-          </div>
+          <Sidebar />
         </div>
-        <Sidebar />
       </div>
 
       <footer className="app-footer">
@@ -636,44 +603,37 @@ function App() {
         </div>
       </footer>
 
-      {/* モーダル：利用規約 */}
-      {
-        showingTerms && (
-          <div className="modal-overlay" onClick={() => setShowingTerms(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <h3>📖 利用規約</h3>
-              <div className="modal-body">
-                <p>アンケート広場を楽しく安全にご利用いただくためのルールです。</p>
-                <ul>
-                  <li>みんなが不快になるような言葉や、嫌がらせはやめましょう。</li>
-                  <li>不適切なアンケートは、運営の判断で削除することがあります。</li>
-                  <li>本サービスを利用して起きたトラブルには責任を負いかねます。</li>
-                </ul>
-              </div>
-              <button onClick={() => setShowingTerms(false)} className="modal-close-btn">閉じる</button>
+      {showingTerms && (
+        <div className="modal-overlay" onClick={() => setShowingTerms(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>📖 利用規約</h3>
+            <div className="modal-body">
+              <p>アンケート広場を楽しく安全にご利用いただくためのルールです。</p>
+              <ul>
+                <li>みんなが不快になるような言葉や、嫌がらせはやめましょう。</li>
+                <li>不適切なアンケートは、運営の判断で削除することがあります。</li>
+                <li>本サービスを利用して起きたトラブルには責任を負いかねます。</li>
+                <li><strong>【削除の注意】</strong>ログインせずに作成した場合、ブラウザの情報を消去すると後から削除できなくなりますのでご注意ください。</li>
+              </ul>
             </div>
+            <button onClick={() => setShowingTerms(false)} className="modal-close-btn">閉じる</button>
           </div>
-        )
-      }
+        </div>
+      )}
 
-      {/* モーダル：お問い合わせ */}
-      {
-        showingContact && (
-          <div className="modal-overlay" onClick={() => setShowingContact(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <h3>📩 お問い合わせ</h3>
-              <div className="modal-body">
-                <p>アンケートの削除依頼や不具合報告、ご意見は運営までご連絡ください。</p>
-                <div className="contact-notice">
-                  現在は準備中です。緊急の削除依頼などは運営のX（Twitter）までお願いいたします。
-                </div>
-              </div>
-              <button onClick={() => setShowingContact(false)} className="modal-close-btn">閉じる</button>
+      {showingContact && (
+        <div className="modal-overlay" onClick={() => setShowingContact(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>📩 お問い合わせ</h3>
+            <div className="modal-body">
+              <p>削除依頼、不具合報告などは運営までご連絡ください。</p>
+              <div className="contact-notice">現在は準備中です。緊急の際は運営のX（Twitter）までお願いいたします。</div>
             </div>
+            <button onClick={() => setShowingContact(false)} className="modal-close-btn">閉じる</button>
           </div>
-        )
-      }
-    </div >
+        </div>
+      )}
+    </div>
   );
 }
 
