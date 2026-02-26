@@ -579,7 +579,7 @@ function App() {
             })}
           </div>
           <div className="share-actions">
-            <button className="share-button" onClick={handleShare}>📢 このアンケートを友達に教える（シェア）</button>
+            <button className="share-button" onClick={handleShare}>🚀 X(Twitter)でシェアする</button>
           </div>
           {user && currentSurvey.user_id === user.id && (
             <div className="admin-actions">
