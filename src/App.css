@@ -1065,3 +1065,34 @@ body {
   text-align: center !important;
 }
 
+
+
+/* ?? リンクを「本物のリンク」らしくする魔法 ?? */
+.footer-link-text {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  padding: 5px 10px !important;
+  transition: all 0.2s !important;
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 10 !important; /* 他の要素に邪魔されないように */
+}
+
+.footer-link-text:hover {
+  color: #1d4ed8 !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  border-radius: 4px !important;
+  transform: translateY(-1px) !important;
+}
+
+.footer-link-text:active {
+  transform: translateY(0px) !important;
+}
+
+/* モーダルが絶対に見えるように追い撃ち */
+.modal-overlay {
+  z-index: 9999 !important; /* 一番手前に！ */
+}
+
