@@ -305,25 +305,14 @@ function App() {
     }
   };
 
-  // 共有機能
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}`;
-    const shareText = `🌟 アンケート広場で「${currentSurvey.title}」の投票を受け付けてるよ！\nあなたの意見も教えてね！ #アンケート広場`;
+  // X（旧Twitter）へ爆速シェア！
+  const handleShare = () => {
+    const currentUrl = window.location.href; // いま開いているページのURL
+    const shareText = `🌟 アンケート広場で「${currentSurvey.title}」の投票を受け付けてるよ！\nみんなの意見を聞かせてね！\n#アンケート広場\n`;
+    const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'アンケート広場',
-          text: shareText,
-          url: shareUrl,
-        });
-      } catch (error) {
-        console.log('共有をキャンセルしました', error);
-      }
-    } else {
-      // シェア機能が使えないブラウザ（PCなど）の場合はクリップボードへ
-      copyToClipboard(shareUrl, "リンクをコピーしたよ！お友達に送ってね✨");
-    }
+    // Xの投稿画面を別ウィンドウで開く魔法
+    window.open(xUrl, '_blank', 'width=600,height=400');
   };
 
   const copyToClipboard = (text, message) => {
