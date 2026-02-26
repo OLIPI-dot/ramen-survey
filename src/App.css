@@ -512,21 +512,22 @@ body {
 
 .quick-time-buttons {
   display: flex;
-  gap: 10px;
+  gap: 12px; /* è≠Çµó]óTÇéùÇΩÇπÇ‹Ç∑ */
   margin-top: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .quick-time-buttons button {
   flex: 1;
   background: white;
   border: 2px solid #f1f5f9;
-  padding: 10px 4px;
-  font-size: 13px;
+  padding: 12px 2px;
+  font-size: 11px;
   font-weight: 800;
   border-radius: 20px;
   color: #64748b;
   cursor: pointer;
+  white-space: nowrap; /* ?? ê‚ëŒÇ…â¸çsÇ≥ÇπÇ»Ç¢ñÇñ@ */
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
@@ -539,6 +540,29 @@ body {
   box-shadow: 0 8px 15px rgba(99, 102, 241, 0.1);
 }
 
-.quick-time-buttons button:active {
-  transform: scale(0.95);
+.create-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
+
+.create-layout .survey-card {
+  flex: 1;
+  min-width: 400px;
+}
+
+.live-feed-sidebar {
+  flex: 0 0 280px;
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  height: fit-content;
+}
+
