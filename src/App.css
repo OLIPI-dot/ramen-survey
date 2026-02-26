@@ -134,7 +134,7 @@ body {
   box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-/* 一覧リスト */
+/* 一覧リスチE*/
 .survey-list {
   display: flex;
   flex-direction: column;
@@ -226,7 +226,7 @@ body {
   color: #94a3b8;
 }
 
-/* 作成画面 & 詳細画面共通 */
+/* 作�E画面 & 詳細画面共送E*/
 .card-header {
   display: flex;
   align-items: center;
@@ -495,43 +495,50 @@ body {
   border-color: #6366f1;
   background: white;
   outline: none;
-} 
- . d e a d l i n e - p r e v i e w   {  
-     m a r g i n - t o p :   8 p x ;  
-     f o n t - s i z e :   1 4 p x ;  
-     c o l o r :   # 6 3 6 6 f 1 ;  
-     b a c k g r o u n d :   # f 0 f 4 f f ;  
-     p a d d i n g :   8 p x   1 2 p x ;  
-     b o r d e r - r a d i u s :   8 p x ;  
-     d i s p l a y :   i n l i n e - b l o c k ;  
-     f o n t - w e i g h t :   6 0 0 ;  
-     b o r d e r :   1 p x   s o l i d   # d b e a f e ;  
- }  
-  
- . q u i c k - t i m e - b u t t o n s   {  
-     d i s p l a y :   f l e x ;  
-     g a p :   8 p x ;  
-     m a r g i n - t o p :   1 2 p x ;  
-     m a r g i n - b o t t o m :   8 p x ;  
- }  
-  
- . q u i c k - t i m e - b u t t o n s   b u t t o n   {  
-     f l e x :   1 ;  
-     b a c k g r o u n d :   w h i t e ;  
-     b o r d e r :   1 p x   s o l i d   # e 2 e 8 f 0 ;  
-     p a d d i n g :   8 p x ;  
-     f o n t - s i z e :   1 2 p x ;  
-     f o n t - w e i g h t :   7 0 0 ;  
-     b o r d e r - r a d i u s :   8 p x ;  
-     c o l o r :   # 6 4 7 4 8 b ;  
-     c u r s o r :   p o i n t e r ;  
-     t r a n s i t i o n :   a l l   0 . 2 s ;  
- }  
-  
- . q u i c k - t i m e - b u t t o n s   b u t t o n : h o v e r   {  
-     b a c k g r o u n d :   # f 0 f 4 f f ;  
-     b o r d e r - c o l o r :   # 6 3 6 6 f 1 ;  
-     c o l o r :   # 6 3 6 6 f 1 ;  
-     t r a n s f o r m :   t r a n s l a t e Y ( - 2 p x ) ;  
- }  
+}
  
+
+.deadline-preview {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #6366f1;
+  background: #f0f4ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  font-weight: 600;
+  border: 1px solid #dbeafe;
+}
+
+.quick-time-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 20px;
+}
+
+.quick-time-buttons button {
+  flex: 1;
+  background: white;
+  border: 2px solid #f1f5f9;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 20px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.quick-time-buttons button:hover {
+  background: linear-gradient(135deg, #f0f4ff 0%, #eef2ff 100%);
+  border-color: #6366f1;
+  color: #6366f1;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 15px rgba(99, 102, 241, 0.1);
+}
+
+.quick-time-buttons button:active {
+  transform: scale(0.95);
+}

@@ -379,10 +379,10 @@ function App() {
                   className="time-input"
                 />
                 <div className="quick-time-buttons">
-                  <button onClick={() => setDeadlineFromNow(5)}>+5分</button>
-                  <button onClick={() => setDeadlineFromNow(10)}>+10分</button>
-                  <button onClick={() => setDeadlineFromNow(60)}>+1時間</button>
-                  <button onClick={() => setDeadlineFromNow(1440)}>+1日</button>
+                  <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
+                  <button onClick={() => setDeadlineFromNow(10)}>⚡ 10分</button>
+                  <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
+                  <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
                 </div>
                 <div className="deadline-preview">
                   📅 決定：<strong>{formatWithDay(deadline)}</strong>
