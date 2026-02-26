@@ -124,8 +124,14 @@ function App() {
         setIsTimeUp(isEnded);
         setView('details');
       }
+    } else if (!surveyId && view === 'list') {
+      // 広場（一E覧）にいるのに、URLに余計なものがついていたらお掃除する魔法
+      const url = new URL(window.location.origin + window.location.pathname);
+      if (window.location.search) {
+        window.history.replaceState({}, '', url);
+      }
     }
-  }, [surveys]);
+  }, [surveys, view]);
 
   // ブラウザの戻るボタンにも対応
   useEffect(() => {
