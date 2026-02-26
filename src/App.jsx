@@ -109,6 +109,51 @@ function App() {
     if (error) alert("ログアウトに失敗しました: " + error.message);
   };
 
+  // --- URLと画面を連動させる魔法 ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const surveyId = params.get('s');
+
+    if (surveyId && view === 'list' && surveys.length > 0) {
+      const target = surveys.find(s => s.id === surveyId);
+      if (target) {
+        const isEnded = target.deadline && new Date(target.deadline) < new Date();
+        setCurrentSurvey(target);
+        setIsTimeUp(isEnded);
+        setView('details');
+      }
+    }
+  }, [surveys]);
+
+  // ブラウザの戻るボタンにも対応
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const surveyId = params.get('s');
+      if (!surveyId) {
+        setView('list');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 画面遷移をURLと同期させる関数
+  const navigateTo = (nextView, survey = null) => {
+    const url = new URL(window.location);
+    if (nextView === 'details' && survey) {
+      url.searchParams.set('s', survey.id);
+      window.history.pushState({}, '', url);
+      setCurrentSurvey(survey);
+      const isEnded = survey.deadline && new Date(survey.deadline) < new Date();
+      setIsTimeUp(isEnded);
+    } else if (nextView === 'list') {
+      url.searchParams.delete('s');
+      window.history.pushState({}, '', url);
+    }
+    setView(nextView);
+  };
+
   // アンケート一覧を取得する
   const fetchSurveys = async () => {
     try {
@@ -338,11 +383,7 @@ function App() {
           liveSurveys.slice(0, 3).map(s => {
             const isEnded = s.deadline && new Date(s.deadline) < new Date();
             return (
-              <div key={s.id} className="live-item clickable" onClick={() => {
-                setCurrentSurvey(s);
-                setIsTimeUp(isEnded);
-                setView('details');
-              }}>
+              <div key={s.id} className="live-item clickable" onClick={() => navigateTo('details', s)}>
                 <strong>{s.title}</strong> が公開されました！
               </div>
             );
@@ -355,11 +396,7 @@ function App() {
         {popularSurveys.map((s, idx) => {
           const isEnded = s.deadline && new Date(s.deadline) < new Date();
           return (
-            <div key={s.id} className="live-item popular clickable" onClick={() => {
-              setCurrentSurvey(s);
-              setIsTimeUp(isEnded);
-              setView('details');
-            }}>
+            <div key={s.id} className="live-item popular clickable" onClick={() => navigateTo('details', s)}>
               <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥇' : '🥉'}</span>
               <strong>{s.title}</strong>
               <div className="live-item-meta">{s.total_votes || 0} 票</div>
@@ -391,7 +428,7 @@ function App() {
                 <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
               )}
             </div>
-            <button className="create-new-button" onClick={() => user ? setView('create') : alert("ログインしてね！")}>
+            <button className="create-new-button" onClick={() => user ? navigateTo('create') : alert("ログインしてね！")}>
               ＋ 新しいアンケートを作る
             </button>
 
@@ -410,11 +447,7 @@ function App() {
                     const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
 
                     return (
-                      <div key={s.id} className="survey-item-card" onClick={() => {
-                        setCurrentSurvey(s);
-                        setIsTimeUp(isEnded);
-                        setView('details');
-                      }}>
+                      <div key={s.id} className="survey-item-card" onClick={() => navigateTo('details', s)}>
                         {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
                         <div className="survey-item-content">
                           <div className="survey-item-info">
@@ -456,7 +489,7 @@ function App() {
         <div className="create-layout">
           <div className="survey-card">
             <div className="card-header">
-              <button className="back-button" onClick={() => setView('list')}>← 戻る</button>
+              <button className="back-button" onClick={() => navigateTo('list')}>← 戻る</button>
               <h2 className="setup-title">📝 新しく作る</h2>
             </div>
             <div className="create-form">
@@ -537,7 +570,7 @@ function App() {
       <div className="create-layout">
         <div className="survey-card">
           <div className="card-header">
-            <button className="back-button" onClick={() => setView('list')}>← 広場へ戻る</button>
+            <button className="back-button" onClick={() => navigateTo('list')}>← 広場へ戻る</button>
           </div>
           {currentSurvey.image_url && (
             <div className="survey-banner">
@@ -587,7 +620,7 @@ function App() {
             </div>
           )}
           <div className="bottom-nav">
-            <button className="back-link" onClick={() => setView('list')}>← 広場に戻る</button>
+            <button className="back-to-list-link" onClick={() => navigateTo('list')}>← 広場に戻る</button>
           </div>
         </div>
         <Sidebar />
