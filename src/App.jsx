@@ -133,6 +133,10 @@ function App() {
 
       const newSurveyId = surveyData[0].id;
 
+      // 自分の作ったIDをメモする
+      const mySurveys = JSON.parse(localStorage.getItem('my_surveys') || '[]');
+      localStorage.setItem('my_surveys', JSON.stringify([...mySurveys, newSurveyId]));
+
       // 2. optionsテーブルに選択肢を保存
       const newOptions = setupOptions.map(name => ({ name, votes: 0, survey_id: newSurveyId }));
       const { error: optionsError } = await supabase
@@ -148,6 +152,37 @@ function App() {
     } catch (error) {
       console.error("作成に失敗しました", error);
       alert("作成に失敗しました: " + (error.message || "原因不明のエラーです"));
+    }
+  };
+
+  // 削除処理
+  const handleDeleteSurvey = async () => {
+    if (!window.confirm("本当にこのアンケートを削除してもいいですか？")) return;
+
+    try {
+      // 1. まず選択肢を消す
+      const { error: optError } = await supabase
+        .from('options')
+        .delete()
+        .eq('survey_id', currentSurvey.id);
+      if (optError) throw optError;
+
+      // 2. お題を消す
+      const { error: srvError } = await supabase
+        .from('surveys')
+        .delete()
+        .eq('id', currentSurvey.id);
+      if (srvError) throw srvError;
+
+      // 3. 自分のリストから消す
+      const mySurveys = JSON.parse(localStorage.getItem('my_surveys') || '[]');
+      localStorage.setItem('my_surveys', JSON.stringify(mySurveys.filter(id => id !== currentSurvey.id)));
+
+      setView('list');
+      alert("削除しました！お掃除完了です✨");
+    } catch (error) {
+      console.error("削除に失敗しました", error);
+      alert("削除に失敗しました: " + error.message);
     }
   };
 
@@ -300,6 +335,15 @@ function App() {
           })}
         </div>
         {votedOption && <div className="voted-message">投票ありがとうございました！✨</div>}
+
+        {/* 自分の作ったアンケートなら削除ボタンを出す */}
+        {JSON.parse(localStorage.getItem('my_surveys') || '[]').includes(currentSurvey.id) && (
+          <div className="admin-actions">
+            <button className="delete-button" onClick={handleDeleteSurvey}>
+              🗑 このアンケートをお掃除する
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
