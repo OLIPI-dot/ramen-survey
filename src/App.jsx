@@ -113,25 +113,34 @@ function App() {
 
   // --- URLと画面を連動させる魔法 ---
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const search = window.location.search;
+    if (!search) return;
+
+    const params = new URLSearchParams(search);
     const surveyId = params.get('s');
 
-    if (surveyId && view === 'list' && surveys.length > 0) {
-      const target = surveys.find(s => s.id === surveyId);
-      if (target) {
-        const isEnded = target.deadline && new Date(target.deadline) < new Date();
-        setCurrentSurvey(target);
-        setIsTimeUp(isEnded);
-        setView('details');
-      }
-    } else if (!surveyId && view === 'list') {
-      // 広場（一E覧）にいるのに、URLに余計なものがついていたらお掃除する魔法
-      const url = new URL(window.location.origin + window.location.pathname);
-      if (window.location.search) {
-        window.history.replaceState({}, '', url);
+    if (view === 'list') {
+      const cleanUrl = () => {
+        // パラメータを完全に消して、元のパスだけにリセットする魔法
+        window.history.replaceState({}, '', window.location.pathname);
+      };
+
+      if (!surveyId) {
+        // sパラメータ以外のゴミ（v=freshなど）があれば即お掃除
+        cleanUrl();
+      } else if (surveys.length > 0) {
+        // アンケート一覧を読み込み終わったら、そのIDが本物かチェック
+        const target = surveys.find(s => s.id === surveyId);
+        if (target) {
+          // 本物なら詳細画面へジャンプ！
+          navigateTo('details', target);
+        } else {
+          // ニセモノ（削除済みなど）なら即お掃除
+          cleanUrl();
+        }
       }
     }
-  }, [surveys, view]);
+  }, [view, surveys]);
 
   // ブラウザの戻るボタンにも対応
   useEffect(() => {
