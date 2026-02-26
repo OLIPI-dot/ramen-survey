@@ -44,15 +44,47 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #f1f5f9;
-  padding: 6px 12px;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 12px 4px 6px;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-name {
   font-size: 13px;
-  font-weight: 600;
-  color: #475569;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.share-actions {
+  margin-top: 32px;
+}
+
+.share-button {
+  width: 100%;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6366f1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-button:hover {
+  background: #f8fafc;
+  border-color: #6366f1;
+  transform: scale(1.02);
 }
 
 .logout-button {

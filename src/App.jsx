@@ -186,16 +186,30 @@ function App() {
     }
   };
 
-  // 投票
-  const handleVote = async (option) => {
-    if (isTimeUp) return;
-    try {
-      await supabase.from('options').update({ votes: option.votes + 1 }).eq('id', option.id);
-      localStorage.setItem(`voted_survey_${currentSurvey.id}`, option.name);
-      setVotedOption(option.name);
-    } catch (error) {
-      alert("投票に失敗しました: " + error.message);
+  // 共有機能
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}`;
+    const shareText = `🌟 アンケート広場で「${currentSurvey.title}」の投票を受け付けてるよ！\nあなたの意見も教えてね！ #アンケート広場`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'アンケート広場',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        console.log('共有をキャンセルしました', error);
+      }
+    } else {
+      // シェア機能が使えないブラウザ（PCなど）の場合はクリップボードへ
+      copyToClipboard(shareUrl, "リンクをコピーしたよ！お友達に送ってね✨");
     }
+  };
+
+  const copyToClipboard = (text, message) => {
+    navigator.clipboard.writeText(text);
+    alert(message);
   };
 
   const handleAddSetupOption = () => {
@@ -213,7 +227,12 @@ function App() {
           <div className="auth-header">
             {user ? (
               <div className="user-info">
-                <span className="user-name">👤 {user.email.split('@')[0]}さん</span>
+                {user.user_metadata?.avatar_url && (
+                  <img src={user.user_metadata.avatar_url} alt="user avatar" className="user-avatar" />
+                )}
+                <span className="user-name">
+                  {user.user_metadata?.full_name || user.email.split('@')[0]}さん
+                </span>
                 <button className="logout-button" onClick={handleLogout}>ログアウト</button>
               </div>
             ) : (
@@ -334,7 +353,11 @@ function App() {
             );
           })}
         </div>
-        {votedOption && <div className="voted-message">投票ありがとうございました！✨</div>}
+        <div className="share-actions">
+          <button className="share-button" onClick={handleShare}>
+            📢 このアンケートを友達に教える（シェア）
+          </button>
+        </div>
 
         {/* 倉庫の名札（user_id）と今のユーザーIDが一致すれば削除ボタンを出す */}
         {user && currentSurvey.user_id === user.id && (
