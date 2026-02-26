@@ -627,54 +627,52 @@ function App() {
         </div>
         <Sidebar />
       </div>
-    </div>
-      
-      {/* 運営からのお知らせページへのリンク */ }
-  <footer className="app-footer">
-    <p>© 2026 アンケート広場</p>
-    <div className="footer-links">
-      <span onClick={() => setShowingTerms(true)} className="footer-link-text">利用規約</span>
-      <span onClick={() => setShowingContact(true)} className="footer-link-text">お問い合わせ</span>
-    </div>
-  </footer>
 
-  {/* モーダル：利用規約 */ }
-  {
-    showingTerms && (
-      <div className="modal-overlay" onClick={() => setShowingTerms(false)}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
-          <h3>📖 利用規約</h3>
-          <div className="modal-body">
-            <p>アンケート広場を楽しく安全にご利用いただくためのルールです。</p>
-            <ul>
-              <li>みんなが不快になるような言葉や、嫌がらせはやめましょう。</li>
-              <li>不適切なアンケートは、運営の判断で削除することがあります。</li>
-              <li>本サービスを利用して起きたトラブルには責任を負いかねます。</li>
-            </ul>
-          </div>
-          <button onClick={() => setShowingTerms(false)} className="modal-close-btn">閉じる</button>
+      <footer className="app-footer">
+        <p>© 2026 アンケート広場</p>
+        <div className="footer-links">
+          <span onClick={() => setShowingTerms(true)} className="footer-link-text">利用規約</span>
+          <span onClick={() => setShowingContact(true)} className="footer-link-text">お問い合わせ</span>
         </div>
-      </div>
-    )
-  }
+      </footer>
 
-  {/* モーダル：お問い合わせ */ }
-  {
-    showingContact && (
-      <div className="modal-overlay" onClick={() => setShowingContact(false)}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
-          <h3>📩 お問い合わせ</h3>
-          <div className="modal-body">
-            <p>アンケートの削除依頼や不具合報告、ご意見は運営までご連絡ください。</p>
-            <div className="contact-notice">
-              現在は準備中です。緊急の削除依頼などは運営のX（Twitter）までお願いいたします。
+      {/* モーダル：利用規約 */}
+      {
+        showingTerms && (
+          <div className="modal-overlay" onClick={() => setShowingTerms(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <h3>📖 利用規約</h3>
+              <div className="modal-body">
+                <p>アンケート広場を楽しく安全にご利用いただくためのルールです。</p>
+                <ul>
+                  <li>みんなが不快になるような言葉や、嫌がらせはやめましょう。</li>
+                  <li>不適切なアンケートは、運営の判断で削除することがあります。</li>
+                  <li>本サービスを利用して起きたトラブルには責任を負いかねます。</li>
+                </ul>
+              </div>
+              <button onClick={() => setShowingTerms(false)} className="modal-close-btn">閉じる</button>
             </div>
           </div>
-          <button onClick={() => setShowingContact(false)} className="modal-close-btn">閉じる</button>
-        </div>
-      </div>
-    )
-  }
+        )
+      }
+
+      {/* モーダル：お問い合わせ */}
+      {
+        showingContact && (
+          <div className="modal-overlay" onClick={() => setShowingContact(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <h3>📩 お問い合わせ</h3>
+              <div className="modal-body">
+                <p>アンケートの削除依頼や不具合報告、ご意見は運営までご連絡ください。</p>
+                <div className="contact-notice">
+                  現在は準備中です。緊急の削除依頼などは運営のX（Twitter）までお願いいたします。
+                </div>
+              </div>
+              <button onClick={() => setShowingContact(false)} className="modal-close-btn">閉じる</button>
+            </div>
+          </div>
+        )
+      }
     </div >
   );
 }
