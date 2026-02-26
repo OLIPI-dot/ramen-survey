@@ -15,8 +15,10 @@ function App() {
 
   // --- アンケートの設定 ---
   const [surveyTitle, setSurveyTitle] = useState('🍜 らーめんは何味がすき？');
+  const [setupOptions, setSetupOptions] = useState([]); // 作成中の選択肢リスト
+  const [tempOption, setTempOption] = useState(''); // 作成中の入力用
   const [useTimer, setUseTimer] = useState(true);
-  const [deadline, setDeadline] = useState(''); // 締め切り日時（ISO文字列）
+  const [deadline, setDeadline] = useState(''); // 締め切り日時
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
@@ -140,12 +142,53 @@ function App() {
     }
   };
 
-  const handleStartSurvey = () => {
+  const handleAddSetupOption = () => {
+    if (tempOption.trim() !== '') {
+      setSetupOptions([...setupOptions, tempOption.trim()]);
+      setTempOption('');
+    }
+  };
+
+  const handleRemoveSetupOption = (index) => {
+    setSetupOptions(setupOptions.filter((_, i) => i !== index));
+  };
+
+  const handleStartSurvey = async () => {
     if (useTimer && !deadline) {
       alert("締め切り日時を設定してくださいね");
       return;
     }
-    setIsTimerStarted(true);
+    if (setupOptions.length < 2) {
+      alert("選択肢は2つ以上入力してくださいね");
+      return;
+    }
+
+    try {
+      // 1. 今までの項目をデータベースから全部消す
+      const { error: deleteError } = await supabase
+        .from('options')
+        .delete()
+        .neq('id', 0); // 全件削除のトリック
+
+      if (deleteError) throw deleteError;
+
+      // 2. 新しい項目をデータベースに入れる
+      const newItems = setupOptions.map(name => ({ name, votes: 0 }));
+      const { error: insertError } = await supabase
+        .from('options')
+        .insert(newItems);
+
+      if (insertError) throw insertError;
+
+      // 3. ローカルの投票記録を消す（新しいアンケートなので）
+      localStorage.removeItem('voted_survey');
+      setVotedOption(null);
+
+      setIsTimerStarted(true);
+    } catch (error) {
+      console.error("開始に失敗しました", error);
+      alert("開始に失敗しました。もう一度試してみてください。");
+    }
   };
 
   if (!isTimerStarted) {
@@ -155,7 +198,7 @@ function App() {
           <h2 className="setup-title">📝 アンケートを作成</h2>
 
           <div className="settings-container">
-            <div className="setting-item">
+            <div className="setting-item-block">
               <label>お題（タイトル）:</label>
               <input
                 type="text"
@@ -166,8 +209,32 @@ function App() {
               />
             </div>
 
-            <div className="setting-item">
-              <label>
+
+            <div className="setting-item-block">
+              <label>項目を追加しましょう:</label>
+              <div className="setup-add-container">
+                <input
+                  type="text"
+                  value={tempOption}
+                  onChange={(e) => setTempOption(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()}
+                  className="add-input"
+                  placeholder="項目を入力..."
+                />
+                <button onClick={handleAddSetupOption} className="add-button">＋</button>
+              </div>
+              <div className="setup-options-list">
+                {setupOptions.map((opt, index) => (
+                  <div key={index} className="setup-option-tag">
+                    {opt}
+                    <span onClick={() => handleRemoveSetupOption(index)} className="remove-tag">×</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="setting-item-block">
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={useTimer}
@@ -178,7 +245,7 @@ function App() {
             </div>
 
             {useTimer && (
-              <div className="setting-item">
+              <div className="setting-item-block">
                 <label>いつまで？:</label>
                 <input
                   type="datetime-local"
@@ -190,8 +257,9 @@ function App() {
             )}
 
             <button onClick={handleStartSurvey} className="start-button">
-              このお題で開始！
+              この内容で公開する！
             </button>
+
           </div>
         </div>
       </div>

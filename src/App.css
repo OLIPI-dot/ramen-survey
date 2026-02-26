@@ -237,17 +237,50 @@ body {
   border: 2px solid #e2e8f0;
 }
 
-.setting-item {
+.setting-item-block {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
+  width: 100%;
 }
 
-.setting-item label {
+.setup-add-container {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.setup-options-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.setup-option-tag {
+  background: #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-tag {
+  cursor: pointer;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+.remove-tag:hover {
+  color: #ef4444;
+}
+
+.checkbox-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -272,6 +305,7 @@ body {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
 
 
 .start-button {
