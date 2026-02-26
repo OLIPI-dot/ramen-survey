@@ -269,6 +269,7 @@ function App() {
       setSurveyTitle('');
       setSetupOptions([]);
       setDeadline('');
+      fetchSurveys(); // 🌟 手動で一覧を最新にする魔法！
     } catch (error) {
       alert("作成に失敗しました: " + error.message);
     }
