@@ -429,9 +429,18 @@ function App() {
   return (
     <div className="survey-main-portal">
       <div className="main-wrap">
-        <div className="create-layout">
-          <div className="survey-card">
+        <div className="layout-grid-3">
+          {/* 🌟 左側のナビゲーションカラム */}
+          <div className="nav-sidebar-left">
+            {view !== 'list' && (
+              <button className="side-back-btn" onClick={() => navigateTo('list')}>
+                <span className="back-icon">⇠</span>
+                <span className="back-text">広場へ戻る</span>
+              </button>
+            )}
+          </div>
 
+          <div className="survey-card">
             {/* 一覧画面の内容 */}
             {view === 'list' && (
               <>
@@ -503,10 +512,7 @@ function App() {
             {/* 作成画面の内容 */}
             {view === 'create' && (
               <>
-                <div className="card-header">
-                  <button className="back-button" onClick={() => navigateTo('list')}>← 戻る</button>
-                  <h2 className="setup-title">📝 新しく作る</h2>
-                </div>
+                <h2 className="setup-title">📝 新しく作る</h2>
                 <div className="create-form">
                   <div className="setting-item-block">
                     <label>お題（タイトル）:</label>
@@ -564,9 +570,6 @@ function App() {
             {/* 詳細画面の内容 */}
             {view === 'details' && currentSurvey && (
               <>
-                <div className="card-header">
-                  <button className="back-button" onClick={() => navigateTo('list')}>← 広場へ戻る</button>
-                </div>
                 {currentSurvey.image_url && (
                   <div className="survey-banner">
                     <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />

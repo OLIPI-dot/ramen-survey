@@ -1096,3 +1096,84 @@ body {
   z-index: 9999 !important; /* 一番手前に！ */
 }
 
+
+
+/* ?? 都会的な3カラムレイアウト & 左ナビ ?? */
+.layout-grid-3 {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  padding: 40px 20px !important;
+}
+
+.nav-sidebar-left {
+  flex: 0 0 160px; /* 左側の固定幅 */
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.side-back-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  color: #64748b;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 40px; /* スクロールしてもついてくる魔法 */
+}
+
+.side-back-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  transform: translateX(-5px); /* 左へフワッと動く */
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1);
+}
+
+.back-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.back-text {
+  font-size: 14px;
+}
+
+/* メインカードの微調整 */
+.survey-main-portal .survey-card {
+  flex: 1;
+  max-width: 700px;
+  margin: 0 !important;
+}
+
+/* 右サイドバーの幅も揃える */
+.survey-main-portal .live-feed-sidebar {
+  flex: 0 0 280px;
+}
+
+/* モバイルでの対応（念のため） */
+@media (max-width: 1024px) {
+  .layout-grid-3 {
+    flex-wrap: wrap;
+  }
+  .nav-sidebar-left {
+    flex: 1 1 100%;
+    order: -1;
+    margin-bottom: 20px;
+  }
+  .side-back-btn {
+    position: static;
+    display: inline-flex;
+  }
+}
+
