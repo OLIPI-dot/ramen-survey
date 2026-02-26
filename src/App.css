@@ -34,6 +34,54 @@ body {
   font-weight: 800;
 }
 
+.auth-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-button-top {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-button-top:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
 .create-new-button {
   width: 100%;
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);

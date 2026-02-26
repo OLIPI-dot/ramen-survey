@@ -9,6 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function App() {
   const [view, setView] = useState('list'); // 'list', 'create', 'details'
+  const [user, setUser] = useState(null);
   const [surveys, setSurveys] = useState([]);
   const [currentSurvey, setCurrentSurvey] = useState(null);
   const [options, setOptions] = useState([]);
@@ -27,7 +28,41 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
 
-  // 1. アンケート一覧を取得する
+  // ログイン状態の監視
+  useEffect(() => {
+    // 現在のユーザー情報を取得
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+
+    // ログイン・ログアウトの変化を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Googleログイン実行
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) alert("ログインに失敗しました: " + error.message);
+  };
+
+  // ログアウト実行
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) alert("ログアウトに失敗しました: " + error.message);
+  };
+
+  // アンケート一覧を取得する
   const fetchSurveys = async () => {
     try {
       const { data, error } = await supabase
@@ -35,13 +70,13 @@ function App() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setSurveys(data);
+      setSurveys(data || []);
     } catch (error) {
       console.error("アンケート一覧の取得に失敗しました", error);
     }
   };
 
-  // 2. 選んだアンケートの選択肢を取得する
+  // 選んだアンケートの選択肢を取得する
   const fetchOptions = async (surveyId) => {
     try {
       const { data, error } = await supabase
@@ -50,11 +85,10 @@ function App() {
         .eq('survey_id', surveyId)
         .order('id', { ascending: true });
       if (error) throw error;
-      setOptions(data);
-      const total = data.reduce((sum, item) => sum + Number(item.votes), 0);
+      setOptions(data || []);
+      const total = (data || []).reduce((sum, item) => sum + Number(item.votes), 0);
       setIsTotalVotes(total);
 
-      // ローカルストレージから投票済みかチェック
       const savedVote = localStorage.getItem(`voted_survey_${surveyId}`);
       setVotedOption(savedVote);
     } catch (error) {
@@ -64,22 +98,16 @@ function App() {
 
   useEffect(() => {
     fetchSurveys();
-
-    // リアルタイム更新の監視（アンケート本体と選択肢の両方）
     const surveyChannel = supabase
       .channel('surveys-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => fetchSurveys())
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(surveyChannel);
-    };
+    return () => supabase.removeChannel(surveyChannel);
   }, []);
 
   useEffect(() => {
     if (view === 'details' && currentSurvey) {
       fetchOptions(currentSurvey.id);
-
       const optionsChannel = supabase
         .channel(`options-changes-${currentSurvey.id}`)
         .on('postgres_changes', {
@@ -89,22 +117,17 @@ function App() {
           filter: `survey_id=eq.${currentSurvey.id}`
         }, () => fetchOptions(currentSurvey.id))
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(optionsChannel);
-      };
+      return () => supabase.removeChannel(optionsChannel);
     }
   }, [view, currentSurvey]);
 
-  // タイマー処理
+  // タイマー
   useEffect(() => {
     if (view !== 'details' || !currentSurvey || !currentSurvey.deadline || votedOption || isTimeUp) return;
-
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const end = new Date(currentSurvey.deadline).getTime();
       const diff = Math.floor((end - now) / 1000);
-
       if (diff <= 0) {
         clearInterval(timer);
         setTimeLeft(0);
@@ -114,74 +137,51 @@ function App() {
         setIsTimeUp(false);
       }
     }, 1000);
-
     return () => clearInterval(timer);
   }, [view, currentSurvey, votedOption, isTimeUp]);
 
   // アンケート作成
   const handleStartSurvey = async () => {
+    if (!user) return alert("アンケートを作るにはログインが必要です！");
     if (useTimer && !deadline) return alert("締め切りを設定してね");
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
     try {
-      // 1. surveysテーブルにお題を保存
       const { data: surveyData, error: surveyError } = await supabase
         .from('surveys')
-        .insert([{ title: surveyTitle, deadline: useTimer ? deadline : null }])
+        .insert([{
+          title: surveyTitle,
+          deadline: useTimer ? deadline : null,
+          user_id: user.id // ここにログイン中のユーザーIDを保存！
+        }])
         .select();
       if (surveyError) throw surveyError;
 
       const newSurveyId = surveyData[0].id;
-
-      // 自分の作ったIDをメモする
-      const mySurveys = JSON.parse(localStorage.getItem('my_surveys') || '[]');
-      localStorage.setItem('my_surveys', JSON.stringify([...mySurveys, newSurveyId]));
-
-      // 2. optionsテーブルに選択肢を保存
       const newOptions = setupOptions.map(name => ({ name, votes: 0, survey_id: newSurveyId }));
       const { error: optionsError } = await supabase
         .from('options')
         .insert(newOptions);
       if (optionsError) throw optionsError;
 
-      // 作成完了、一覧へ戻る
       setView('list');
       setSurveyTitle('');
       setSetupOptions([]);
       setDeadline('');
     } catch (error) {
-      console.error("作成に失敗しました", error);
-      alert("作成に失敗しました: " + (error.message || "原因不明のエラーです"));
+      alert("作成に失敗しました: " + error.message);
     }
   };
 
-  // 削除処理
+  // 削除
   const handleDeleteSurvey = async () => {
     if (!window.confirm("本当にこのアンケートを削除してもいいですか？")) return;
-
     try {
-      // 1. まず選択肢を消す
-      const { error: optError } = await supabase
-        .from('options')
-        .delete()
-        .eq('survey_id', currentSurvey.id);
-      if (optError) throw optError;
-
-      // 2. お題を消す
-      const { error: srvError } = await supabase
-        .from('surveys')
-        .delete()
-        .eq('id', currentSurvey.id);
-      if (srvError) throw srvError;
-
-      // 3. 自分のリストから消す
-      const mySurveys = JSON.parse(localStorage.getItem('my_surveys') || '[]');
-      localStorage.setItem('my_surveys', JSON.stringify(mySurveys.filter(id => id !== currentSurvey.id)));
-
+      await supabase.from('options').delete().eq('survey_id', currentSurvey.id);
+      await supabase.from('surveys').delete().eq('id', currentSurvey.id);
       setView('list');
       alert("削除しました！お掃除完了です✨");
     } catch (error) {
-      console.error("削除に失敗しました", error);
       alert("削除に失敗しました: " + error.message);
     }
   };
@@ -190,20 +190,13 @@ function App() {
   const handleVote = async (option) => {
     if (isTimeUp) return;
     try {
-      const { error } = await supabase
-        .from('options')
-        .update({ votes: option.votes + 1 })
-        .eq('id', option.id);
-      if (error) throw error;
-
+      await supabase.from('options').update({ votes: option.votes + 1 }).eq('id', option.id);
       localStorage.setItem(`voted_survey_${currentSurvey.id}`, option.name);
       setVotedOption(option.name);
     } catch (error) {
-      console.error("投票に失敗しました", error);
-      alert("投票に失敗しました: " + (error.message || "原因不明のエラーです"));
+      alert("投票に失敗しました: " + error.message);
     }
   };
-
 
   const handleAddSetupOption = () => {
     if (tempOption.trim()) {
@@ -212,15 +205,23 @@ function App() {
     }
   };
 
-  // --- 画面表示の切り替え ---
-
-  // 一覧画面
+  // 画面：一覧
   if (view === 'list') {
     return (
       <div className="app-container">
         <div className="survey-card">
+          <div className="auth-header">
+            {user ? (
+              <div className="user-info">
+                <span className="user-name">👤 {user.email.split('@')[0]}さん</span>
+                <button className="logout-button" onClick={handleLogout}>ログアウト</button>
+              </div>
+            ) : (
+              <button className="login-button-top" onClick={handleLogin}>Googleでログイン</button>
+            )}
+          </div>
           <h1 className="app-main-title">🌟 アンケート広場</h1>
-          <button className="create-new-button" onClick={() => setView('create')}>
+          <button className="create-new-button" onClick={() => user ? setView('create') : alert("ログインしてね！")}>
             ＋ 新しいアンケートを作る
           </button>
           <div className="survey-list">
@@ -250,7 +251,7 @@ function App() {
     );
   }
 
-  // 作成画面
+  // 画面：作成
   if (view === 'create') {
     return (
       <div className="app-container">
@@ -294,7 +295,7 @@ function App() {
     );
   }
 
-  // 詳細・投票画面
+  // 画面：詳細
   return (
     <div className="app-container">
       <div className="survey-card">
@@ -311,7 +312,6 @@ function App() {
             </span>
           </div>
         )}
-
         {isTimeUp && !votedOption && <div className="timeup-message">このアンケートは終了しました。⏳</div>}
 
         <div className="options-container">
@@ -336,8 +336,8 @@ function App() {
         </div>
         {votedOption && <div className="voted-message">投票ありがとうございました！✨</div>}
 
-        {/* 自分の作ったアンケートなら削除ボタンを出す */}
-        {JSON.parse(localStorage.getItem('my_surveys') || '[]').includes(currentSurvey.id) && (
+        {/* 倉庫の名札（user_id）と今のユーザーIDが一致すれば削除ボタンを出す */}
+        {user && currentSurvey.user_id === user.id && (
           <div className="admin-actions">
             <button className="delete-button" onClick={handleDeleteSurvey}>
               🗑 このアンケートをお掃除する
