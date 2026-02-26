@@ -640,3 +640,30 @@ body {
   color: #6366f1;
 }
 
+
+
+.live-item.popular {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 4px solid #fcd34d;
+}
+
+.rank-label {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.live-item-meta {
+  font-size: 10px;
+  color: #6366f1;
+  font-weight: 800;
+  margin-left: auto;
+}
+
+.live-feed-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+

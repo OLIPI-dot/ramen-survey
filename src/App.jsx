@@ -33,6 +33,7 @@ function App() {
 
   // ライブ実況用の最新お題リスト
   const [liveSurveys, setLiveSurveys] = useState([]);
+  const [popularSurveys, setPopularSurveys] = useState([]);
   const [isTotalVotes, setIsTotalVotes] = useState(0);
 
   // --- アンケート作成用のState ---
@@ -179,15 +180,37 @@ function App() {
   // 広場の実況：新しいお題が作られたら通知を受け取る魔法
   useEffect(() => {
     const fetchLatest = async () => {
-      const { data } = await supabase.from('surveys').select('*').order('created_at', { ascending: false }).limit(5);
-      if (data) setLiveSurveys(data);
+      const { data } = await supabase.from('surveys').select('*, options(votes)').order('created_at', { ascending: false }).limit(5);
+      if (data) {
+        const withVotes = data.map(s => ({
+          ...s,
+          total_votes: (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0)
+        }));
+        setLiveSurveys(withVotes);
+      }
+    };
+    const fetchPopular = async () => {
+      const { data } = await supabase.from('surveys').select('*, options(votes)');
+      if (data) {
+        const withVotes = data.map(s => ({
+          ...s,
+          total_votes: (s.options || []).reduce((sum, opt) => sum + (opt.votes || 0), 0)
+        })).sort((a, b) => b.total_votes - a.total_votes).slice(0, 3);
+        setPopularSurveys(withVotes);
+      }
     };
     fetchLatest();
+    fetchPopular();
 
     const surveyChannel = supabase
       .channel('live-surveys')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'surveys' }, (payload) => {
-        setLiveSurveys(prev => [payload.new, ...prev].slice(0, 5));
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => {
+        fetchLatest();
+        fetchPopular();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => {
+        fetchLatest();
+        fetchPopular();
       })
       .subscribe();
 
@@ -450,15 +473,28 @@ function App() {
           {/* 🌟 ライブ実況サイドバー */}
           <div className="live-feed-sidebar">
             <div className="live-feed-title">✨ 広場の最新ニュース</div>
-            {liveSurveys.length === 0 ? (
-              <div className="empty-msg">まだお題はありません…</div>
-            ) : (
-              liveSurveys.map(s => (
-                <div key={s.id} className="live-item">
-                  <strong>{s.title}</strong> が公開されました！
+            <div className="live-feed-content">
+              {liveSurveys.length === 0 ? (
+                <div className="empty-msg">まだお題はありません…</div>
+              ) : (
+                liveSurveys.slice(0, 3).map(s => (
+                  <div key={s.id} className="live-item">
+                    <strong>{s.title}</strong> が公開されました！
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="live-feed-title" style={{ marginTop: '24px' }}>🔥 人気ランキング</div>
+            <div className="live-feed-content">
+              {popularSurveys.map((s, idx) => (
+                <div key={s.id} className="live-item popular">
+                  <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥈' : '🥉'}</span>
+                  <strong>{s.title}</strong>
+                  <div className="live-item-meta">{s.total_votes || 0} 票</div>
                 </div>
-              ))
-            )}
+              ))}
+            </div>
           </div>
         </div>
       </div>
