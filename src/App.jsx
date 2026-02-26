@@ -670,6 +670,11 @@ function App() {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3>📩 お問い合わせ</h3>
             <div className="modal-body">
+              {currentSurvey && view === 'details' && (
+                <div className="contact-context">
+                  対象：<strong>{currentSurvey.title}</strong>
+                </div>
+              )}
               <div className="contact-form-item">
                 <label>お問い合わせの種類:</label>
                 <select value={contactType} onChange={(e) => setContactType(e.target.value)} className="contact-select">
@@ -678,6 +683,16 @@ function App() {
                   <option value="ご意見・ご要望">✨ こうしてほしい！</option>
                   <option value="その他">💬 その他</option>
                 </select>
+              </div>
+              <div className="contact-form-item">
+                <label>返信先メールアドレス:</label>
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="example@mail.com"
+                  className="contact-input"
+                />
               </div>
               <div className="contact-form-item">
                 <label>具体的な内容:</label>
@@ -689,11 +704,11 @@ function App() {
                 />
               </div>
               <div className="contact-notice">
-                ※ 送信された内容は運営スタッフが大切に拝見し、必要に応じて対応させていただきます。
+                ※ 悪質な依頼（いたずら）には対応いたしかねます。内容を確認のうえ、運営が判断させていただきます。
               </div>
             </div>
             <div className="modal-actions-contact">
-              <button onClick={handleSendInquiry} className="send-btn">内容を確定する</button>
+              <button onClick={handleSendInquiry} className="send-btn">内容を確定して送信</button>
               <button onClick={() => setShowingContact(false)} className="cancel-btn">戻る</button>
             </div>
           </div>
