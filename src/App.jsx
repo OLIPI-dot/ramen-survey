@@ -51,6 +51,19 @@ function App() {
   };
   const [deadline, setDeadline] = useState(getInitialDeadline());
 
+  // 〇〇分後、〇時間後をパッと計算する魔法
+  const setDeadlineFromNow = (minutesToAdd) => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() + minutesToAdd);
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    setDeadline(`${y}-${m}-${day}T${hh}:${mm}`);
+  };
+
   // --- 実行中のタイマーState ---
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
@@ -365,6 +378,12 @@ function App() {
                   onChange={(e) => setDeadline(e.target.value)}
                   className="time-input"
                 />
+                <div className="quick-time-buttons">
+                  <button onClick={() => setDeadlineFromNow(5)}>+5分</button>
+                  <button onClick={() => setDeadlineFromNow(10)}>+10分</button>
+                  <button onClick={() => setDeadlineFromNow(60)}>+1時間</button>
+                  <button onClick={() => setDeadlineFromNow(1440)}>+1日</button>
+                </div>
                 <div className="deadline-preview">
                   📅 決定：<strong>{formatWithDay(deadline)}</strong>
                 </div>
