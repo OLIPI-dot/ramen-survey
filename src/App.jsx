@@ -2,83 +2,107 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import './App.css';
 
-// Supabaseの初期設定（.envファイルから読み込みます）
+// Supabaseの初期設定
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 function App() {
+  const [view, setView] = useState('list'); // 'list', 'create', 'details'
+  const [surveys, setSurveys] = useState([]);
+  const [currentSurvey, setCurrentSurvey] = useState(null);
   const [options, setOptions] = useState([]);
   const [newOption, setNewOption] = useState('');
   const [votedOption, setVotedOption] = useState(null);
   const [isTotalVotes, setIsTotalVotes] = useState(0);
 
-  // --- アンケートの設定 ---
-  const [surveyTitle, setSurveyTitle] = useState('🍜 らーめんは何味がすき？');
-  const [setupOptions, setSetupOptions] = useState([]); // 作成中の選択肢リスト
-  const [tempOption, setTempOption] = useState(''); // 作成中の入力用
+  // --- アンケート作成用のState ---
+  const [surveyTitle, setSurveyTitle] = useState('');
+  const [setupOptions, setSetupOptions] = useState([]);
+  const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
-  const [deadline, setDeadline] = useState(''); // 締め切り日時
+  const [deadline, setDeadline] = useState('');
+
+  // --- 実行中のタイマーState ---
   const [timeLeft, setTimeLeft] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
-  const [isTimerStarted, setIsTimerStarted] = useState(false);
+
+  // 1. アンケート一覧を取得する
+  const fetchSurveys = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('surveys')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setSurveys(data);
+    } catch (error) {
+      console.error("アンケート一覧の取得に失敗しました", error);
+    }
+  };
+
+  // 2. 選んだアンケートの選択肢を取得する
+  const fetchOptions = async (surveyId) => {
+    try {
+      const { data, error } = await supabase
+        .from('options')
+        .select('*')
+        .eq('survey_id', surveyId)
+        .order('id', { ascending: true });
+      if (error) throw error;
+      setOptions(data);
+      const total = data.reduce((sum, item) => sum + Number(item.votes), 0);
+      setIsTotalVotes(total);
+
+      // ローカルストレージから投票済みかチェック
+      const savedVote = localStorage.getItem(`voted_survey_${surveyId}`);
+      setVotedOption(savedVote);
+    } catch (error) {
+      console.error("選択肢の取得に失敗しました", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        // --- 投票済みの情報をブラウザから読み込む ---
-        const savedVote = localStorage.getItem('voted_survey');
-        if (savedVote) {
-          setVotedOption(savedVote);
-          setIsTimerStarted(true);
-        }
+    fetchSurveys();
 
-        const { data, error } = await supabase
-          .from('options')
-          .select('*')
-          .order('id', { ascending: true });
-
-        if (error) throw error;
-        setOptions(data);
-        const total = data.reduce((sum, item) => sum + Number(item.votes), 0);
-        setIsTotalVotes(total);
-      } catch (error) {
-        console.error("データの読み込みに失敗しました", error);
-      }
-    };
-
-    fetchOptions();
-
-    // --- 【重要】リアルタイムの魔法！データの変化を監視する ---
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // 追加、更新、削除すべて
-          schema: 'public',
-          table: 'options'
-        },
-        () => {
-          // 何か変化があったら最新データを読み直す
-          fetchOptions();
-        }
-      )
+    // リアルタイム更新の監視（アンケート本体と選択肢の両方）
+    const surveyChannel = supabase
+      .channel('surveys-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => fetchSurveys())
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(surveyChannel);
     };
   }, []);
 
-
-  // 期限までのカウントダウン処理
   useEffect(() => {
-    if (!useTimer || !deadline || !isTimerStarted || votedOption || isTimeUp) return;
+    if (view === 'details' && currentSurvey) {
+      fetchOptions(currentSurvey.id);
+
+      const optionsChannel = supabase
+        .channel(`options-changes-${currentSurvey.id}`)
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'options',
+          filter: `survey_id=eq.${currentSurvey.id}`
+        }, () => fetchOptions(currentSurvey.id))
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(optionsChannel);
+      };
+    }
+  }, [view, currentSurvey]);
+
+  // タイマー処理
+  useEffect(() => {
+    if (view !== 'details' || !currentSurvey || !currentSurvey.deadline || votedOption || isTimeUp) return;
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
-      const end = new Date(deadline).getTime();
+      const end = new Date(currentSurvey.deadline).getTime();
       const diff = Math.floor((end - now) / 1000);
 
       if (diff <= 0) {
@@ -87,271 +111,195 @@ function App() {
         setIsTimeUp(true);
       } else {
         setTimeLeft(diff);
+        setIsTimeUp(false);
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [useTimer, deadline, isTimerStarted, votedOption, isTimeUp]);
+  }, [view, currentSurvey, votedOption, isTimeUp]);
 
-  const handleAddOption = async () => {
-    if (newOption.trim() !== '') {
-      try {
-        // Supabaseに新しい選択肢を追加します
-        const { data, error } = await supabase
-          .from('options')
-          .insert([{ name: newOption, votes: 0 }])
-          .select();
+  // アンケート作成
+  const handleStartSurvey = async () => {
+    if (useTimer && !deadline) return alert("締め切りを設定してね");
+    if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
-        if (error) throw error;
+    try {
+      // 1. surveysテーブルにお題を保存
+      const { data: surveyData, error: surveyError } = await supabase
+        .from('surveys')
+        .insert([{ title: surveyTitle, deadline: useTimer ? deadline : null }])
+        .select();
+      if (surveyError) throw surveyError;
 
-        setOptions([...options, data[0]]);
-        setNewOption('');
-      } catch (error) {
-        console.error("追加に失敗しました", error);
-      }
+      const newSurveyId = surveyData[0].id;
+
+      // 2. optionsテーブルに選択肢を保存
+      const newOptions = setupOptions.map(name => ({ name, votes: 0, survey_id: newSurveyId }));
+      const { error: optionsError } = await supabase
+        .from('options')
+        .insert(newOptions);
+      if (optionsError) throw optionsError;
+
+      // 作成完了、一覧へ戻る
+      setView('list');
+      setSurveyTitle('');
+      setSetupOptions([]);
+      setDeadline('');
+    } catch (error) {
+      console.error("作成に失敗しました", error);
     }
   };
 
-  const handleVote = async (selectedItem) => {
-    if (useTimer && isTimeUp) return;
-    setVotedOption(selectedItem.name);
-
+  // 投票
+  const handleVote = async (option) => {
+    if (isTimeUp) return;
     try {
-      const updatedVotes = Number(selectedItem.votes) + 1;
-
-      // --- ブラウザの記憶箱に保存する ---
-      localStorage.setItem('voted_ramen', selectedItem.name);
-
-      // Supabaseのデータを更新します
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('options')
-        .update({ votes: updatedVotes })
-        .eq('id', selectedItem.id)
-        .select();
-
+        .update({ votes: option.votes + 1 })
+        .eq('id', option.id);
       if (error) throw error;
 
-      const updatedOptions = options.map(opt =>
-        opt.id === selectedItem.id ? data[0] : opt
-      );
-      setOptions(updatedOptions);
-      setIsTotalVotes(isTotalVotes + 1);
-
+      localStorage.setItem(`voted_survey_${currentSurvey.id}`, option.name);
+      setVotedOption(option.name);
     } catch (error) {
       console.error("投票に失敗しました", error);
     }
   };
 
   const handleAddSetupOption = () => {
-    if (tempOption.trim() !== '') {
+    if (tempOption.trim()) {
       setSetupOptions([...setupOptions, tempOption.trim()]);
       setTempOption('');
     }
   };
 
-  const handleRemoveSetupOption = (index) => {
-    setSetupOptions(setupOptions.filter((_, i) => i !== index));
-  };
+  // --- 画面表示の切り替え ---
 
-  const handleStartSurvey = async () => {
-    if (useTimer && !deadline) {
-      alert("締め切り日時を設定してくださいね");
-      return;
-    }
-    if (setupOptions.length < 2) {
-      alert("選択肢は2つ以上入力してくださいね");
-      return;
-    }
-
-    try {
-      // 1. 今までの項目をデータベースから全部消す
-      const { error: deleteError } = await supabase
-        .from('options')
-        .delete()
-        .neq('id', 0); // 全件削除のトリック
-
-      if (deleteError) throw deleteError;
-
-      // 2. 新しい項目をデータベースに入れる
-      const newItems = setupOptions.map(name => ({ name, votes: 0 }));
-      const { error: insertError } = await supabase
-        .from('options')
-        .insert(newItems);
-
-      if (insertError) throw insertError;
-
-      // 3. ローカルの投票記録を消す（新しいアンケートなので）
-      localStorage.removeItem('voted_survey');
-      setVotedOption(null);
-
-      setIsTimerStarted(true);
-    } catch (error) {
-      console.error("開始に失敗しました", error);
-      alert("開始に失敗しました。もう一度試してみてください。");
-    }
-  };
-
-  if (!isTimerStarted) {
+  // 一覧画面
+  if (view === 'list') {
     return (
       <div className="app-container">
         <div className="survey-card">
-          <h2 className="setup-title">📝 アンケートを作成</h2>
-
-          <div className="settings-container">
-            <div className="setting-item-block">
-              <label>お題（タイトル）:</label>
-              <input
-                type="text"
-                value={surveyTitle}
-                onChange={(e) => setSurveyTitle(e.target.value)}
-                className="title-input"
-                placeholder="例：今日のおやつは何がいい？"
-              />
-            </div>
-
-
-            <div className="setting-item-block">
-              <label>項目を追加しましょう:</label>
-              <div className="setup-add-container">
-                <input
-                  type="text"
-                  value={tempOption}
-                  onChange={(e) => setTempOption(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()}
-                  className="add-input"
-                  placeholder="項目を入力..."
-                />
-                <button onClick={handleAddSetupOption} className="add-button">＋</button>
-              </div>
-              <div className="setup-options-list">
-                {setupOptions.map((opt, index) => (
-                  <div key={index} className="setup-option-tag">
-                    {opt}
-                    <span onClick={() => handleRemoveSetupOption(index)} className="remove-tag">×</span>
+          <h1 className="app-main-title">🌟 アンケート広場</h1>
+          <button className="create-new-button" onClick={() => setView('create')}>
+            ＋ 新しいアンケートを作る
+          </button>
+          <div className="survey-list">
+            {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
+              surveys.map(s => {
+                const isEnded = s.deadline && new Date(s.deadline) < new Date();
+                return (
+                  <div key={s.id} className="survey-item-card" onClick={() => {
+                    setCurrentSurvey(s);
+                    setIsTimeUp(isEnded);
+                    setView('details');
+                  }}>
+                    <div className="survey-item-info">
+                      <span className="survey-item-title">{s.title}</span>
+                      <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                        {isEnded ? '終了' : '受付中'}
+                      </span>
+                    </div>
+                    {s.deadline && <div className="survey-item-deadline">〆切: {new Date(s.deadline).toLocaleString('ja-JP')}</div>}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="setting-item-block">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={useTimer}
-                  onChange={(e) => setUseTimer(e.target.checked)}
-                />
-                締め切り時間を決める
-              </label>
-            </div>
-
-            {useTimer && (
-              <div className="setting-item-block">
-                <label>いつまで？:</label>
-                <input
-                  type="datetime-local"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="time-input"
-                />
-              </div>
+                );
+              })
             )}
-
-            <button onClick={handleStartSurvey} className="start-button">
-              この内容で公開する！
-            </button>
-
           </div>
         </div>
       </div>
     );
   }
 
+  // 作成画面
+  if (view === 'create') {
+    return (
+      <div className="app-container">
+        <div className="survey-card">
+          <div className="card-header">
+            <button className="back-button" onClick={() => setView('list')}>← 戻る</button>
+            <h2 className="setup-title">📝 新しく作る</h2>
+          </div>
+          <div className="settings-container">
+            <div className="setting-item-block">
+              <label>お題（タイトル）:</label>
+              <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
+            </div>
+            <div className="setting-item-block">
+              <label>項目を追加:</label>
+              <div className="setup-add-container">
+                <input type="text" value={tempOption} onChange={(e) => setTempOption(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()} className="add-input" placeholder="項目を入力..." />
+                <button onClick={handleAddSetupOption} className="add-button">＋</button>
+              </div>
+              <div className="setup-options-list">
+                {setupOptions.map((opt, i) => (
+                  <div key={i} className="setup-option-tag">{opt}
+                    <span onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))} className="remove-tag">×</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="setting-item-block">
+              <label className="checkbox-label"><input type="checkbox" checked={useTimer} onChange={(e) => setUseTimer(e.target.checked)} /> 締め切りを決める</label>
+            </div>
+            {useTimer && (
+              <div className="setting-item-block">
+                <label>いつまで？:</label>
+                <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
+              </div>
+            )}
+            <button onClick={handleStartSurvey} className="start-button">公開する！</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 詳細・投票画面
   return (
     <div className="app-container">
       <div className="survey-card">
-        <h1 className="survey-title">{surveyTitle}</h1>
-        <p className="survey-subtitle">あなたの意見を教えてね！</p>
+        <div className="card-header">
+          <button className="back-button" onClick={() => setView('list')}>← 広場へ戻る</button>
+        </div>
+        <h1 className="survey-title">{currentSurvey.title}</h1>
 
-        {useTimer && !votedOption && (
-          <div className={`timer-container ${timeLeft <= 5 && timeLeft > 0 ? 'danger' : ''}`}>
+        {currentSurvey.deadline && !votedOption && !isTimeUp && (
+          <div className={`timer-container ${timeLeft <= 60 && timeLeft > 0 ? 'danger' : ''}`}>
             <span>残り時間: </span>
-            <span className="time-number">{timeLeft}</span>
-            <span> 秒</span>
+            <span className="time-number">
+              {timeLeft > 3600 ? `${Math.floor(timeLeft / 3600)}時${Math.floor((timeLeft % 3600) / 60)}分` : `${Math.floor(timeLeft / 60)}分${timeLeft % 60}秒`}
+            </span>
           </div>
         )}
 
-        {useTimer && isTimeUp && !votedOption && (
-          <div className="timeup-message">
-            時間切れです！⏳
-          </div>
-        )}
-
-        {!votedOption && (!useTimer || !isTimeUp) && (
-          <div className="add-option-container">
-            <input
-              type="text"
-              value={newOption}
-              onChange={(e) => setNewOption(e.target.value)}
-              placeholder="新しい選択肢を入力..."
-              className="add-input"
-            />
-            <button onClick={handleAddOption} className="add-button">追加</button>
-          </div>
-        )}
+        {isTimeUp && !votedOption && <div className="timeup-message">このアンケートは終了しました。⏳</div>}
 
         <div className="options-container">
           {options.map((option) => {
-            // 「投票済み」または「タイムアップ時」は結果のバーを表示する
+            const isVoted = votedOption === option.name;
             if (votedOption || isTimeUp) {
-              const isSelected = option.name === votedOption;
-              const percentage = isTotalVotes > 0
-                ? Math.round((option.votes / (isTotalVotes)) * 100)
-                : 0;
-
+              const percentage = isTotalVotes > 0 ? Math.round((option.votes / isTotalVotes) * 100) : 0;
               return (
-                <div key={option.id} className={`result-bar-container ${isSelected ? 'selected' : ''}`}>
+                <div key={option.id} className={`result-bar-container ${isVoted ? 'selected' : ''}`}>
                   <div className="result-info">
-                    <span className="result-name">
-                      {option.name} {isSelected && '✅'}
-                      <span className="vote-count" style={{ marginLeft: '8px', color: '#94a3b8', fontSize: '14px' }}>({option.votes}票)</span>
-                    </span>
-                    <span className="result-percent">{percentage}%</span>
+                    <span>{option.name} {isVoted && '✅'} <small>({option.votes}票)</small></span>
+                    <span>{percentage}%</span>
                   </div>
-                  <div className="result-bar-bg">
-                    <div
-                      className="result-bar-fill"
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
+                  <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${percentage}%` }}></div></div>
                 </div>
               );
             }
-
-            const isDisabled = useTimer ? isTimeUp : false;
-
             return (
-              <button
-                key={option.id}
-                className={`option-button ${isDisabled ? 'disabled' : ''}`}
-                onClick={() => handleVote(option)}
-                disabled={isDisabled}
-              >
-                {option.name}
-              </button>
+              <button key={option.id} className="option-button" onClick={() => handleVote(option)}>{option.name}</button>
             );
           })}
         </div>
-
-        {votedOption && (
-          <div className="voted-message">
-            投票ありがとうございました！🍜
-          </div>
-        )}
-
+        {votedOption && <div className="voted-message">投票ありがとうございました！✨</div>}
       </div>
     </div>
   );
 }
 
 export default App;
-

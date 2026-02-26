@@ -4,16 +4,13 @@ body {
   font-family: 'Inter', 'Noto Sans JP', sans-serif;
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .app-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  min-height: 100vh;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -21,228 +18,150 @@ body {
 .survey-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
-  padding: 40px;
+  padding: 32px;
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
 }
 
-.survey-title {
+.app-main-title {
   font-size: 28px;
-  color: #333;
-  margin-bottom: 8px;
-  font-weight: 700;
-}
-
-.survey-subtitle {
-  font-size: 16px;
-  color: #666;
+  color: #1e293b;
   margin-bottom: 24px;
-  /* 少し余白を調整しました */
-}
-
-/* 追加フォームのスタイル */
-.add-option-container {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.add-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.add-input:focus {
-  border-color: #94a3b8;
-}
-
-.add-button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 0 20px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-}
-
-.add-button:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-}
-
-.add-button:active {
-  transform: translateY(0);
-}
-
-/* 以下、投票結果のスタイル */
-
-.result-bar-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.result-bar-container.selected {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-}
-
-.result-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.result-percent {
-  color: #64748b;
-  font-size: 14px;
-}
-
-.result-bar-bg {
-  width: 100%;
-  height: 12px;
-  background: #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.result-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  border-radius: 6px;
-  transition: width 1s ease-out;
-  /* アニメーションでぐーんと伸びるようにします */
-}
-
-.result-bar-container.selected .result-bar-fill {
-  background: linear-gradient(90deg, #f472b6, #ec4899);
-  /* 選んだものはピンク色にします */
-}
-
-.voted-message {
-  margin-top: 32px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #10b981;
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* タイマー機能のスタイル */
-
-.timer-container {
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 12px 20px;
-  margin-bottom: 24px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #334155;
-  display: inline-block;
-  transition: all 0.3s;
-}
-
-.time-number {
-  font-size: 24px;
-  color: #3b82f6;
   font-weight: 800;
 }
 
-/* 残り時間が少ない時に赤くする */
-.timer-container.danger {
-  background: #fef2f2;
-}
-
-.timer-container.danger .time-number {
-  color: #ef4444;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.1);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.timeup-message {
-  color: #ef4444;
-  font-size: 20px;
+.create-new-button {
+  width: 100%;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 18px;
   font-weight: 700;
+  cursor: pointer;
   margin-bottom: 24px;
-  animation: fadeIn 0.5s ease-in;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
-/* 時間切れのボタンのスタイル */
-.option-button.disabled {
-  background: #f8fafc;
-  color: #cbd5e1;
-  border-color: #f1f5f9;
-  cursor: not-allowed;
-  box-shadow: none;
+.create-new-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-.option-button.disabled:hover {
-  transform: none;
-}
-
-/* 設定画面のスタイル */
-.settings-container {
+/* 一覧リスト */
+.survey-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 2px solid #e2e8f0;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
 }
 
+.survey-item-card {
+  background: #f8fafc;
+  border: 2px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.survey-item-card:hover {
+  background: #ffffff;
+  border-color: #6366f1;
+  transform: translateX(4px);
+}
+
+.survey-item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.survey-item-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.ended {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.survey-item-deadline {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* 作成画面 & 詳細画面共通 */
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.back-button:hover {
+  color: #334155;
+}
+
+.setup-title {
+  flex: 1;
+  margin: 0;
+  margin-right: 40px;
+  /* バランス用 */
+}
+
+/* 前回のスタイルを流用・微調整 */
 .setting-item-block {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
   width: 100%;
+  margin-bottom: 16px;
+}
+
+.title-input,
+.time-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
 
 .setup-add-container {
@@ -256,7 +175,6 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
-  width: 100%;
 }
 
 .setup-option-tag {
@@ -264,7 +182,6 @@ body {
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 14px;
-  color: #475569;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -280,83 +197,117 @@ body {
   color: #ef4444;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.title-input,
-.time-input {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  background-color: #ffffff;
-  transition: all 0.2s;
-  box-sizing: border-box;
-}
-
-.title-input:focus,
-.time-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-
-
 .start-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  width: 100%;
+  padding: 16px;
+  background: #1e293b;
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 20px;
+  border-radius: 16px;
+  font-size: 18px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   margin-top: 12px;
 }
 
-.start-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-}
-
-.start-button:active {
-  transform: translateY(0);
+.survey-title {
+  font-size: 26px;
+  color: #1e293b;
+  margin-bottom: 16px;
 }
 
 .options-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .option-button {
   background: #ffffff;
   border: 2px solid #e2e8f0;
   border-radius: 16px;
-  padding: 16px 24px;
-  font-size: 18px;
+  padding: 16px;
+  font-size: 17px;
   font-weight: 600;
-  color: #4a5568;
+  color: #475569;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s;
 }
 
 .option-button:hover {
   background: #f8fafc;
-  border-color: #cbd5e1;
+  border-color: #6366f1;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.option-button:active {
-  transform: translateY(0);
+.result-bar-container {
+  text-align: left;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.result-bar-container.selected {
+  border: 2px solid #6366f1;
+  background: #eef2ff;
+}
+
+.result-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.result-bar-bg {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.result-bar-fill {
+  height: 100%;
+  background: #6366f1;
+  border-radius: 4px;
+  transition: width 0.5s;
+}
+
+.timer-container {
+  font-size: 18px;
+  font-weight: 700;
+  color: #6366f1;
+  margin: 16px 0;
+}
+
+.timer-container.danger {
+  color: #ef4444;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.voted-message {
+  margin-top: 24px;
+  color: #10b981;
+  font-weight: 800;
+}
+
+.empty-msg {
+  color: #94a3b8;
+  padding: 40px 0;
 }
