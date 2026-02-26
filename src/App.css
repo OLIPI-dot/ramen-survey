@@ -239,36 +239,40 @@ body {
 
 .setting-item {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #334155;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
 }
 
-.setting-item input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #3b82f6;
-}
-
+.title-input,
 .time-input {
-  width: 80px;
-  padding: 8px;
-  border: 2px solid #cbd5e1;
-  border-radius: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 16px;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.2s;
+  background-color: #ffffff;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
+.title-input:focus,
 .time-input:focus {
+  outline: none;
   border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+
 
 .start-button {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);

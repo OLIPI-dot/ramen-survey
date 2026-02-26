@@ -13,10 +13,11 @@ function App() {
   const [votedOption, setVotedOption] = useState(null);
   const [isTotalVotes, setIsTotalVotes] = useState(0);
 
-  // --- タイマー関連の設定 ---
+  // --- アンケートの設定 ---
+  const [surveyTitle, setSurveyTitle] = useState('🍜 らーめんは何味がすき？');
   const [useTimer, setUseTimer] = useState(true);
-  const [initialTime, setInitialTime] = useState(20);
-  const [timeLeft, setTimeLeft] = useState(20);
+  const [deadline, setDeadline] = useState(''); // 締め切り日時（ISO文字列）
+  const [timeLeft, setTimeLeft] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
 
@@ -24,21 +25,18 @@ function App() {
     const fetchOptions = async () => {
       try {
         // --- 投票済みの情報をブラウザから読み込む ---
-        const savedVote = localStorage.getItem('voted_ramen');
+        const savedVote = localStorage.getItem('voted_survey');
         if (savedVote) {
           setVotedOption(savedVote);
-          // 投票済みなら、設定画面を飛ばしてアンケート画面を出す
           setIsTimerStarted(true);
         }
 
-        // Supabaseからデータを取得します
         const { data, error } = await supabase
           .from('options')
           .select('*')
           .order('id', { ascending: true });
 
         if (error) throw error;
-
         setOptions(data);
         const total = data.reduce((sum, item) => sum + Number(item.votes), 0);
         setIsTotalVotes(total);
@@ -46,27 +44,52 @@ function App() {
         console.error("データの読み込みに失敗しました", error);
       }
     };
+
     fetchOptions();
+
+    // --- 【重要】リアルタイムの魔法！データの変化を監視する ---
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // 追加、更新、削除すべて
+          schema: 'public',
+          table: 'options'
+        },
+        () => {
+          // 何か変化があったら最新データを読み直す
+          fetchOptions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
 
-  // タイマーがスタートしたときだけカウントダウンする
+  // 期限までのカウントダウン処理
   useEffect(() => {
-    if (!useTimer || !isTimerStarted || votedOption || isTimeUp) return;
+    if (!useTimer || !deadline || !isTimerStarted || votedOption || isTimeUp) return;
 
     const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          setIsTimeUp(true);
-          return 0;
-        }
-        return prevTime - 1;
-      });
+      const now = new Date().getTime();
+      const end = new Date(deadline).getTime();
+      const diff = Math.floor((end - now) / 1000);
+
+      if (diff <= 0) {
+        clearInterval(timer);
+        setTimeLeft(0);
+        setIsTimeUp(true);
+      } else {
+        setTimeLeft(diff);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [useTimer, isTimerStarted, votedOption, isTimeUp]);
+  }, [useTimer, deadline, isTimerStarted, votedOption, isTimeUp]);
 
   const handleAddOption = async () => {
     if (newOption.trim() !== '') {
@@ -118,7 +141,10 @@ function App() {
   };
 
   const handleStartSurvey = () => {
-    setTimeLeft(initialTime);
+    if (useTimer && !deadline) {
+      alert("締め切り日時を設定してくださいね");
+      return;
+    }
     setIsTimerStarted(true);
   };
 
@@ -126,10 +152,20 @@ function App() {
     return (
       <div className="app-container">
         <div className="survey-card">
-          <h1 className="survey-title">🍜 らーめんは何味がすき？</h1>
-          <p className="survey-subtitle">アンケートの設定をしましょう</p>
+          <h2 className="setup-title">📝 アンケートを作成</h2>
 
           <div className="settings-container">
+            <div className="setting-item">
+              <label>お題（タイトル）:</label>
+              <input
+                type="text"
+                value={surveyTitle}
+                onChange={(e) => setSurveyTitle(e.target.value)}
+                className="title-input"
+                placeholder="例：今日のおやつは何がいい？"
+              />
+            </div>
+
             <div className="setting-item">
               <label>
                 <input
@@ -137,27 +173,24 @@ function App() {
                   checked={useTimer}
                   onChange={(e) => setUseTimer(e.target.checked)}
                 />
-                タイマー機能を使う
+                締め切り時間を決める
               </label>
             </div>
 
             {useTimer && (
               <div className="setting-item">
-                <label>
-                  制限時間（秒）:
-                  <input
-                    type="number"
-                    value={initialTime}
-                    onChange={(e) => setInitialTime(Number(e.target.value))}
-                    min="5" max="300"
-                    className="time-input"
-                  />
-                </label>
+                <label>いつまで？:</label>
+                <input
+                  type="datetime-local"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  className="time-input"
+                />
               </div>
             )}
 
             <button onClick={handleStartSurvey} className="start-button">
-              アンケート開始！
+              このお題で開始！
             </button>
           </div>
         </div>
@@ -168,8 +201,8 @@ function App() {
   return (
     <div className="app-container">
       <div className="survey-card">
-        <h1 className="survey-title">🍜 らーめんは何味がすき？</h1>
-        <p className="survey-subtitle">あなたの好きな味を一つ選んでね！</p>
+        <h1 className="survey-title">{surveyTitle}</h1>
+        <p className="survey-subtitle">あなたの意見を教えてね！</p>
 
         {useTimer && !votedOption && (
           <div className={`timer-container ${timeLeft <= 5 && timeLeft > 0 ? 'danger' : ''}`}>
