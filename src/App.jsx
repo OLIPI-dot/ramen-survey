@@ -191,6 +191,18 @@ function App() {
     }
   };
 
+  // 投票
+  const handleVote = async (option) => {
+    if (isTimeUp) return;
+    try {
+      await supabase.from('options').update({ votes: option.votes + 1 }).eq('id', option.id);
+      localStorage.setItem(`voted_survey_${currentSurvey.id}`, option.name);
+      setVotedOption(option.name);
+    } catch (error) {
+      alert("投票に失敗しました: " + error.message);
+    }
+  };
+
   // 共有機能
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}`;
