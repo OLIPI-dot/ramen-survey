@@ -480,17 +480,41 @@ function App() {
                 <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
               </div>
               <div className="setting-item-block">
-                <label>項目を追加:</label>
+                <label className="setting-label">🗳️ 投票項目を決める：</label>
                 <div className="setup-add-container">
-                  <input type="text" value={tempOption} onChange={(e) => setTempOption(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()} className="add-input" placeholder="項目を入力..." />
-                  <button onClick={handleAddSetupOption} className="add-button">＋</button>
+                  <input
+                    type="text"
+                    value={tempOption}
+                    onChange={(e) => setTempOption(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddSetupOption()}
+                    className="add-input"
+                    placeholder="例：チョコレート、バニラ..."
+                  />
+                  <button onClick={handleAddSetupOption} className="add-button">追加</button>
                 </div>
-                <div className="setup-options-list">
+
+                {setupOptions.length > 0 && (
+                  <div className="options-count-status">
+                    現在の項目数: <strong>{setupOptions.length}</strong> / 10
+                  </div>
+                )}
+
+                <div className="setup-options-vertical-list">
                   {setupOptions.map((opt, i) => (
-                    <div key={i} className="setup-option-tag">{opt}
-                      <span onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))} className="remove-tag">×</span>
+                    <div key={i} className="setup-option-item">
+                      <span className="option-number">{i + 1}</span>
+                      <span className="option-text">{opt}</span>
+                      <button
+                        className="remove-option-btn"
+                        onClick={() => setSetupOptions(setupOptions.filter((_, idx) => idx !== i))}
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
+                  {setupOptions.length < 2 && (
+                    <div className="option-hint">※ あと {2 - setupOptions.length} つ以上追加してね ✨</div>
+                  )}
                 </div>
               </div>
               <div className="setting-item-block">

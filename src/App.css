@@ -682,3 +682,133 @@ body {
   transform: scale(0.98);
 }
 
+
+
+.setting-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 800;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.setup-add-container {
+  display: flex;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 6px;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s;
+}
+
+.setup-add-container:focus-within {
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.add-input {
+  flex: 1;
+  border: none !important;
+  background: transparent !important;
+  padding: 10px 14px !important;
+  font-size: 15px;
+  outline: none;
+}
+
+.add-button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-button:hover {
+  background: #4f46e5;
+  transform: scale(1.05);
+}
+
+.options-count-status {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: right;
+}
+
+.setup-options-vertical-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setup-option-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.option-number {
+  background: #eef2ff;
+  color: #6366f1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  margin-right: 12px;
+}
+
+.option-text {
+  flex: 1;
+  font-weight: 600;
+  color: #334155;
+}
+
+.remove-option-btn {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.remove-option-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.option-hint {
+  font-size: 12px;
+  color: #f59e0b;
+  background: #fffbeb;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
