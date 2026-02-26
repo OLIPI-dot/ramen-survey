@@ -19,6 +19,7 @@ function App() {
 
   // --- アンケート作成用のState ---
   const [surveyTitle, setSurveyTitle] = useState('');
+  const [surveyImage, setSurveyImage] = useState('');
   const [setupOptions, setSetupOptions] = useState([]);
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
@@ -147,12 +148,16 @@ function App() {
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
     try {
+      // 画像がなければ、お題からそれっぽい写真をUnsplashから借りてくる魔法
+      const finalImage = surveyImage || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800`;
+
       const { data: surveyData, error: surveyError } = await supabase
         .from('surveys')
         .insert([{
           title: surveyTitle,
           deadline: useTimer ? deadline : null,
-          user_id: user.id // ここにログイン中のユーザーIDを保存！
+          user_id: user.id,
+          image_url: finalImage // ここに画像のURLを保存！
         }])
         .select();
       if (surveyError) throw surveyError;
@@ -253,13 +258,16 @@ function App() {
                     setIsTimeUp(isEnded);
                     setView('details');
                   }}>
-                    <div className="survey-item-info">
-                      <span className="survey-item-title">{s.title}</span>
-                      <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
-                        {isEnded ? '終了' : '受付中'}
-                      </span>
+                    {s.image_url && <img src={s.image_url} alt="" className="survey-item-thumb" />}
+                    <div className="survey-item-content">
+                      <div className="survey-item-info">
+                        <span className="survey-item-title">{s.title}</span>
+                        <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                          {isEnded ? '終了' : '受付中'}
+                        </span>
+                      </div>
+                      {s.deadline && <div className="survey-item-deadline">〆切: {new Date(s.deadline).toLocaleString('ja-JP')}</div>}
                     </div>
-                    {s.deadline && <div className="survey-item-deadline">〆切: {new Date(s.deadline).toLocaleString('ja-JP')}</div>}
                   </div>
                 );
               })
@@ -283,6 +291,10 @@ function App() {
             <div className="setting-item-block">
               <label>お題（タイトル）:</label>
               <input type="text" value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} className="title-input" placeholder="例：今日のおやつは何がいい？" />
+            </div>
+            <div className="setting-item-block">
+              <label>イメージ写真のURL（空でもOK）:</label>
+              <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
             </div>
             <div className="setting-item-block">
               <label>項目を追加:</label>
@@ -321,6 +333,13 @@ function App() {
         <div className="card-header">
           <button className="back-button" onClick={() => setView('list')}>← 広場へ戻る</button>
         </div>
+
+        {currentSurvey.image_url && (
+          <div className="survey-banner">
+            <img src={currentSurvey.image_url} alt="survey banner" className="banner-img" />
+          </div>
+        )}
+
         <h1 className="survey-title">{currentSurvey.title}</h1>
 
         {currentSurvey.deadline && !votedOption && !isTimeUp && (

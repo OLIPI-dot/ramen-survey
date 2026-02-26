@@ -148,16 +148,47 @@ body {
   background: #f8fafc;
   border: 2px solid #f1f5f9;
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   text-align: left;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .survey-item-card:hover {
   background: #ffffff;
   border-color: #6366f1;
   transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.survey-item-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.survey-item-content {
+  flex: 1;
+}
+
+.survey-banner {
+  width: calc(100% + 64px);
+  margin-top: -32px;
+  margin-left: -32px;
+  margin-bottom: 24px;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .survey-item-info {
