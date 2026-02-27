@@ -7,6 +7,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// 🌟 アプリ全体で使うデフォルト画像（空欄のとき用）
+const DEFAULT_SURVEY_IMAGE = 'https://pachu.blue/antigravity/survey_default.png';
+
 // 日付と曜日を綺麗に表示する魔法
 const formatWithDay = (dateStr) => {
   if (!dateStr) return '';
@@ -375,10 +378,8 @@ function App() {
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
     try {
-      // お題のキーワードを使って、毎回違う素敵な写真を探してくる魔法
-      const keyword = encodeURIComponent(surveyTitle);
-      const randomSeed = Math.floor(Math.random() * 1000);
-      const finalImage = surveyImage || `https://loremflickr.com/800/400/${keyword}?random=${randomSeed}`;
+      // 🌟 画像が空欄なら、おりぴさん指定のデフォルト画像を使う
+      const finalImage = surveyImage.trim() || DEFAULT_SURVEY_IMAGE;
 
       const { data: surveyData, error: surveyError } = await supabase
         .from('surveys')

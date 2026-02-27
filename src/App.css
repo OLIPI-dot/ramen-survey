@@ -284,7 +284,30 @@ body {
   color: var(--primary-color);
 }
 
-/* 🚀 ボタン類 */
+/* ➕ 項目追加ボタンのオシャレ化 */
+.add-button {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+  white-space: nowrap;
+}
+
+.add-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.add-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
 .start-button {
   width: 100%;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
