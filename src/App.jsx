@@ -81,6 +81,7 @@ function App() {
   const [contactMessage, setContactMessage] = useState('');
   const [contactHoneypot, setContactHoneypot] = useState(''); // 🍯 罠
   const [isHuman, setIsHuman] = useState(false); // 🤖 チェック
+  const [searchQuery, setSearchQuery] = useState(''); // 🔍 検索用
 
   const handleSendInquiry = async () => {
     // 砦1：罠
@@ -523,6 +524,19 @@ function App() {
                   ＋ 新しいアンケートを作る
                 </button>
 
+                <div className="search-container">
+                  <input
+                    type="text"
+                    placeholder="🔍 アンケートを検索する..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                  {searchQuery && (
+                    <button className="search-clear" onClick={() => setSearchQuery('')}>×</button>
+                  )}
+                </div>
+
                 <div className="tab-switcher">
                   <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
                   <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
@@ -532,7 +546,11 @@ function App() {
                 <div className="survey-list">
                   {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
                     [...surveys]
-                      .filter(s => sortMode === 'watching' ? watchedIds.includes(s.id) : true)
+                      .filter(s => {
+                        const matchesSearch = s.title.toLowerCase().includes(searchQuery.toLowerCase());
+                        const matchesWatch = sortMode === 'watching' ? watchedIds.includes(s.id) : true;
+                        return matchesSearch && matchesWatch;
+                      })
                       .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
                       .map((s, index) => {
                         const isEnded = s.deadline && new Date(s.deadline) < new Date();
