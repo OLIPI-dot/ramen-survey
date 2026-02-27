@@ -1,4 +1,4 @@
-﻿/* 🌈 アンケート広場：究極の完成版デザイン 🌈 */
+﻿/* 🌈 アンケート広場：究極の完成版デザイン（最終安定版） 🌈 */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #4f46e5;
@@ -22,12 +22,11 @@ body {
   line-height: 1.6;
 }
 
-/* 🏰 全体レイアウト */
+/* 🏰 全体レイアウト：縦の層 */
 .survey-main-portal {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* 常に縦並び（ヘッダー・メイン・フッター） */
 }
 
 .main-wrap {
@@ -36,6 +35,7 @@ body {
   margin: 0 auto;
 }
 
+/* 🧱 3カラムグリッド（PC用） */
 .layout-grid-3 {
   display: flex !important;
   flex-direction: row !important;
@@ -44,7 +44,7 @@ body {
   padding: 40px 20px !important;
 }
 
-/* ⇠ 左：ナビ */
+/* ⇠ 左：戻るナビ */
 .nav-sidebar-left {
   flex: 0 0 160px;
   display: flex;
@@ -66,7 +66,6 @@ body {
   gap: 10px;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  z-index: 100;
 }
 
 .side-back-btn:hover {
@@ -75,7 +74,7 @@ body {
   transform: translateX(-5px);
 }
 
-/* 🗳️ 中央：メイン */
+/* 🗳️ 中央：アンケート本体 */
 .survey-card {
   flex: 1;
   max-width: 760px;
@@ -83,66 +82,35 @@ body {
   border-radius: 28px;
   padding: 40px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 🔥 右：サイドバー */
+/* 🔥 右：サイドバー内容 */
 .live-feed-sidebar {
   flex: 0 0 300px;
 }
 
-/* 🎨 ログイン・検索 */
-.auth-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 24px;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  font-weight: 700;
-}
-
-.logout-button {
-  background: none;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  margin-left: 10px;
-}
-
-.login-button-top {
-  background: white;
-  border: 1px solid #e2e8f0;
-  padding: 8px 20px;
-  border-radius: 50px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.create-new-button {
-  width: 100%;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  color: white;
-  border: none;
-  padding: 18px;
-  border-radius: 20px;
-  font-size: 1.1rem;
+.live-feed-title {
   font-weight: 800;
-  cursor: pointer;
-  margin-bottom: 30px;
-  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+  font-size: 1.1rem;
+  margin-bottom: 12px;
 }
 
+.live-item {
+  background: white;
+  padding: 12px 18px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.live-item.clickable:hover {
+  border-color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+/* 🔍 検索 & 🏷️ タブ */
 .search-container {
   position: relative;
   margin-bottom: 20px;
@@ -155,7 +123,6 @@ body {
   border-radius: 18px;
   background: #f8fafc;
   font-size: 1rem;
-  transition: 0.3s;
 }
 
 .search-input:focus {
@@ -164,24 +131,6 @@ body {
   outline: none;
 }
 
-.search-clear {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #cbd5e1;
-  color: white;
-  border: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 🏷️ タブスイッチ */
 .tab-switcher {
   display: flex;
   background: #f1f5f9;
@@ -207,7 +156,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* 📜 アンケートリスト & 重要：写真サイズ固定！ */
+/* 📜 リスト & 【重要】写真サイズ固定 */
 .survey-list {
   display: flex;
   flex-direction: column;
@@ -221,22 +170,13 @@ body {
   border-radius: 20px;
   padding: 15px;
   cursor: pointer;
-  transition: 0.2s;
-  border: 1px solid transparent;
-}
-
-.survey-item-card:hover {
-  background: white;
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
 .survey-item-thumb {
   width: 80px !important;
   height: 80px !important;
   flex: 0 0 80px !important;
-  /* 縮まないように固定 */
+  /* 👈 絶対に縮まない・伸びない */
   border-radius: 15px;
   object-fit: cover;
   margin-right: 18px;
@@ -251,17 +191,14 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
 }
 
 .survey-item-title {
   font-weight: 800;
   font-size: 1.1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
+/* ⭐ ウォッチ星 */
 .card-right-actions {
   display: flex;
   align-items: center;
@@ -274,54 +211,13 @@ body {
   font-size: 1.4rem;
   color: #cbd5e1;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .watch-star-btn.active {
   color: #f59e0b;
 }
 
-.status-badge {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.status-badge.active {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-badge.ended {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.survey-item-meta-row {
-  display: flex;
-  font-size: 0.85rem;
-  color: var(--text-sub);
-  gap: 15px;
-}
-
-/* 📊 投票詳細・結果 */
-.banner-img {
-  width: 100%;
-  border-radius: 20px;
-  aspect-ratio: 2/1;
-  object-fit: cover;
-  margin-bottom: 25px;
-}
-
-.survey-title {
-  font-size: 1.8rem;
-  font-weight: 900;
-  margin-bottom: 25px;
-  text-align: center;
-}
-
+/* 📊 投票結果 */
 .result-bar-container {
   margin-bottom: 16px;
 }
@@ -329,7 +225,7 @@ body {
 .result-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: 700;
 }
 
@@ -343,52 +239,10 @@ body {
 .result-bar-fill {
   background: var(--primary-color);
   height: 100%;
-  transition: width 0.8s ease-out;
+  transition: width 0.8s ease;
 }
 
-.result-bar-container.selected .result-bar-fill {
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-}
-
-.option-button {
-  width: 100%;
-  padding: 18px;
-  border: 2px solid #e2e8f0;
-  border-radius: 18px;
-  background: white;
-  margin-bottom: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.option-button:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: #f5f3ff;
-}
-
-/* 📝 作成・🕒 お時間調整（横並び！） */
-.create-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.setting-item-block {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title-input {
-  width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
+/* 🕒 お時間調整（横並び！） */
 .quick-time-buttons-v2 {
   display: flex;
   flex-direction: row;
@@ -405,8 +259,8 @@ body {
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  overflow: hidden;
   height: 40px;
+  overflow: hidden;
 }
 
 .time-adjust-group span {
@@ -428,10 +282,11 @@ body {
   background: white;
   cursor: pointer;
   color: var(--primary-color);
-  font-weight: bold;
 }
 
+/* 🚀 ボタン類 */
 .start-button {
+  width: 100%;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
   border: none;
@@ -441,14 +296,6 @@ body {
   font-weight: 800;
   cursor: pointer;
   margin-top: 20px;
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
-}
-
-/* 🚀 シェア・削除 */
-.share-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
 }
 
 .share-button {
@@ -459,12 +306,6 @@ body {
   border-radius: 50px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(29, 155, 240, 0.2);
-}
-
-.admin-actions {
-  text-align: center;
-  margin-top: 20px;
 }
 
 .delete-button {
@@ -477,42 +318,7 @@ body {
   cursor: pointer;
 }
 
-.bottom-nav {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.back-to-list-link {
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* 🏰 サイドバー内容 */
-.live-feed-title {
-  font-weight: 800;
-  font-size: 1.1rem;
-  margin-bottom: 12px;
-}
-
-.live-item {
-  background: white;
-  padding: 12px 18px;
-  border-radius: 16px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border-color);
-  font-size: 0.9rem;
-}
-
-.live-item.clickable:hover {
-  transform: translateX(5px);
-  border-color: var(--primary-color);
-}
-
-/* 📱 スマホ対応 */
+/* 📱 モバイル対応 */
 @media (max-width: 768px) {
   .layout-grid-3 {
     flex-direction: column !important;
@@ -552,7 +358,7 @@ body {
   text-align: center;
   border-top: 1px solid var(--border-color);
   width: 100%;
-  background: var(--bg-color);
+  margin-top: auto;
 }
 
 .footer-link-text {
@@ -561,4 +367,27 @@ body {
   cursor: pointer;
   font-weight: 700;
   text-decoration: underline;
+}
+
+.auth-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.logout-button {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
 }
