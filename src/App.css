@@ -543,3 +543,162 @@ body {
   background: #94a3b8;
 }
 
+
+
+/* ?? アンケート作成画面の装飾 ?? */
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: left;
+}
+
+.setting-item-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item-block label {
+  font-weight: 800;
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.title-input, .add-input, .time-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.title-input:focus, .add-input:focus, .time-input:focus {
+  border-color: var(--primary-color);
+  background: white;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.setup-add-container {
+  display: flex;
+  gap: 10px;
+}
+
+.add-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0 24px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.setup-options-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.setup-option-item {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 10px 15px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.option-number {
+  background: white;
+  color: var(--primary-color);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-right: 12px;
+}
+
+.option-text {
+  flex: 1;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.remove-option-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.quick-time-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quick-time-buttons button {
+  flex: 1;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.quick-time-buttons button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: #f5f3ff;
+}
+
+.start-button {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 20px;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s;
+}
+
+.start-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+}
+
+.option-hint {
+  font-size: 0.85rem;
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
