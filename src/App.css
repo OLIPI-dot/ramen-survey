@@ -1305,3 +1305,77 @@ body {
   cursor: pointer;
 }
 
+
+
+/* ?? スマホ・タブレット表示の徹底修正 ?? */
+@media (max-width: 768px) {
+  /* 横揺れを完全に防ぐ */
+  html, body {
+    overflow-x: hidden !important;
+    position: relative;
+    width: 100%;
+  }
+
+  /* 3カラムを完全に縦1列へ */
+  .layout-grid-3 {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 10px 15px !important; /* 左右の余白を均等に */
+    gap: 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 左ナビ（戻るボタン） */
+  .nav-sidebar-left {
+    flex: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin-bottom: 5px !important;
+  }
+
+  .side-back-btn {
+    position: static !important; /* スマホでは追いかけてこない（邪魔なので） */
+    width: fit-content !important;
+    padding: 10px 15px !important;
+    font-size: 13px !important;
+  }
+
+  /* メインコンテンツ（アンケートカード） */
+  .survey-main-portal .survey-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 右ナビ（ニュース・ランキング） */
+  .survey-main-portal .live-feed-sidebar {
+    flex: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 画像がはみ出さないように */
+  .banner-img {
+    border-radius: 12px !important;
+    max-height: 200px !important;
+    object-fit: cover !important;
+  }
+
+  /* お問い合わせモーダルの幅調整 */
+  .modal-content {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 20px 15px !important;
+    margin: 10px auto !important;
+  }
+}
+
+/* 全体的なはみ出し防止のダメ押し */
+* {
+  box-sizing: border-box;
+}
+
