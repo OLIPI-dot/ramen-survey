@@ -8,8 +8,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // 🌟 アプリ全体で使うデフォルト画像（空欄のとき用）
-// おりぴさんの「専用ロゴ」をデフォルトにします！
-const DEFAULT_SURVEY_IMAGE = 'https://pachu.blue/antigravity/logo.png';
+// 指定のロゴ画像が読み込めないため、安定したオシャレな画像に戻します
+const DEFAULT_SURVEY_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000';
 
 // 日付と曜日を綺麗に表示する魔法
 const formatWithDay = (dateStr) => {
@@ -43,7 +43,7 @@ function App() {
   // --- アンケート作成用のState ---
   const [surveyTitle, setSurveyTitle] = useState('');
   const [surveyImage, setSurveyImage] = useState('');
-  const [surveyCategory, setSurveyCategory] = useState('その他'); // 🏷️ カテゴリ追加
+  const [surveyCategory, setSurveyCategory] = useState(''); // 空にして「未選択」状態を作る
   const [setupOptions, setSetupOptions] = useState([]);
 
   // 表示モード（新着 or 人気 or ウォッチ中）
@@ -377,6 +377,7 @@ function App() {
   const handleStartSurvey = async () => {
     if (!user) return alert("アンケートを作るにはログインが必要です！");
     if (!surveyTitle.trim()) return alert("アンケートのお題（タイトル）を入力してね！");
+    if (!surveyCategory) return alert("カテゴリを選んでね！");
     if (useTimer && !deadline) return alert("締め切りを設定してね");
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
