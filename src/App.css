@@ -1,4 +1,4 @@
-﻿/* 決 蜈ｨ菴鍋噪縺ｪ繝ｪ繧ｻ繝・ヨ 決 */
+﻿/* 🌈 デザイン・完全復旧ガイド 🌈 */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #4f46e5;
@@ -22,11 +22,11 @@ body {
   line-height: 1.6;
 }
 
-/* 床 繝｡繧､繝ｳ繝ｬ繧､繧｢繧ｦ繝・床 */
+/* 🏰 メインレイアウト（縦並びの基本） */
 .survey-main-portal {
   min-height: 100vh;
   display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: column;
   padding-bottom: 60px;
 }
 
@@ -44,11 +44,11 @@ body {
   padding: 40px 20px !important;
 }
 
-/* 竍 蟾ｦ・壽綾繧九リ繝・*/
+/* ⇠ 左：戻るナビ */
 .nav-sidebar-left {
   flex: 0 0 160px;
   display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: column;
 }
 
 .side-back-btn {
@@ -76,7 +76,7 @@ body {
   box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
 }
 
-/* 竜・・荳ｭ螟ｮ・壹Γ繧､繝ｳ繧ｫ繝ｼ繝・*/
+/* 🗳️ 中央：メインカード */
 .survey-card {
   flex: 1;
   max-width: 760px;
@@ -87,415 +87,12 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 櫨 蜿ｳ・壹し繧､繝峨ヰ繝ｼ */
+/* 🔥 右：サイドバー */
 .live-feed-sidebar {
   flex: 0 0 300px;
 }
 
-/* 耳 繝ｭ繧ｰ繧､繝ｳ & 繝倥ャ繝繝ｼ */
-.auth-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 24px;
-}
-
-.login-button-top {
-  background: white;
-  border: 1px solid var(--border-color);
-  padding: 10px 20px;
-  border-radius: 50px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.login-button-top:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.create-new-button {
-  width: 100%;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  color: white;
-  border: none;
-  padding: 18px;
-  border-radius: 20px;
-  font-size: 1.1rem;
-  font-weight: 800;
-  cursor: pointer;
-  margin-bottom: 30px;
-  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.create-new-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(99, 102, 241, 0.35);
-}
-
-/* 捷・・繧ｿ繝悶せ繧､繝・メ */
-.tab-switcher {
-  display: flex;
-  background: #f1f5f9;
-  padding: 6px;
-  border-radius: 16px;
-  margin-bottom: 24px;
-}
-
-.tab-switcher button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  background: transparent;
-  border-radius: 12px;
-  font-weight: 700;
-  color: var(--text-sub);
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.tab-switcher button.active {
-  background: white;
-  color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* 糖 繧｢繝ｳ繧ｱ繝ｼ繝医Μ繧ｹ繝・*/
-.survey-list {
-  display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
-  gap: 16px;
-}
-
-.survey-item-card {
-  display: flex;
-  align-items: center;
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-}
-
-.survey-item-card:hover {
-  background: white;
-  border-color: var(--primary-color);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-}
-
-.survey-item-thumb {
-  width: 80px;
-  height: 80px;
-  border-radius: 15px;
-  object-fit: cover;
-  margin-right: 18px;
-}
-
-.survey-item-content {
-  flex: 1;
-}
-
-.survey-item-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.survey-item-title {
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: #334155;
-}
-
-.status-badge {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 700;
-}
-
-.status-badge.active {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-badge.ended {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.survey-item-meta-row {
-  display: flex;
-  font-size: 0.85rem;
-  color: var(--text-sub);
-  gap: 15px;
-}
-
-/* 投 謚慕･ｨ邨先棡 */
-.result-bar-container {
-  margin-bottom: 16px;
-}
-
-.result-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.result-bar-bg {
-  background: #f1f5f9;
-  height: 12px;
-  border-radius: 50px;
-  overflow: hidden;
-}
-
-.result-bar-fill {
-  background: var(--primary-color);
-  height: 100%;
-  transition: width 0.8s ease-out;
-}
-
-.result-bar-container.selected .result-bar-fill {
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-}
-
-.option-button {
-  width: 100%;
-  padding: 18px;
-  border: 2px solid #e2e8f0;
-  border-radius: 18px;
-  background: white;
-  margin-bottom: 12px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.option-button:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: #f5f3ff;
-}
-
-/* 導 繧ｹ繝槭・繝医ヵ繧ｩ繝ｳ陦ｨ遉ｺ (768px莉･荳・ 導 */
-@media (max-width: 768px) {
-  .layout-grid-3 {
-    flex-direction: column !important;
-    padding: 15px !important;
-    gap: 20px !important;
-  }
-
-  .nav-sidebar-left,
-  .live-feed-sidebar {
-    flex: none !important;
-    width: 100% !important;
-  }
-
-  .survey-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 25px 20px !important;
-    border-radius: 24px !important;
-  }
-
-  .side-back-btn {
-    position: static !important;
-    width: fit-content !important;
-    margin-bottom: 5px !important;
-  }
-
-  .tab-switcher {
-    width: 100% !important;
-    padding: 5px !important;
-    margin-bottom: 15px !important;
-  }
-
-  .survey-item-thumb {
-    width: 65px !important;
-    height: 65px !important;
-    margin-right: 12px !important;
-  }
-}
-
-/* ｧｱ 縺昴・莉悶・繝代・繝・*/
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-}
-
-.logout-button {
-  background: none;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.live-feed-title {
-  font-weight: 800;
-  font-size: 1.1rem;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.live-item {
-  background: white;
-  padding: 12px 18px;
-  border-radius: 16px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border-color);
-  font-size: 0.9rem;
-  transition: 0.2s;
-}
-
-.live-item.clickable:hover {
-  transform: translateX(5px);
-  border-color: var(--primary-color);
-}
-
-.rank-label {
-  font-size: 1.2rem;
-  margin-right: 10px;
-}
-
-.app-footer {
-  padding: 40px 0;
-  text-align: center;
-  border-top: 1px solid var(--border-color);
-  background: white;
-}
-
-.footer-link-text {
-  color: var(--primary-color);
-  margin: 0 10px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-decoration: underline;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: white;
-  padding: 35px;
-  border-radius: 30px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-}
-
-.contact-form-item {
-  margin-bottom: 18px;
-}
-
-.contact-form-item label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 800;
-  font-size: 0.9rem;
-}
-
-.contact-input,
-.contact-select,
-.contact-textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #f8fafc;
-  font-size: 1rem;
-}
-
-.bot-check-area {
-  background: #fff1f2;
-  border: 1px solid #ffe4e6;
-  padding: 12px;
-  border-radius: 14px;
-  margin-bottom: 15px;
-}
-
-.banner-img {
-  width: 100%;
-  border-radius: 20px;
-  aspect-ratio: 2/1;
-  object-fit: cover;
-  margin-bottom: 25px;
-}
-
-.survey-title {
-  font-size: 1.8rem;
-  font-weight: 900;
-  margin-bottom: 25px;
-  color: #1e293b;
-  text-align: center;
-}
-
-/* ? ウォッチ機能の装飾 ? */
-.card-right-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.watch-star-btn {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  color: #cbd5e1;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.watch-star-btn:hover {
-  transform: scale(1.2);
-  color: #f59e0b;
-}
-
-.watch-star-btn.active {
-  color: #f59e0b;
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
-}
-
-@media (max-width: 768px) {
-  .watch-star-btn {
-    font-size: 1.2rem !important;
-  }
-}
-
-
-
-/* ?? 検索バーの装飾 ?? */
+/* 🔍 検索バー */
 .search-container {
   position: relative;
   margin-bottom: 20px;
@@ -514,7 +111,7 @@ body {
 }
 
 .search-input:focus {
-  border-color: #6366f1;
+  border-color: var(--primary-color);
   background: white;
   outline: none;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
@@ -535,259 +132,115 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 14px;
+}
+
+/* 🏷️ タブスイッチ */
+.tab-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 6px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.tab-switcher button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+}
+
+.tab-switcher button.active {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 📜 リストアイテム & ⭐ ウォッチ */
+.survey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.survey-item-card {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.survey-item-card:hover {
+  background: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.card-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.watch-star-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #cbd5e1;
+  cursor: pointer;
   transition: 0.2s;
 }
 
-.search-clear:hover {
-  background: #94a3b8;
+.watch-star-btn.active {
+  color: #f59e0b;
 }
 
-
-
-/* ?? アンケート作成画面の装飾 ?? */
+/* 📝 作成フォーム & 🕒 お時間調整（横並び！） */
 .create-form {
   display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: column;
   gap: 24px;
-  text-align: left;
 }
 
 .setting-item-block {
   display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: column;
   gap: 8px;
 }
 
-.setting-item-block label {
-  font-weight: 800;
-  color: var(--text-main);
-  font-size: 0.95rem;
-}
-
-.title-input, .add-input, .time-input {
-  width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  background: #f8fafc;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-.title-input:focus, .add-input:focus, .time-input:focus {
-  border-color: var(--primary-color);
-  background: white;
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-}
-
-.setup-add-container {
-  display: flex;
-  gap: 10px;
-}
-
-.add-button {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0 24px;
-  border-radius: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.add-button:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-}
-
-.setup-options-vertical-list {
-  display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.setup-option-item {
-  display: flex;
-  align-items: center;
-  background: #f1f5f9;
-  padding: 10px 15px;
-  border-radius: 12px;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.option-number {
-  background: white;
-  color: var(--primary-color);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-  margin-right: 12px;
-}
-
-.option-text {
-  flex: 1;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.remove-option-btn {
-  background: none;
-  border: none;
-  color: #ef4444;
-  font-size: 1.5rem;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.quick-time-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.quick-time-buttons button {
-  flex: 1;
-  background: white;
-  border: 1px solid #e2e8f0;
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.quick-time-buttons button:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  background: #f5f3ff;
-}
-
-.start-button {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
-  border: none;
-  padding: 20px;
-  border-radius: 20px;
-  font-size: 1.2rem;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 20px;
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
-  transition: all 0.3s;
-}
-
-.start-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
-}
-
-.option-hint {
-  font-size: 0.85rem;
-  color: #f59e0b;
-  font-weight: 700;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* ?? ボタン＆お時間調整の復活 ?? */
-.share-actions {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.share-button {
-  background: linear-gradient(135deg, #1d9bf0 0%, #00ba7c 100%);
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 50px;
-  font-weight: 800;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(29, 155, 240, 0.2);
-  transition: all 0.3s;
-}
-
-.share-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(29, 155, 240, 0.35);
-}
-
-.admin-actions {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.delete-button {
-  background: #fef2f2;
-  color: #ef4444;
-  border: 1px solid #fee2e2;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.delete-button:hover {
-  background: #fee2e2;
-}
-
-.bottom-nav {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.back-to-list-link {
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* ?? お時間調整（＋ー） ?? */
 .quick-time-buttons-v2 {
   display: flex;
-  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
 }
 
 .time-adjust-group {
+  flex: 1;
+  min-width: 100px;
   display: flex;
   align-items: center;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
-  height: 40px; flex: 1; min-width: 80px; flex: 1 1 calc(25% - 10px);
+  height: 40px;
 }
 
 .time-adjust-group span {
   flex: 1;
   text-align: center;
   font-weight: 800;
-  font-size: 0.9rem;
-  color: var(--text-main);
+  font-size: 0.85rem;
   background: #f8fafc;
   height: 100%;
   display: flex;
@@ -796,23 +249,87 @@ body {
 }
 
 .time-adjust-group button {
-  width: 50px;
+  width: 40px;
   height: 100%;
   border: none;
   background: white;
-  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   color: var(--primary-color);
-  transition: 0.2s;
 }
 
-.time-adjust-group button:hover {
-  background: #f5f3ff;
-  color: var(--primary-hover);
+.start-button {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
 }
 
-.time-adjust-group button:active {
-  background: #ede9fe;
+/* 🚀 シェア & 削除ボタン */
+.share-button {
+  background: linear-gradient(135deg, #1d9bf0 0%, #00ba7c 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
+.delete-button {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 📱 モバイル対応 */
+@media (max-width: 768px) {
+  .layout-grid-3 {
+    flex-direction: column !important;
+    padding: 15px !important;
+  }
+
+  .nav-sidebar-left,
+  .live-feed-sidebar {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .survey-card {
+    width: 100% !important;
+    padding: 25px 20px !important;
+  }
+
+  .side-back-btn {
+    position: static !important;
+    margin-bottom: 10px !important;
+  }
+
+  .time-adjust-group {
+    min-width: calc(50% - 5px);
+  }
+}
+
+.app-footer {
+  padding: 40px 0;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.footer-link-text {
+  color: var(--primary-color);
+  margin: 0 10px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: underline;
+}
