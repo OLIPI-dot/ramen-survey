@@ -26,7 +26,7 @@ body {
 .survey-main-portal {
   min-height: 100vh;
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   padding-bottom: 60px;
 }
 
@@ -48,7 +48,7 @@ body {
 .nav-sidebar-left {
   flex: 0 0 160px;
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
 }
 
 .side-back-btn {
@@ -164,7 +164,7 @@ body {
 /* 糖 繧｢繝ｳ繧ｱ繝ｼ繝医Μ繧ｹ繝・*/
 .survey-list {
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   gap: 16px;
 }
 
@@ -548,14 +548,14 @@ body {
 /* ?? アンケート作成画面の装飾 ?? */
 .create-form {
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   gap: 24px;
   text-align: left;
 }
 
 .setting-item-block {
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   gap: 8px;
 }
 
@@ -605,7 +605,7 @@ body {
 
 .setup-options-vertical-list {
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   gap: 10px;
   margin-top: 10px;
 }
@@ -767,7 +767,7 @@ body {
 /* ?? お時間調整（＋ー） ?? */
 .quick-time-buttons-v2 {
   display: flex;
-  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
+  flex-direction: row !important; flex-wrap: wrap !important; flex-wrap: wrap; justify-content: space-between;
   gap: 10px;
   margin-top: 10px;
 }
@@ -779,7 +779,7 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
-  height: 40px; flex: 1; min-width: 100px;
+  height: 40px; flex: 1; min-width: 80px; flex: 1 1 calc(25% - 10px);
 }
 
 .time-adjust-group span {
