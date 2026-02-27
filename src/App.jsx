@@ -46,8 +46,9 @@ function App() {
   const [surveyCategory, setSurveyCategory] = useState(''); // 空にして「未選択」状態を作る
   const [setupOptions, setSetupOptions] = useState([]);
 
-  // 表示モード（新着 or 人気 or ウォッチ中）
+  // 表示モードとカテゴリフィルタ
   const [sortMode, setSortMode] = useState('latest');
+  const [filterCategory, setFilterCategory] = useState('すべて');
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
 
@@ -552,13 +553,27 @@ function App() {
                   <button className={sortMode === 'watching' ? 'active' : ''} onClick={() => setSortMode('watching')}>⭐ ウォッチ中</button>
                 </div>
 
+                {/* 🔍 カテゴリ絞り込みタブ */}
+                <div className="category-filter-bar">
+                  {['すべて', 'エンタメ', 'グルメ', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
+                    <button
+                      key={cat}
+                      className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`}
+                      onClick={() => setFilterCategory(cat)}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="survey-list">
                   {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
                     [...surveys]
                       .filter(s => {
                         const matchesSearch = s.title.toLowerCase().includes(searchQuery.toLowerCase());
                         const matchesWatch = sortMode === 'watching' ? watchedIds.includes(s.id) : true;
-                        return matchesSearch && matchesWatch;
+                        const matchesCategory = filterCategory === 'すべて' ? true : s.category === filterCategory;
+                        return matchesSearch && matchesWatch && matchesCategory;
                       })
                       .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
                       .map((s, index) => {

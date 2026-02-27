@@ -459,6 +459,45 @@ body {
   box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
 }
 
+/* 🔍 カテゴリ絞り込みバー */
+.category-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.category-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-cat-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-sub);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.filter-cat-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.filter-cat-btn.active {
+  background: var(--text-main);
+  border-color: var(--text-main);
+  color: white;
+}
+
 .setup-add-container {
   display: flex;
   gap: 12px;
@@ -853,7 +892,7 @@ body {
   border-radius: 24px;
   padding: 30px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  max-height: 90vh;
+  max-height: 85vh;
   overflow-y: auto;
 }
 
@@ -870,7 +909,7 @@ body {
 .modal-body {
   font-size: 0.95rem;
   color: #475569;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 .modal-body ul {
