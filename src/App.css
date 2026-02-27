@@ -1,4 +1,4 @@
-/* 🌈 全体的なリセット 🌈 */
+﻿/* 決 蜈ｨ菴鍋噪縺ｪ繝ｪ繧ｻ繝・ヨ 決 */
 :root {
   --primary-color: #6366f1;
   --primary-hover: #4f46e5;
@@ -22,11 +22,11 @@ body {
   line-height: 1.6;
 }
 
-/* 🏰 メインレイアウト 🏰 */
+/* 床 繝｡繧､繝ｳ繝ｬ繧､繧｢繧ｦ繝・床 */
 .survey-main-portal {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   padding-bottom: 60px;
 }
 
@@ -44,11 +44,11 @@ body {
   padding: 40px 20px !important;
 }
 
-/* ⇠ 左：戻るナビ */
+/* 竍 蟾ｦ・壽綾繧九リ繝・*/
 .nav-sidebar-left {
   flex: 0 0 160px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
 }
 
 .side-back-btn {
@@ -76,7 +76,7 @@ body {
   box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
 }
 
-/* 🗳️ 中央：メインカード */
+/* 竜・・荳ｭ螟ｮ・壹Γ繧､繝ｳ繧ｫ繝ｼ繝・*/
 .survey-card {
   flex: 1;
   max-width: 760px;
@@ -87,12 +87,12 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 🔥 右：サイドバー */
+/* 櫨 蜿ｳ・壹し繧､繝峨ヰ繝ｼ */
 .live-feed-sidebar {
   flex: 0 0 300px;
 }
 
-/* 🎨 ログイン & ヘッダー */
+/* 耳 繝ｭ繧ｰ繧､繝ｳ & 繝倥ャ繝繝ｼ */
 .auth-header {
   display: flex;
   justify-content: flex-end;
@@ -134,7 +134,7 @@ body {
   box-shadow: 0 15px 30px rgba(99, 102, 241, 0.35);
 }
 
-/* 🏷️ タブスイッチ */
+/* 捷・・繧ｿ繝悶せ繧､繝・メ */
 .tab-switcher {
   display: flex;
   background: #f1f5f9;
@@ -161,10 +161,10 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* 📜 アンケートリスト */
+/* 糖 繧｢繝ｳ繧ｱ繝ｼ繝医Μ繧ｹ繝・*/
 .survey-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   gap: 16px;
 }
 
@@ -235,7 +235,7 @@ body {
   gap: 15px;
 }
 
-/* 📊 投票結果 */
+/* 投 謚慕･ｨ邨先棡 */
 .result-bar-container {
   margin-bottom: 16px;
 }
@@ -283,7 +283,7 @@ body {
   background: #f5f3ff;
 }
 
-/* 📱 スマートフォン表示 (768px以下) 📱 */
+/* 導 繧ｹ繝槭・繝医ヵ繧ｩ繝ｳ陦ｨ遉ｺ (768px莉･荳・ 導 */
 @media (max-width: 768px) {
   .layout-grid-3 {
     flex-direction: column !important;
@@ -323,7 +323,7 @@ body {
   }
 }
 
-/* 🧱 その他のパーツ */
+/* ｧｱ 縺昴・莉悶・繝代・繝・*/
 .user-avatar {
   width: 32px;
   height: 32px;
@@ -459,7 +459,7 @@ body {
   text-align: center;
 }
 
-/* ? �E�H�b�`�@�\�̑��� ? */
+/* ? ウォッチ機能の装飾 ? */
 .card-right-actions {
   display: flex;
   align-items: center;
@@ -495,7 +495,7 @@ body {
 
 
 
-/* ?? �����o�[�̑��� ?? */
+/* ?? 検索バーの装飾 ?? */
 .search-container {
   position: relative;
   margin-bottom: 20px;
@@ -545,17 +545,17 @@ body {
 
 
 
-/* ?? �A���P�[�g�쐬��ʂ̑��� ?? */
+/* ?? アンケート作成画面の装飾 ?? */
 .create-form {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   gap: 24px;
   text-align: left;
 }
 
 .setting-item-block {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   gap: 8px;
 }
 
@@ -605,7 +605,7 @@ body {
 
 .setup-options-vertical-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   gap: 10px;
   margin-top: 10px;
 }
@@ -704,7 +704,7 @@ body {
 
 
 
-/* ?? �{�^���������Ԓ����̕��� ?? */
+/* ?? ボタン＆お時間調整の復活 ?? */
 .share-actions {
   margin-top: 30px;
   display: flex;
@@ -764,10 +764,10 @@ body {
   text-decoration: underline;
 }
 
-/* ?? �����Ԓ����i�{�[�j ?? */
+/* ?? お時間調整（＋ー） ?? */
 .quick-time-buttons-v2 {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; flex-wrap: wrap; justify-content: space-between;
   gap: 10px;
   margin-top: 10px;
 }
@@ -779,7 +779,7 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
-  height: 44px;
+  height: 40px; flex: 1; min-width: 100px;
 }
 
 .time-adjust-group span {

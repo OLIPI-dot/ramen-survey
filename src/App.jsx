@@ -663,6 +663,11 @@ function App() {
                           <button onClick={() => modifyDeadlineMinutes(5)}>+</button>
                         </div>
                         <div className="time-adjust-group">
+                          <button onClick={() => modifyDeadlineMinutes(-10)}>−</button>
+                          <span>10分</span>
+                          <button onClick={() => modifyDeadlineMinutes(10)}>+</button>
+                        </div>
+                        <div className="time-adjust-group">
                           <button onClick={() => modifyDeadlineMinutes(-60)}>−</button>
                           <span>1時間</span>
                           <button onClick={() => modifyDeadlineMinutes(60)}>+</button>
