@@ -8,7 +8,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // 🌟 アプリ全体で使うデフォルト画像（空欄のとき用）
-const DEFAULT_SURVEY_IMAGE = 'https://pachu.blue/antigravity/survey_default.png';
+// 綺麗なグラデーションまたは街角のオシャレな画像を使います
+const DEFAULT_SURVEY_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000';
 
 // 日付と曜日を綺麗に表示する魔法
 const formatWithDay = (dateStr) => {
@@ -374,6 +375,7 @@ function App() {
   // アンケート作成
   const handleStartSurvey = async () => {
     if (!user) return alert("アンケートを作るにはログインが必要です！");
+    if (!surveyTitle.trim()) return alert("アンケートのお題（タイトル）を入力してね！");
     if (useTimer && !deadline) return alert("締め切りを設定してね");
     if (setupOptions.length < 2) return alert("選択肢は2つ以上入れてね");
 
@@ -467,7 +469,7 @@ function App() {
           ) : (
             liveSurveys.slice(0, 3).map(s => (
               <div key={s.id} className="live-item clickable" onClick={() => navigateTo('details', s)}>
-                <strong>{s.title}</strong> が公開されました！
+                <strong>{s.title || '無題のアンケート'}</strong> が公開されました！
               </div>
             ))
           )}
