@@ -459,34 +459,34 @@ function App() {
   // 共通のサイドバーコンポーネント
   const Sidebar = () => (
     <div className="live-feed-sidebar">
-      <div className="live-feed-title">✨ 広場の最新ニュース</div>
-      <div className="live-feed-content">
-        {liveSurveys.length === 0 ? (
-          <div className="empty-msg">まだお題はありません…</div>
-        ) : (
-          liveSurveys.slice(0, 3).map(s => {
-            const isEnded = s.deadline && new Date(s.deadline) < new Date();
-            return (
+      <div className="sidebar-section-card">
+        <div className="live-feed-title">✨ 広場の最新ニュース</div>
+        <div className="live-feed-content">
+          {liveSurveys.length === 0 ? (
+            <div className="empty-msg">まだお題はありません…</div>
+          ) : (
+            liveSurveys.slice(0, 3).map(s => (
               <div key={s.id} className="live-item clickable" onClick={() => navigateTo('details', s)}>
                 <strong>{s.title}</strong> が公開されました！
               </div>
-            );
-          })
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      <div className="live-feed-title" style={{ marginTop: '24px' }}>🔥 人気ランキング</div>
-      <div className="live-feed-content">
-        {popularSurveys.map((s, idx) => {
-          const isEnded = s.deadline && new Date(s.deadline) < new Date();
-          return (
+      <div className="sidebar-section-card" style={{ marginTop: '24px' }}>
+        <div className="live-feed-title">🔥 人気ランキング</div>
+        <div className="live-feed-content">
+          {popularSurveys.map((s, idx) => (
             <div key={s.id} className="live-item popular clickable" onClick={() => navigateTo('details', s)}>
               <span className="rank-label">{idx === 0 ? '👑' : idx === 1 ? '🥇' : '🥉'}</span>
-              <strong>{s.title}</strong>
-              <div className="live-item-meta">{s.total_votes || 0} 票</div>
+              <div className="popular-item-info">
+                <strong>{s.title}</strong>
+                <div className="live-item-meta">{s.total_votes || 0} 票</div>
+              </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
