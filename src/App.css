@@ -1379,3 +1379,43 @@ body {
   box-sizing: border-box;
 }
 
+
+
+/* ?? タブとカードの整列修正 ?? */
+@media (max-width: 768px) {
+  /* 切り替えバーを下のカードとピシッと揃える */
+  .tab-switch {
+    width: 100% !important;
+    margin: 0 0 15px 0 !important;
+    padding: 6px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* アンケート一覧の入れ物 */
+  .survey-items {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* アンケート1件ずつのカード */
+  .survey-item-portal {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* カードの中の画像サイズを微調整して文字とのバランスを整える */
+  .survey-item-portal .survey-img-mini {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  /* タイトルなどの文字エリア */
+  .survey-info-mini {
+    padding-left: 10px !important;
+  }
+}
+
