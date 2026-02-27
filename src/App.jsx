@@ -41,10 +41,27 @@ function App() {
   const [surveyImage, setSurveyImage] = useState('');
   const [setupOptions, setSetupOptions] = useState([]);
 
-  // 表示モード（新着 or 人気）
+  // 表示モード（新着 or 人気 or ウォッチ中）
   const [sortMode, setSortMode] = useState('latest');
   const [tempOption, setTempOption] = useState('');
   const [useTimer, setUseTimer] = useState(true);
+
+  // ⭐ ウォッチ（お気に入り）機能の管理
+  const [watchedIds, setWatchedIds] = useState(() => {
+    return JSON.parse(localStorage.getItem('watched_surveys') || '[]');
+  });
+
+  const toggleWatch = (e, surveyId) => {
+    e.stopPropagation(); // 詳細画面へ移動するのを防ぐ
+    let newIds;
+    if (watchedIds.includes(surveyId)) {
+      newIds = watchedIds.filter(id => id !== surveyId);
+    } else {
+      newIds = [...watchedIds, surveyId];
+    }
+    setWatchedIds(newIds);
+    localStorage.setItem('watched_surveys', JSON.stringify(newIds));
+  };
 
   // 今の時刻を初期値にする魔法
   const getInitialDeadline = () => {
@@ -509,16 +526,19 @@ function App() {
                 <div className="tab-switcher">
                   <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
                   <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+                  <button className={sortMode === 'watching' ? 'active' : ''} onClick={() => setSortMode('watching')}>⭐ ウォッチ中</button>
                 </div>
 
                 <div className="survey-list">
                   {surveys.length === 0 ? <p className="empty-msg">まだアンケートがないよ。作ってみる？</p> : (
                     [...surveys]
+                      .filter(s => sortMode === 'watching' ? watchedIds.includes(s.id) : true)
                       .sort((a, b) => sortMode === 'popular' ? b.total_votes - a.total_votes : 0)
                       .map((s, index) => {
                         const isEnded = s.deadline && new Date(s.deadline) < new Date();
                         const showBadge = sortMode === 'popular' && index < 3;
                         const rankEmoji = index === 0 ? '👑' : index === 1 ? '🥈' : '🥉';
+                        const isWatched = watchedIds.includes(s.id);
 
                         return (
                           <div key={s.id} className="survey-item-card" onClick={() => navigateTo('details', s)}>
@@ -529,9 +549,18 @@ function App() {
                                   {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
                                   {s.title}
                                 </span>
-                                <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
-                                  {isEnded ? '終了' : '受付中'}
-                                </span>
+                                <div className="card-right-actions">
+                                  <button
+                                    className={`watch-star-btn ${isWatched ? 'active' : ''}`}
+                                    onClick={(e) => toggleWatch(e, s.id)}
+                                    title={isWatched ? "ウォッチ解除" : "ウォッチする"}
+                                  >
+                                    {isWatched ? '★' : '☆'}
+                                  </button>
+                                  <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>
+                                    {isEnded ? '終了' : '受付中'}
+                                  </span>
+                                </div>
                               </div>
                               <div className="survey-item-meta-row">
                                 {s.deadline && (
@@ -547,6 +576,9 @@ function App() {
                           </div>
                         );
                       })
+                  )}
+                  {sortMode === 'watching' && surveys.filter(s => watchedIds.includes(s.id)).length === 0 && (
+                    <div className="empty-msg">まだウォッチしているアンケートはありません。⭐ボタンを押して保存してね！</div>
                   )}
                 </div>
               </>

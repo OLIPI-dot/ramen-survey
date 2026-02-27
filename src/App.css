@@ -458,3 +458,38 @@ body {
   color: #1e293b;
   text-align: center;
 }
+
+/* ? ウォッチ機能の装飾 ? */
+.card-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.watch-star-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.watch-star-btn:hover {
+  transform: scale(1.2);
+  color: #f59e0b;
+}
+
+.watch-star-btn.active {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+@media (max-width: 768px) {
+  .watch-star-btn {
+    font-size: 1.2rem !important;
+  }
+}
+
