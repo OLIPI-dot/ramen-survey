@@ -8,8 +8,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // 🌟 アプリ全体で使うデフォルト画像（空欄のとき用）
-// 綺麗なグラデーションまたは街角のオシャレな画像を使います
-const DEFAULT_SURVEY_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000';
+// おりぴさんの「専用ロゴ」をデフォルトにします！
+const DEFAULT_SURVEY_IMAGE = 'https://pachu.blue/antigravity/logo.png';
 
 // 日付と曜日を綺麗に表示する魔法
 const formatWithDay = (dateStr) => {
@@ -43,6 +43,7 @@ function App() {
   // --- アンケート作成用のState ---
   const [surveyTitle, setSurveyTitle] = useState('');
   const [surveyImage, setSurveyImage] = useState('');
+  const [surveyCategory, setSurveyCategory] = useState('その他'); // 🏷️ カテゴリ追加
   const [setupOptions, setSetupOptions] = useState([]);
 
   // 表示モード（新着 or 人気 or ウォッチ中）
@@ -389,7 +390,8 @@ function App() {
           title: surveyTitle,
           deadline: useTimer ? deadline : null,
           user_id: user.id,
-          image_url: finalImage // ここに自動で選んだ画像のURLを保存！
+          image_url: finalImage,
+          category: surveyCategory // 🏷️ カテゴリを保存
         }])
         .select();
       if (surveyError) throw surveyError;
@@ -572,6 +574,7 @@ function App() {
                                 <span className="survey-item-title">
                                   {showBadge && <span className="rank-emoji">{rankEmoji} </span>}
                                   {s.title}
+                                  {s.category && <span className="category-tag">{s.category}</span>}
                                 </span>
                                 <div className="card-right-actions">
                                   <button
@@ -620,6 +623,20 @@ function App() {
                   <div className="setting-item-block">
                     <label>イメージ写真のURL（空でもOK）:</label>
                     <input type="text" value={surveyImage} onChange={(e) => setSurveyImage(e.target.value)} className="title-input" placeholder="https://images.unsplash.com/..." />
+                  </div>
+                  <div className="setting-item-block">
+                    <label className="setting-label">🏷️ カテゴリを選ぶ：</label>
+                    <div className="category-selector">
+                      {['エンタメ', 'グルメ', '技術', '生活', 'その他'].map(cat => (
+                        <button
+                          key={cat}
+                          className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`}
+                          onClick={() => setSurveyCategory(cat)}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div className="setting-item-block">
                     <label className="setting-label">🗳️ 投票項目を決める：</label>
