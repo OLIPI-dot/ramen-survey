@@ -81,6 +81,7 @@ function App() {
   };
   const [deadline, setDeadline] = useState(getInitialDeadline());
   const [showingTerms, setShowingTerms] = useState(false);
+  const [showingPrivacy, setShowingPrivacy] = useState(false);
   const [showingContact, setShowingContact] = useState(false);
   const [contactType, setContactType] = useState('削除依頼');
   const [contactEmail, setContactEmail] = useState('');
@@ -766,6 +767,7 @@ function App() {
         <p>© 2026 アンケート広場</p>
         <div className="footer-links">
           <span onClick={() => setShowingTerms(true)} className="footer-link-text">利用規約</span>
+          <span onClick={() => setShowingPrivacy(true)} className="footer-link-text">プライバシーポリシー</span>
           <span onClick={() => setShowingContact(true)} className="footer-link-text">お問い合わせ</span>
         </div>
       </footer>
@@ -784,6 +786,51 @@ function App() {
               </ul>
             </div>
             <button onClick={() => setShowingTerms(false)} className="modal-close-btn">閉じる</button>
+          </div>
+        </div>
+      )}
+
+      {showingPrivacy && (
+        <div className="modal-overlay" onClick={() => setShowingPrivacy(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>📄 プライバシーポリシー</h3>
+            <div className="modal-body">
+              <p>アンケート広場（以下、「当サイト」といいます。）では、ユーザーの個人情報の保護に最大限の注意を払っています。本ポリシーでは、当サイトにおける個人情報の取り扱いについて説明します。</p>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>1. 個人情報の利用目的</h4>
+              <p>当サイトでは、お問い合わせの際にメールアドレス等の個人情報をご入力いただく場合があります。<br />
+                取得した個人情報は、お問い合わせへの回答や必要な情報を電子メールなどでご連絡する場合にのみ利用し、それ以外の目的では利用いたしません。</p>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>2. 広告について（Google AdSense）</h4>
+              <p>当サイトでは、第三者配信の広告サービス「Google AdSense」を利用する予定です。<br />
+                Googleを含む広告配信事業者は、ユーザーの興味に応じた広告を表示するためにCookie（クッキー）を使用することがあります。<br />
+                Cookieを使用することで、当サイトはユーザーのコンピュータを識別できるようになりますが、個人を特定するものではありません。<br />
+                Cookieを無効にする方法やGoogle AdSenseに関する詳細は、Googleの広告ポリシーをご確認ください。</p>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>3. アクセス解析ツールについて</h4>
+              <p>当サイトでは、サイトの改善や利用状況の分析のためにアクセス解析ツールを利用する場合があります。<br />
+                これらのツールはトラフィックデータ収集のためにCookieを使用することがありますが、匿名で収集されており、個人を特定するものではありません。</p>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>4. 個人情報の第三者への開示</h4>
+              <p>当サイトでは、以下の場合を除いて個人情報を第三者に開示することはありません。</p>
+              <ul>
+                <li>本人の同意がある場合</li>
+                <li>法令に基づき開示が必要となる場合</li>
+              </ul>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>5. 免責事項</h4>
+              <p>当サイトに掲載されている情報については、可能な限り正確な情報を提供するよう努めていますが、その正確性や安全性を保証するものではありません。<br />
+                当サイトの利用によって生じた損害等について、一切の責任を負いかねますのでご了承ください。</p>
+
+              <h4 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '1.05rem', color: '#334155' }}>6. プライバシーポリシーの変更</h4>
+              <p>本ポリシーは、法令の変更やサービス内容の変更に応じて、予告なく改定することがあります。</p>
+
+              <div style={{ marginTop: '30px', textAlign: 'right', color: '#64748b', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                【制定日】2026年2月27日<br />
+                アンケート広場
+              </div>
+            </div>
+            <button onClick={() => setShowingPrivacy(false)} className="modal-close-btn">閉じる</button>
           </div>
         </div>
       )}
