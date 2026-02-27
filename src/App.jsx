@@ -121,16 +121,19 @@ function App() {
     }
   };
 
-  // 〇〇分後、〇時間後をパッと計算する魔法
-  const setDeadlineFromNow = (minutesToAdd) => {
-    const d = new Date();
-    d.setMinutes(d.getMinutes() + minutesToAdd);
+  // 締め切り時間をポチポチ足したり引いたりする魔法
+  const modifyDeadlineMinutes = (minutes) => {
+    let baseDate = deadline ? new Date(deadline) : new Date();
+    // もし過去の時間を指していたら、今この瞬間をベースにする
+    if (baseDate < new Date()) baseDate = new Date();
 
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
+    baseDate.setMinutes(baseDate.getMinutes() + minutes);
+
+    const y = baseDate.getFullYear();
+    const m = String(baseDate.getMonth() + 1).padStart(2, '0');
+    const day = String(baseDate.getDate()).padStart(2, '0');
+    const hh = String(baseDate.getHours()).padStart(2, '0');
+    const mm = String(baseDate.getMinutes()).padStart(2, '0');
     setDeadline(`${y}-${m}-${day}T${hh}:${mm}`);
   };
 
@@ -648,10 +651,22 @@ function App() {
                   {useTimer && (
                     <div className="setting-item-block">
                       <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="time-input" />
-                      <div className="quick-time-buttons">
-                        <button onClick={() => setDeadlineFromNow(5)}>🕒 5分</button>
-                        <button onClick={() => setDeadlineFromNow(60)}>🚀 1時間</button>
-                        <button onClick={() => setDeadlineFromNow(1440)}>📅 1日</button>
+                      <div className="quick-time-buttons-v2">
+                        <div className="time-adjust-group">
+                          <button onClick={() => modifyDeadlineMinutes(-1)}>−</button>
+                          <span>1分</span>
+                          <button onClick={() => modifyDeadlineMinutes(1)}>+</button>
+                        </div>
+                        <div className="time-adjust-group">
+                          <button onClick={() => modifyDeadlineMinutes(-5)}>−</button>
+                          <span>5分</span>
+                          <button onClick={() => modifyDeadlineMinutes(5)}>+</button>
+                        </div>
+                        <div className="time-adjust-group">
+                          <button onClick={() => modifyDeadlineMinutes(-60)}>−</button>
+                          <span>1時間</span>
+                          <button onClick={() => modifyDeadlineMinutes(60)}>+</button>
+                        </div>
                       </div>
                     </div>
                   )}
