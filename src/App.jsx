@@ -628,7 +628,7 @@ function App() {
                   <div className="setting-item-block">
                     <label className="setting-label">🏷️ カテゴリを選ぶ：</label>
                     <div className="category-selector">
-                      {['エンタメ', 'グルメ', '技術', '生活', 'その他'].map(cat => (
+                      {['エンタメ', 'グルメ', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
                         <button
                           key={cat}
                           className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`}
