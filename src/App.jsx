@@ -11,8 +11,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // ⭐ 人気スコアの係数
 const SCORE_VOTE_WEIGHT = 3;
 
-// 👁️ view_count 重複加算防止（テスト用に一時的に10秒に短縮）
-const VIEW_COOLDOWN_MS = 10 * 1000;
+// 👁️ view_count 重複加算防止
+const VIEW_COOLDOWN_MS = 5 * 60 * 1000;
 
 // 🛡️ NGワードフィルター
 const NG_WORDS = ['死ね', '殺す', 'カス', 'アホ', 'バカ', 'きもい', 'キモイ', 'うざい'];
@@ -480,7 +480,7 @@ function App() {
       if (now - lastView > VIEW_COOLDOWN_MS) {
         console.log("🚀 ビューカウント増加RPC実行中(URL経由)...");
         localStorage.setItem(viewKey, now.toString());
-        const { error: rpcErr } = await supabase.rpc('increment_view_count', { survey_id: sv.id });
+        const { error: rpcErr } = await supabase.rpc('increment_survey_view', { survey_id: sv.id });
         if (rpcErr) console.error("❌ ビューカウント増加エラー(URL経由):", rpcErr);
         else console.log("✅ ビューカウント増加成功(URL経由)");
       } else {
@@ -506,7 +506,7 @@ function App() {
       if (now - lastView > VIEW_COOLDOWN_MS) {
         console.log("🚀 ビューカウント増加RPC実行中(通常遷移)...");
         localStorage.setItem(viewKey, now.toString());
-        const { error: rpcErr } = await supabase.rpc('increment_view_count', { survey_id: survey.id });
+        const { error: rpcErr } = await supabase.rpc('increment_survey_view', { survey_id: survey.id });
         if (rpcErr) console.error("❌ ビューカウント増加エラー(通常遷移):", rpcErr);
         else console.log("✅ ビューカウント増加成功(通常遷移)");
       } else {
