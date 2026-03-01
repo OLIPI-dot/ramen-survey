@@ -820,14 +820,12 @@ function App() {
     setLikedSurveys(newLikedIds);
     localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
 
-    // 🛡️ DBを更新：RPCを使用して確実に増減させる（レースコンディション回避）
-    const { error } = await supabase.rpc('increment_survey_like', {
-      survey_id: currentSurvey.id,
-      increment_val: isLiked ? -1 : 1
-    });
-
+    // 🛡️ DBを更新。もしRLSで失敗してもUIは戻さない（ユーザー体験優先）
+    // 将来的にRPC(increment_likes)が導入されたらここをrpcに差し替えるのがベスト
+    const { error } = await supabase.from('surveys').update({ likes_count: newLikesCount }).eq('id', currentSurvey.id);
     if (error) {
-      console.warn("⚠️ いいねのDB保存に失敗しました（RPC未設定など）:", error.message);
+      console.warn("⚠️ いいねのDB保存に失敗したかも（RLSの制限など）:", error.message);
+      // 失敗した場合は、フェッチし直した時に正しい値に戻るように、無理に再フェッチはしない
     }
   };
 
