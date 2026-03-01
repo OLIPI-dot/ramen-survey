@@ -121,9 +121,27 @@ const AdSenseBox = ({ slot, format = 'auto' }) => {
     script.onload = initAd;
     document.head.appendChild(script);
   }, []);
+
   return (
-    <div className="adsense-container" style={{ margin: '20px 0', textAlign: 'center', minHeight: '100px' }}>
-      <ins className="adsbygoogle" style={{ display: 'block' }} data-ad-client="ca-pub-9429738476925701" data-ad-slot={slot} data-ad-format={format} data-full-width-responsive="true"></ins>
+    <div className="adsense-container" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
+      {/* 🛡️ 審査中・広告未配信時のプレースホルダー */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        border: '2px dashed #cbd5e1', borderRadius: '12px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '16px', color: '#94a3b8', fontSize: '0.85rem', zIndex: -1
+      }}>
+        <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
+        <div style={{ fontWeight: 'bold' }}>スポンサー枠（準備中）</div>
+        <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>審査に合格するとここに広告が表示されます</div>
+      </div>
+      <ins className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client="ca-pub-9429738476925701"
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive="true"></ins>
     </div>
   );
 };
@@ -1087,6 +1105,7 @@ function App() {
           ))}
         </div>
       </div>
+      <AdSenseBox slot="sidebar_slot_placeholder" />
     </div>
   );
 
@@ -1216,35 +1235,41 @@ function App() {
                             }
                           }
                           return (
-                            <div key={s.id} className="survey-item-card" onClick={() => navigateTo('details', s)}>
-                              <div className="category-icon-thumb" style={{ background: CATEGORY_ICON_STYLE[s.category]?.color }}>{CATEGORY_ICON_STYLE[s.category]?.icon}</div>
-                              <div className="survey-item-content">
-                                <div className="survey-item-info">
-                                  <span className="survey-item-title">{showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}{s.title}</span>
-                                  <div className="card-right-actions">
-                                    <button className={`watch-star-btn ${watchedIds.includes(s.id) ? 'active' : ''}`} onClick={(e) => toggleWatch(e, s.id)}>{watchedIds.includes(s.id) ? '★' : '☆'}</button>
-                                    <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>{isEnded ? '終了' : '受付中'}</span>
+                            <React.Fragment key={s.id}>
+                              <div className="survey-item-card" onClick={() => navigateTo('details', s)}>
+                                <div className="category-icon-thumb" style={{ background: CATEGORY_ICON_STYLE[s.category]?.color }}>{CATEGORY_ICON_STYLE[s.category]?.icon}</div>
+                                <div className="survey-item-content">
+                                  <div className="survey-item-info">
+                                    <span className="survey-item-title">{showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}{s.title}</span>
+                                    <div className="card-right-actions">
+                                      <button className={`watch-star-btn ${watchedIds.includes(s.id) ? 'active' : ''}`} onClick={(e) => toggleWatch(e, s.id)}>{watchedIds.includes(s.id) ? '★' : '☆'}</button>
+                                      <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>{isEnded ? '終了' : '受付中'}</span>
+                                    </div>
                                   </div>
+                                  <div className="survey-item-meta-row">
+                                    {showBadge && <span className="popular-score-badge">{badgeLabel}</span>}
+                                    {s.deadline && <span className="survey-item-deadline">〆: {formatWithDay(s.deadline)}</span>}
+                                    <div className="card-stats-row">
+                                      <span className="survey-item-votes" title="投票数">🗳️ {s.total_votes || 0}</span>
+                                      <span className="survey-item-views" title="閲覧数">👁️ {s.view_count || 0}</span>
+                                      <span className="survey-item-likes" title="いいね数">👍 {s.likes_count || 0}</span>
+                                      <span className="survey-item-comments" title="コメント数">💬 {s.comment_count || 0}</span>
+                                    </div>
+                                  </div>
+                                  {s.tags && s.tags.length > 0 && (
+                                    <div className="tag-bubble-row" onClick={e => e.stopPropagation()}>
+                                      {s.tags.map(tag => (
+                                        <span key={tag} className={`tag-bubble ${filterTag === tag ? 'active' : ''}`} onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>#{tag}</span>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="survey-item-meta-row">
-                                  {showBadge && <span className="popular-score-badge">{badgeLabel}</span>}
-                                  {s.deadline && <span className="survey-item-deadline">〆: {formatWithDay(s.deadline)}</span>}
-                                  <div className="card-stats-row">
-                                    <span className="survey-item-votes" title="投票数">🗳️ {s.total_votes || 0}</span>
-                                    <span className="survey-item-views" title="閲覧数">👁️ {s.view_count || 0}</span>
-                                    <span className="survey-item-likes" title="いいね数">👍 {s.likes_count || 0}</span>
-                                    <span className="survey-item-comments" title="コメント数">💬 {s.comment_count || 0}</span>
-                                  </div>
-                                </div>
-                                {s.tags && s.tags.length > 0 && (
-                                  <div className="tag-bubble-row" onClick={e => e.stopPropagation()}>
-                                    {s.tags.map(tag => (
-                                      <span key={tag} className={`tag-bubble ${filterTag === tag ? 'active' : ''}`} onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>#{tag}</span>
-                                    ))}
-                                  </div>
-                                )}
                               </div>
-                            </div>
+                              {/* 💎 7個目ごとに広告を差し込む魔法 */}
+                              {(idx + 1) % 7 === 0 && (
+                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 7)}`} />
+                              )}
+                            </React.Fragment>
                           );
                         })}
                       </>
@@ -1473,6 +1498,7 @@ function App() {
                     </>
                   )}
                 </div>
+                <AdSenseBox slot="detail_after_votes_placeholder" />
                 {user && (currentSurvey.user_id === user.id || isAdmin) && (
                   <div className="owner-visibility-panel">
                     <span className="owner-vis-label">🔒 公開設定変更{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}:</span>
