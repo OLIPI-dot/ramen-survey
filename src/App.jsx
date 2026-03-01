@@ -71,6 +71,7 @@ const CATEGORY_ICON_STYLE = {
   "IT・テクノロジー": { icon: "💻", color: "#8b5cf6" },
   "生活": { icon: "🏠", color: "#10b981" },
   "ゲーム": { icon: "🎮", color: "#14b8a6" },
+  "アニメ": { icon: "📺", color: "#8b5cf6" }, // 📺 アニメ用アイコン
   "らび": { icon: "🐰", color: "#ec4899" }, // らび専用アイコン（ピンク系）
   "その他": { icon: "❓", color: "#64748b" },
 };
@@ -1337,6 +1338,11 @@ function App() {
 
             {view === 'details' && currentSurvey && (
               <div className="score-card">
+                {currentSurvey.image_url && (
+                  <div className="detail-hero-container">
+                    <img src={currentSurvey.image_url} className="detail-hero-img" alt="survey-hero" />
+                  </div>
+                )}
                 <div className="detail-header">
                   <h1 className="survey-title">{currentSurvey.title}</h1>
                   <div className="detail-meta-bar">
