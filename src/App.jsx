@@ -227,12 +227,13 @@ function App() {
   // 🐰 ラビのトレンドアンケート自動生成魔法 (絶対重複させない版)
   useEffect(() => {
     const magic = async () => {
-      if (!user || localStorage.getItem('labi_magic_done_30')) return;
+      if (!user || localStorage.getItem('labi_magic_done_31')) return;
 
       // 多重起動防止フラグ
-      localStorage.setItem('labi_magic_done_30', 'busy');
+      localStorage.setItem('labi_magic_done_31', 'busy');
 
       const trends = [
+        { title: 'うさぎのラビの挑戦！🥕 みんなの『元気が出る魔法』はどれ？🐰🌈', category: 'その他', options: ['美味しいものを食べる 🍰', '好きな音楽を聴く 🎵', '誰かに褒めてもらう 👏', '太陽の光を浴びる ☀️', 'ラビとニンジンを分かち合う 🐰🥕'], tags: ['ラビ', '元気', '魔法'] },
         { title: 'いま一番欲しいApple製品は？', category: 'IT・テクノロジー', options: ['iPhone', 'MacBook', 'iPad', 'Apple Watch', 'Vision Pro'] },
         { title: '休日の過ごし方といえば？', category: '生活', options: ['家でゴロゴロ', 'ショッピング・お出かけ', '趣味・スポーツ', '勉強や自己研鑽'] },
         { title: '次に旅行に行きたい国は？', category: '生活', options: ['ハワイ (アメリカ)', '韓国', '台湾', 'ヨーロッパ'] },
@@ -277,16 +278,17 @@ function App() {
             deadline,
             user_id: user.id,
             visibility: 'public',
-            image_url: CATEGORY_IMAGES[t.category] || DEFAULT_SURVEY_IMAGE
+            image_url: CATEGORY_IMAGES[t.category] || DEFAULT_SURVEY_IMAGE,
+            tags: t.tags || []
           }]).select();
 
           if (data && data[0]) {
             await supabase.from('options').insert(t.options.map(name => ({ name, votes: 0, survey_id: data[0].id })));
           }
         }
-        localStorage.setItem('labi_magic_done_30', 'true');
+        localStorage.setItem('labi_magic_done_31', 'true');
       } catch (e) {
-        localStorage.removeItem('labi_magic_done_30');
+        localStorage.removeItem('labi_magic_done_31');
       }
       fetchSurveys(user);
       refreshSidebar();
