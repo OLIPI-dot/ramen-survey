@@ -1113,7 +1113,7 @@ function App() {
                   </div>
                 )}
                 <div className="category-filter-bar">
-                  {['すべて', 'エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
+                  {['すべて', 'エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
                     <button key={cat} className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`} onClick={() => setFilterCategory(cat)}>{cat}</button>
                   ))}
                 </div>
