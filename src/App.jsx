@@ -229,8 +229,11 @@ function App() {
 
   // 📡 広場全体のリアルタイム人数追跡
   useEffect(() => {
+    // 💡 タブ・端末ごとに一意のIDを生成 (crypto.randomUUID または Math.random)
+    const clientId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
+
     const channel = supabase.channel('global-presence', {
-      config: { presence: { key: 'online' } }
+      config: { presence: { key: clientId } }
     });
 
     channel
@@ -320,9 +323,12 @@ function App() {
     magic();
   }, [user]);
 
-  // 💬 コメント取得＆リアルタイム購読ロジック
+  // 💬 コメント取得＆リアルタイム購読ロジック & 個別アンケート見てる人数追跡
   useEffect(() => {
     if (view === 'details' && currentSurvey) {
+      let activeCommentChannel;
+      let activePresenceChannel;
+
       const fetchAndSubscribe = async () => {
         const { data, error } = await supabase
           .from('comments')
@@ -331,7 +337,7 @@ function App() {
           .order('created_at', { ascending: false });
         if (!error) setComments(data);
 
-        const channel = supabase
+        activeCommentChannel = supabase
           .channel(`comments_realtime_${currentSurvey.id}`)
           .on('postgres_changes', {
             event: '*',
@@ -353,15 +359,35 @@ function App() {
           })
           .subscribe();
 
-        return channel;
+        // 個別アンケートのリアルタイム視聴人数（Presence）
+        const clientId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
+        activePresenceChannel = supabase.channel(`survey-presence-${currentSurvey.id}`, {
+          config: { presence: { key: clientId } }
+        });
+
+        activePresenceChannel
+          .on('presence', { event: 'sync' }, () => {
+            const state = activePresenceChannel.presenceState();
+            const count = Object.keys(state).length;
+            setSurveyOnlineCount(count > 0 ? count : 1);
+          })
+          .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+              await activePresenceChannel.track({ online_at: new Date().toISOString() });
+            }
+          });
       };
 
-      let activeChannel;
-      fetchAndSubscribe().then(channel => { activeChannel = channel; });
-      return () => { if (activeChannel) supabase.removeChannel(activeChannel); };
+      fetchAndSubscribe();
+
+      return () => {
+        if (activeCommentChannel) supabase.removeChannel(activeCommentChannel);
+        if (activePresenceChannel) supabase.removeChannel(activePresenceChannel);
+      };
     } else {
       setComments([]);
       setCurrentCommentPage(1);
+      setSurveyOnlineCount(1); // リセット
     }
   }, [view, currentSurvey]);
 
