@@ -488,7 +488,7 @@ function App() {
         survey_id: currentSurvey.id,
         user_name: "ラビ🐰(AI)",
         content: reply,
-        user_id: "labi-ai-id", // 固定ID
+        user_id: null, // user_idはUUID型なので無効な文字列は弾かれるためnullにする
         edit_key: "labi_bot"
       }]);
 
