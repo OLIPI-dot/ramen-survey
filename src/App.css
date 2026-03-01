@@ -869,13 +869,7 @@ body {
   transition: 0.2s;
 }
 
-font-size: 0.9rem;
-font-weight: 800;
-color: var(--text-sub);
-cursor: pointer;
-white-space: nowrap;
-transition: 0.2s;
-}
+
 
 .filter-cat-btn:hover {
   border-color: var(--primary-color);
