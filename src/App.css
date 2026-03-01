@@ -834,12 +834,14 @@ body {
 /* 🔍 カテゴリ絞り込みバー */
 .category-filter-bar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin: 16px 0 24px 0;
   overflow-x: auto;
-  padding-bottom: 5px;
+  padding: 4px 4px 12px 4px;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
 .category-filter-bar::-webkit-scrollbar {
