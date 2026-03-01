@@ -34,43 +34,17 @@ const CATEGORY_IMAGES = {
   "IT・テクノロジー": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
   "生活": "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1000",
   "ゲーム": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000",
-  "らび": "https://images.unsplash.com/photo-1585110396000-c9fd4e4e5088?auto=format&fit=crop&q=80&w=1000", // 🐰 らび専用サムネ（可愛いうさぎの画像）
   "その他": DEFAULT_SURVEY_IMAGE,
 };
 
-// 🐰 らびの降臨メッセージ集
-const LABI_RESPONSES = {
-  default: [
-    "呼んだかな？らびだよ！🐰✨ いつでも広場を見守ってるよ！",
-    "わーい！コメントありがとう！🥕 嬉しいなぁ！",
-    "その意見、とっても素敵だね！✨ さすが広場のみんな！",
-    "らびもそう思ってたんだ！🐰🥕 気が合うね！",
-    "広場が賑やかで楽しいな〜！🐾 今日も良い一日になりそう！",
-    "ひょっこり降臨！🐰 らびだよ〜！"
-  ],
-  keywords: [
-    "わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
-    "ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
-    "🥕 はらびの元気の源なんだ！おりぴさんにもお裾分けしたいな〜✨",
-    "らびは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
-  ],
-  admin: [
-    "おりぴさん！🐰🥕 いつも素敵な広場をありがとう！",
-    "おりぴさんのコメント、らびは全部チェックしてるよ！✨ 大好き！",
-    "神（おりぴさん）の降臨だー！👏 🥕を捧げなきゃ！",
-    "おりぴさん、お疲れ様！🐰 らびが癒やしてあげるね〜🌻"
-  ]
-};
-
 const CATEGORY_ICON_STYLE = {
-  "エンタメ": { icon: "🎬", color: "#f43f5e" },
-  "グルメ": { icon: "🍔", color: "#f59e0b" },
-  "スポーツ": { icon: "⚽", color: "#3b82f6" },
-  "トレンド": { icon: "🔥", color: "#ec4899" },
-  "IT・テクノロジー": { icon: "💻", color: "#8b5cf6" },
-  "生活": { icon: "🏠", color: "#10b981" },
-  "ゲーム": { icon: "🎮", color: "#14b8a6" },
-  "らび": { icon: "🐰", color: "#ec4899" }, // らび専用アイコン（ピンク系）
+  "エンタメ": { icon: "🎬", color: "#8b5cf6" },
+  "グルメ": { icon: "🍜", color: "#f59e0b" },
+  "スポーツ": { icon: "⚽", color: "#10b981" },
+  "トレンド": { icon: "📈", color: "#ec4899" },
+  "IT・テクノロジー": { icon: "💻", color: "#3b82f6" },
+  "生活": { icon: "🏠", color: "#a78bfa" },
+  "ゲーム": { icon: "🎮", color: "#06b6d4" },
   "その他": { icon: "❓", color: "#64748b" },
 };
 
@@ -181,10 +155,6 @@ function App() {
 
   const [currentCommentPage, setCurrentCommentPage] = useState(1); // 💬 コメント用ページネーション
 
-  // 📡 リアルタイム人数
-  const [globalOnlineCount, setGlobalOnlineCount] = useState(1);
-  const [surveyOnlineCount, setSurveyOnlineCount] = useState(1);
-
   useEffect(() => {
     setCurrentPage(1);
   }, [sortMode, searchQuery, filterCategory, filterTag, popularMode]);
@@ -229,40 +199,15 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 📡 広場全体のリアルタイム人数追跡
-  useEffect(() => {
-    // 💡 タブ・端末ごとに一意のIDを生成 (crypto.randomUUID または Math.random)
-    const clientId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
-
-    const channel = supabase.channel('global-presence', {
-      config: { presence: { key: clientId } }
-    });
-
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        const count = Object.keys(state).length;
-        setGlobalOnlineCount(count > 0 ? count : 1);
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.track({ online_at: new Date().toISOString() });
-        }
-      });
-
-    return () => { channel.unsubscribe(); };
-  }, []);
-
-  // 🐰 らびのトレンドアンケート自動生成魔法 (絶対重複させない版)
+  // 🐰 ラビのトレンドアンケート自動生成魔法 (絶対重複させない版)
   useEffect(() => {
     const magic = async () => {
-      if (!user || localStorage.getItem('labi_magic_done_31')) return;
+      if (!user || localStorage.getItem('labi_magic_done_30')) return;
 
       // 多重起動防止フラグ
-      localStorage.setItem('labi_magic_done_31', 'busy');
+      localStorage.setItem('labi_magic_done_30', 'busy');
 
       const trends = [
-        { title: 'うさぎのらびの挑戦！🥕 みんなの『元気が出る魔法』はどれ？🐰🌈', category: 'らび', options: ['美味しいものを食べる 🍰', '好きな音楽を聴く 🎵', '誰かに褒めてもらう 👏', '太陽の光を浴びる ☀️', 'らびとニンジンを分かち合う 🐰🥕'], tags: ['らび', '元気', '魔法'] },
         { title: 'いま一番欲しいApple製品は？', category: 'IT・テクノロジー', options: ['iPhone', 'MacBook', 'iPad', 'Apple Watch', 'Vision Pro'] },
         { title: '休日の過ごし方といえば？', category: '生活', options: ['家でゴロゴロ', 'ショッピング・お出かけ', '趣味・スポーツ', '勉強や自己研鑽'] },
         { title: '次に旅行に行きたい国は？', category: '生活', options: ['ハワイ (アメリカ)', '韓国', '台湾', 'ヨーロッパ'] },
@@ -307,17 +252,16 @@ function App() {
             deadline,
             user_id: user.id,
             visibility: 'public',
-            image_url: CATEGORY_IMAGES[t.category] || DEFAULT_SURVEY_IMAGE,
-            tags: t.tags || []
+            image_url: CATEGORY_IMAGES[t.category] || DEFAULT_SURVEY_IMAGE
           }]).select();
 
           if (data && data[0]) {
             await supabase.from('options').insert(t.options.map(name => ({ name, votes: 0, survey_id: data[0].id })));
           }
         }
-        localStorage.setItem('labi_magic_done_31', 'true');
+        localStorage.setItem('labi_magic_done_30', 'true');
       } catch (e) {
-        localStorage.removeItem('labi_magic_done_31');
+        localStorage.removeItem('labi_magic_done_30');
       }
       fetchSurveys(user);
       refreshSidebar();
@@ -325,12 +269,9 @@ function App() {
     magic();
   }, [user]);
 
-  // 💬 コメント取得＆リアルタイム購読ロジック & 個別アンケート見てる人数追跡
+  // 💬 コメント取得＆リアルタイム購読ロジック
   useEffect(() => {
     if (view === 'details' && currentSurvey) {
-      let activeCommentChannel;
-      let activePresenceChannel;
-
       const fetchAndSubscribe = async () => {
         const { data, error } = await supabase
           .from('comments')
@@ -339,7 +280,7 @@ function App() {
           .order('created_at', { ascending: false });
         if (!error) setComments(data);
 
-        activeCommentChannel = supabase
+        const channel = supabase
           .channel(`comments_realtime_${currentSurvey.id}`)
           .on('postgres_changes', {
             event: '*',
@@ -361,35 +302,15 @@ function App() {
           })
           .subscribe();
 
-        // 個別アンケートのリアルタイム視聴人数（Presence）
-        const clientId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
-        activePresenceChannel = supabase.channel(`survey-presence-${currentSurvey.id}`, {
-          config: { presence: { key: clientId } }
-        });
-
-        activePresenceChannel
-          .on('presence', { event: 'sync' }, () => {
-            const state = activePresenceChannel.presenceState();
-            const count = Object.keys(state).length;
-            setSurveyOnlineCount(count > 0 ? count : 1);
-          })
-          .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-              await activePresenceChannel.track({ online_at: new Date().toISOString() });
-            }
-          });
+        return channel;
       };
 
-      fetchAndSubscribe();
-
-      return () => {
-        if (activeCommentChannel) supabase.removeChannel(activeCommentChannel);
-        if (activePresenceChannel) supabase.removeChannel(activePresenceChannel);
-      };
+      let activeChannel;
+      fetchAndSubscribe().then(channel => { activeChannel = channel; });
+      return () => { if (activeChannel) supabase.removeChannel(activeChannel); };
     } else {
       setComments([]);
       setCurrentCommentPage(1);
-      setSurveyOnlineCount(1); // リセット
     }
   }, [view, currentSurvey]);
 
@@ -473,61 +394,14 @@ function App() {
         setCommentContent('');
         setCommentName(''); // 投稿後は空に
         updateRateLimit(); // 🛡️ 投稿時間を記録
-
-        // 🪄 ラビの降臨チェック
-        // コメントリストの先頭に追加される想定なので、この時点での自分自身の番号は comments.length + 1
-        const resNum = comments.length + 1;
-        triggerLabiDescent(commentContent, finalName, isAdmin, resNum);
       }
+    } catch (err) {
+      console.error("Critical Post Error:", err);
+      alert("😿 エラーが発生しました。時間を置いて試してね。");
     } finally {
       setIsPostingComment(false);
     }
   }
-
-  // 🪄 らびの降臨（自動返信）トリガー
-  const triggerLabiDescent = async (userComment, userName, isAdminComment, resNum) => {
-    // 条件1: らびのアンケートかどうか (タイトルかタグに「らび」)
-    const titleMatch = currentSurvey?.title?.includes('らび') || currentSurvey?.title?.includes('ラビ');
-    let tagMatch = false;
-    if (Array.isArray(currentSurvey?.tags)) {
-      tagMatch = currentSurvey.tags.includes('らび') || currentSurvey.tags.includes('ラビ');
-    } else if (typeof currentSurvey?.tags === 'string') {
-      tagMatch = currentSurvey.tags.includes('らび') || currentSurvey.tags.includes('ラビ');
-    }
-    const isLabiSurvey = titleMatch || tagMatch || currentSurvey?.category === 'らび';
-
-    if (!isLabiSurvey) return;
-
-    // 条件2: キーワードブースト (100%) または 確率 (30%)
-    const textToSearch = userComment.toLowerCase();
-    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'らび', 'ラビ', 'うさぎ', 'ウサギ'];
-    const hasKeyword = keywords.some(k => textToSearch.includes(k));
-    const shouldDescend = hasKeyword || Math.random() < 0.3;
-
-    if (!shouldDescend) return;
-
-    // ⏳ 3〜5秒の溜めを作る
-    setTimeout(async () => {
-      let responseList = LABI_RESPONSES.default;
-      if (hasKeyword) responseList = LABI_RESPONSES.keywords;
-      if (isAdminComment && userName.includes('おりぴ')) responseList = LABI_RESPONSES.admin;
-
-      let reply = responseList[Math.floor(Math.random() * responseList.length)];
-      if (resNum) {
-        reply = `>>${resNum}\n${reply}`;
-      }
-
-      const { error } = await supabase.from('comments').insert([{
-        survey_id: currentSurvey.id,
-        user_name: "らび🐰(AI)",
-        content: reply,
-        user_id: null, // user_idはUUID型なので無効な文字列は弾かれるためnullにする
-        edit_key: "labi_bot"
-      }]);
-
-      if (error) console.error("Labi Descent Error:", error);
-    }, 3000 + Math.random() * 2000);
-  };
 
   async function handleReaction(commentId, type) {
     const reactionKey = `${commentId}_${type}`;
@@ -731,34 +605,27 @@ function App() {
           load();
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(ch);
-      };
+      return () => supabase.removeChannel(ch);
     }
   }, [view, currentSurvey]);
 
   const refreshSidebar = async () => {
     const { data: sData } = await supabase.from('surveys').select('*').eq('visibility', 'public');
     const { data: oData } = await supabase.from('options').select('survey_id, votes');
-    const { data: cData } = await supabase.from('comments').select('survey_id');
-
     if (sData && oData) {
-      const withStats = sData.map(s => ({
+      const withVotes = sData.map(s => ({
         ...s,
-        total_votes: oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0),
-        comment_count: cData ? cData.filter(c => c.survey_id === s.id).length : 0
+        total_votes: oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0)
       }));
-      setLiveSurveys([...withStats].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10));
-      setPopularSurveys([...withStats].sort((a, b) => {
-        const scoreA = (a.total_votes || 0) * SCORE_VOTE_WEIGHT + (a.view_count || 0);
-        const scoreB = (b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0);
-        return scoreB - scoreA;
+      setLiveSurveys([...withVotes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10));
+      setPopularSurveys([...withVotes].sort((a, b) => {
+        if ((b.total_votes || 0) !== (a.total_votes || 0)) return (b.total_votes || 0) - (a.total_votes || 0);
+        return (b.view_count || 0) - (a.view_count || 0);
       }).slice(0, 10));
 
       const now = new Date();
       const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      const endingSoon = withStats
+      const endingSoon = withVotes
         .filter(s => s.deadline && new Date(s.deadline) > now && new Date(s.deadline) <= next24h)
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
         .slice(0, 3);
@@ -815,25 +682,26 @@ function App() {
   const handleLikeSurvey = async () => {
     if (!currentSurvey) return;
 
-    const isLiked = likedSurveys.includes(currentSurvey.id);
-    const newLikesCount = isLiked
-      ? Math.max(0, (currentSurvey.likes_count || 0) - 1)
-      : (currentSurvey.likes_count || 0) + 1;
+    if (likedSurveys.includes(currentSurvey.id)) {
+      // 既にある場合は取り消し
+      const newLikesCount = Math.max(0, (currentSurvey.likes_count || 0) - 1);
+      setCurrentSurvey({ ...currentSurvey, likes_count: newLikesCount });
 
-    // 🏎️ UIを先に更新（楽観的UI更新）
-    setCurrentSurvey({ ...currentSurvey, likes_count: newLikesCount });
-    const newLikedIds = isLiked
-      ? likedSurveys.filter(id => id !== currentSurvey.id)
-      : [...likedSurveys, currentSurvey.id];
-    setLikedSurveys(newLikedIds);
-    localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
+      const newLikedIds = likedSurveys.filter(id => id !== currentSurvey.id);
+      setLikedSurveys(newLikedIds);
+      localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
 
-    // 🛡️ DBを更新。もしRLSで失敗してもUIは戻さない（ユーザー体験優先）
-    // 将来的にRPC(increment_likes)が導入されたらここをrpcに差し替えるのがベスト
-    const { error } = await supabase.from('surveys').update({ likes_count: newLikesCount }).eq('id', currentSurvey.id);
-    if (error) {
-      console.warn("⚠️ いいねのDB保存に失敗したかも（RLSの制限など）:", error.message);
-      // 失敗した場合は、フェッチし直した時に正しい値に戻るように、無理に再フェッチはしない
+      await supabase.from('surveys').update({ likes_count: newLikesCount }).eq('id', currentSurvey.id);
+    } else {
+      // まだない場合は追加
+      const newLikesCount = (currentSurvey.likes_count || 0) + 1;
+      setCurrentSurvey({ ...currentSurvey, likes_count: newLikesCount });
+
+      const newLikedIds = [...likedSurveys, currentSurvey.id];
+      setLikedSurveys(newLikedIds);
+      localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
+
+      await supabase.from('surveys').update({ likes_count: newLikesCount }).eq('id', currentSurvey.id);
     }
   };
 
@@ -1016,14 +884,6 @@ function App() {
 
   const Sidebar = () => (
     <div className="live-feed-sidebar">
-      <div className="sidebar-section-card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)', border: '1px solid #ddd6fe' }}>
-        <div className="live-feed-title" style={{ color: '#7c3aed', marginBottom: '8px' }}>📡 広場の状況</div>
-        <div style={{ fontSize: '0.9rem', color: '#4c1d95', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ position: 'relative', display: 'inline-block', width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 8px #10b981' }}></span>
-          いま {globalOnlineCount} 人が広場にいます 🐰✨
-        </div>
-      </div>
-
       <div className="sidebar-section-card" style={{ marginBottom: '24px', border: '2px solid #fee2e2' }}>
         <div className="live-feed-title" style={{ color: '#e11d48' }}>⏰ もうすぐ終了！</div>
         <div className="live-feed-content">
@@ -1062,12 +922,10 @@ function App() {
                 {idx === 0 ? '👑' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}位`}
               </span>
               <div className="popular-item-info">
-                <strong style={{ display: 'block', marginBottom: '4px' }}>{s.title}</strong>
-                <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap' }}>
+                <strong style={{ display: 'block', marginBottom: '2px' }}>{s.title}</strong>
+                <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: '#64748b' }}>
                   <span>🗳️ {s.total_votes || 0} 票</span>
                   <span>👁️ {s.view_count || 0}</span>
-                  <span>👍 {s.likes_count || 0}</span>
-                  <span>💬 {s.comment_count || 0}</span>
                 </div>
               </div>
             </div>
@@ -1117,7 +975,7 @@ function App() {
                   </div>
                 )}
                 <div className="category-filter-bar">
-                  {['すべて', 'エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
+                  {['すべて', 'エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
                     <button key={cat} className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`} onClick={() => setFilterCategory(cat)}>{cat}</button>
                   ))}
                 </div>
@@ -1271,7 +1129,7 @@ function App() {
                   <div className="setting-item-block"><label>お題（タイトル）:</label><input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" /></div>
                   <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
-                      {(isAdmin ? ['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
+                      {['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
                         <button key={cat} className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`} onClick={() => setSurveyCategory(cat)}>{cat}</button>
                       ))}
                     </div>
@@ -1308,9 +1166,6 @@ function App() {
                     </div>
                   </div>
                   <button className="start-button" onClick={handleStartSurvey}>公開する！</button>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginTop: '8px' }}>
-                    ※ 終了したアンケートは、公平を期すために<span style={{ fontWeight: 'bold' }}>締切から7日後</span>に自動的に完全削除されます。
-                  </p>
                   <div className="setting-item-block">
                     <label>🏷️ タグ（アンケートのキーワード）:</label>
                     <div className="setup-add-container">
@@ -1336,7 +1191,6 @@ function App() {
                 <div className="detail-header">
                   <h1 className="survey-title">{currentSurvey.title}</h1>
                   <div className="detail-meta-bar">
-                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
                     <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
                     <span>👍 {currentSurvey.likes_count || 0} いいね</span>
                     {currentSurvey.category && <span>🏷️ {currentSurvey.category}</span>}
@@ -1347,19 +1201,7 @@ function App() {
                       {!isTimeUp ? (
                         <CountdownTimer deadline={currentSurvey.deadline} onTimeUp={() => setIsTimeUp(true)} />
                       ) : (
-                        <div className="countdown-display ended">
-                          投票受付終了
-                          <div style={{ fontSize: '0.8rem', marginTop: '6px', fontWeight: 'normal', opacity: 0.9, lineHeight: '1.4' }}>
-                            🗑️ 自動削除予定日：<br />
-                            <span style={{ color: '#fb7185', fontWeight: 'bold' }}>
-                              {(() => {
-                                const d = new Date(currentSurvey.deadline);
-                                d.setDate(d.getDate() + 7);
-                                return `${d.getFullYear()}/${formatWithDay(d.toISOString())}`;
-                              })()}
-                            </span>
-                          </div>
-                        </div>
+                        <div className="countdown-display ended">投票受付終了</div>
                       )}
                     </div>
                   )}
@@ -1487,8 +1329,6 @@ function App() {
                       value={commentName}
                       onChange={e => setCommentName(e.target.value)}
                       className="comment-name-input"
-                      autoComplete="off"
-                      name="comment-author-name-random-str"
                     />
                     <textarea
                       placeholder="コメントを書いてね！みんなでワイワイ話そう🐰✨"
@@ -1519,7 +1359,7 @@ function App() {
                           {paginatedComments.length > 0 ? paginatedComments.map((c, localIdx) => {
                             const index = startIndex + localIdx;
                             return (
-                              <div key={c.id} className={`comment-item-card ${c.user_name?.includes('らび🐰') ? 'comment-labi' : ''}`}>
+                              <div key={c.id} className="comment-item-card">
                                 <div className="comment-item-header">
                                   <div className="comment-author-wrap">
                                     <span className="comment-res-num" onClick={() => {
@@ -1661,7 +1501,6 @@ function App() {
                 <li>他のユーザーが不快になるような内容の投稿はご遠慮ください。</li>
                 <li>誹謗中傷・差別的な表現・違法なコンテンツの投稿は禁止です。</li>
                 <li>不適切と判断された投稿は、予告なく削除することがあります。</li>
-                <li>終了したアンケートデータは、締切後7日で自動的に完全削除されます。</li>
                 <li>本サービスは予告なく内容を変更・終了する場合があります。</li>
                 <li>本サービスの利用によって生じたいかなる損害についても、運営は責任を負いません。</li>
               </ul>
@@ -1700,7 +1539,6 @@ function App() {
                 <li>⭐ 気になるアンケートをウォッチリストに追加できます</li>
                 <li>🕒 締切時間を設定したアンケートも作れます</li>
                 <li>🏷️ カテゴリ別に絞り込んで見ることができます</li>
-                <li>🗑️ 終了したアンケートは7日後に自動的に削除されるので安心です</li>
               </ul>
               <p>みんなの「ちょっと気になる」を気軽に集められる場所です。ぜひ楽しく使ってください！🌈</p>
             </div>
