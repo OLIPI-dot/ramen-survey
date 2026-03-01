@@ -725,25 +725,8 @@ function App() {
         })
         .subscribe();
 
-      // 📡 個別アンケートのリアルタイム人数追跡
-      const pCh = supabase.channel(`survey-pres-${currentSurvey.id}`, {
-        config: { presence: { key: 'viewing' } }
-      });
-      pCh
-        .on('presence', { event: 'sync' }, () => {
-          const state = pCh.presenceState();
-          const count = Object.keys(state).length;
-          setSurveyOnlineCount(count > 0 ? count : 1);
-        })
-        .subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            await pCh.track({ viewing_at: new Date().toISOString() });
-          }
-        });
-
       return () => {
         supabase.removeChannel(ch);
-        pCh.unsubscribe();
       };
     }
   }, [view, currentSurvey]);
