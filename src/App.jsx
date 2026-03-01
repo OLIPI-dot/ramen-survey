@@ -13,6 +13,7 @@ const SCORE_VOTE_WEIGHT = 3;
 
 // 👁️ view_count 重複加算防止
 const VIEW_COOLDOWN_MS = 5 * 60 * 1000;
+const SUBMISSION_COOLDOWN_MS = 10 * 1000; // 🛡️ 連続投稿制限 (10秒)
 
 // 🛡️ 管理者のメールアドレス
 const ADMIN_EMAILS = ['pachu.pachu.pachuly@gmail.com'];
@@ -342,8 +343,26 @@ function App() {
     });
   };
 
+  // 🛡️ レートリミット（連投制限）チェック
+  const checkRateLimit = () => {
+    if (isAdmin) return true; // おりぴさんは無制限！🐰✨
+    const lastSub = parseInt(localStorage.getItem('last_submission_time') || '0', 10);
+    const now = Date.now();
+    if (now - lastSub < SUBMISSION_COOLDOWN_MS) {
+      const waitSec = Math.ceil((SUBMISSION_COOLDOWN_MS - (now - lastSub)) / 1000);
+      alert(`🏃 ちょっと急ぎすぎかも！あと ${waitSec} 秒待ってね🐰🥕`);
+      return false;
+    }
+    return true;
+  };
+
+  const updateRateLimit = () => {
+    localStorage.setItem('last_submission_time', Date.now().toString());
+  };
+
   async function handlePostComment() {
     if (!commentContent.trim()) return;
+    if (!checkRateLimit()) return; // 🛡️ 連投チェック
     setIsPostingComment(true);
 
     try {
@@ -374,6 +393,7 @@ function App() {
 
         setCommentContent('');
         setCommentName(''); // 投稿後は空に
+        updateRateLimit(); // 🛡️ 投稿時間を記録
       }
     } catch (err) {
       console.error("Critical Post Error:", err);
@@ -617,6 +637,7 @@ function App() {
 
   const handleStartSurvey = async () => {
     if (!user) return alert('ログインが必要です！');
+    if (!checkRateLimit()) return; // 🛡️ 連投チェック
     if (!surveyTitle.trim()) return alert('お題（タイトル）を入力してください✨');
     if (!surveyCategory) return alert('カテゴリを選択してください🍜');
     if (setupOptions.length < 2) return alert('投票項目は2つ以上入力してください🗳️');
@@ -634,6 +655,7 @@ function App() {
       alert('公開に失敗しました。エラー: ' + error.message);
       return;
     }
+    updateRateLimit(); // 🛡️ 作成時間を記録
     await supabase.from('options').insert(setupOptions.map(name => ({ name, votes: 0, survey_id: data[0].id })));
 
     // 全ての状態をリセット
@@ -824,6 +846,7 @@ function App() {
   // 🚩 通報機能
   const handleReportContent = async (type, id, contentTitle, extraContext = '') => {
     if (!user) return alert('🚨 通報にはログインが必要です。');
+    if (!checkRateLimit()) return; // 🛡️ 通報も連投制限（EmailJS節約のため）
     if (!window.confirm(`「${contentTitle}」を不適切なコンテンツとして通報しますか？🐰💦`)) return;
 
     setIsActionLoading(true);
@@ -849,6 +872,7 @@ function App() {
         reply_to: user.email
       });
 
+      updateRateLimit(); // 🛡️ 通報時間を記録
       alert('🙏 通報ありがとうございます。運営が内容を確認し、適切に対応させていただきます。😊');
     } catch (error) {
       console.error("Report Error:", error);
