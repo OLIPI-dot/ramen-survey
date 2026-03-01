@@ -34,6 +34,7 @@ const CATEGORY_IMAGES = {
   "IT・テクノロジー": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
   "生活": "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1000",
   "ゲーム": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000",
+  "アニメ": "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&q=80&w=1000", // 📺 アニメ用カテゴリ画像
   "らび": "https://images.unsplash.com/photo-1585110396000-c9fd4e4e5088?auto=format&fit=crop&q=80&w=1000", // 🐰 らび専用サムネ（可愛いうさぎの画像）
   "その他": DEFAULT_SURVEY_IMAGE,
 };
@@ -1120,7 +1121,7 @@ function App() {
                   </div>
                 )}
                 <div className="category-filter-bar">
-                  {['すべて', 'エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
+                  {['すべて', 'エンタメ', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
                     <button key={cat} className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`} onClick={() => setFilterCategory(cat)}>{cat}</button>
                   ))}
                 </div>
@@ -1274,7 +1275,7 @@ function App() {
                   <div className="setting-item-block"><label>お題（タイトル）:</label><input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" /></div>
                   <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
-                      {(isAdmin ? ['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
+                      {(isAdmin ? ['エンタメ', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['エンタメ', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
                         <button key={cat} className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`} onClick={() => setSurveyCategory(cat)}>{cat}</button>
                       ))}
                     </div>
