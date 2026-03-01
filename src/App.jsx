@@ -299,7 +299,7 @@ function App() {
             deadline,
             user_id: user.id,
             visibility: 'public',
-            image_url: CATEGORY_IMAGES[t.category] || DEFAULT_SURVEY_IMAGE,
+            image_url: '',
             tags: t.tags || []
           }]).select();
 
