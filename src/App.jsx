@@ -480,7 +480,7 @@ function App() {
         user_name: "ラビ🐰(AI)",
         content: reply,
         user_id: "labi-ai-id", // 固定ID
-        is_ai: true // AIフラグ（必要ならDBに追加、なければuser_nameで判別）
+        edit_key: "labi_bot"
       }]);
 
       if (error) console.error("Labi Descent Error:", error);
