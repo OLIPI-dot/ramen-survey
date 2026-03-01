@@ -1414,7 +1414,7 @@ function App() {
                                 {index + 1}. {opt.name}
                                 {(String(votedOption) === String(opt.id) || votedOption === opt.name) && ' ✅'}
                               </span>
-                              <span>{perc}%</span>
+                              <span>{opt.votes || 0}票 ({perc}%)</span>
                             </div>
                             <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${perc}%` }}></div></div>
                           </>
