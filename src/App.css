@@ -476,6 +476,12 @@ body {
   }
 }
 
+/* 💎 広告（スポンサー枠）を横いっぱいに広げる */
+.survey-list .adsense-container-wrapper {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .survey-item-card {
   display: flex !important;
   align-items: center !important;

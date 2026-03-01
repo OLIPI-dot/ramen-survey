@@ -123,21 +123,21 @@ const AdSenseBox = ({ slot, format = 'auto' }) => {
   }, []);
 
   return (
-    <div className="adsense-container" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
+    <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
       {/* 🛡️ 審査中・広告未配信時のプレースホルダー */}
-      <div style={{
+      <div className="ads-placeholder" style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        background: 'rgba(248, 250, 252, 0.8)',
         border: '2px dashed #cbd5e1', borderRadius: '12px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '16px', color: '#94a3b8', fontSize: '0.85rem', zIndex: -1
+        padding: '16px', color: '#64748b', fontSize: '0.85rem'
       }}>
         <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
         <div style={{ fontWeight: 'bold' }}>スポンサー枠（準備中）</div>
         <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>審査に合格するとここに広告が表示されます</div>
       </div>
       <ins className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', position: 'relative', zIndex: 1 }}
         data-ad-client="ca-pub-9429738476925701"
         data-ad-slot={slot}
         data-ad-format={format}
