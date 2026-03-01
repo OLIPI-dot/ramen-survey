@@ -807,7 +807,7 @@ function App() {
   const handleLikeSurvey = async () => {
     if (!currentSurvey) return;
 
-    const isLiked = likedSurveys.includes(currentSurvey.id);
+    const isLiked = likedSurveys.some(id => String(id) === String(currentSurvey.id));
     const newLikesCount = isLiked
       ? Math.max(0, (currentSurvey.likes_count || 0) - 1)
       : (currentSurvey.likes_count || 0) + 1;
@@ -816,13 +816,13 @@ function App() {
     setCurrentSurvey({ ...currentSurvey, likes_count: newLikesCount });
 
     // 一覧やランキングなどの全リストの状態も同期させる（重要！）
-    const mapper = s => s.id === currentSurvey.id ? { ...s, likes_count: newLikesCount } : s;
+    const mapper = s => String(s.id) === String(currentSurvey.id) ? { ...s, likes_count: newLikesCount } : s;
     setSurveys(prev => prev.map(mapper));
     setPopularSurveys(prev => prev.map(mapper));
 
     const newLikedIds = isLiked
-      ? likedSurveys.filter(id => id !== currentSurvey.id)
-      : [...likedSurveys, currentSurvey.id];
+      ? likedSurveys.filter(id => String(id) !== String(currentSurvey.id))
+      : [...likedSurveys, String(currentSurvey.id)];
     setLikedSurveys(newLikedIds);
     localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
 
