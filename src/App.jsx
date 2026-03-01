@@ -469,8 +469,9 @@ function App() {
     if (!isLabiSurvey) return;
 
     // 条件2: キーワードブースト (100%) または 確率 (30%)
-    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'ラビ', 'うさぎ', 'ウサギ'];
-    const hasKeyword = keywords.some(k => userComment.includes(k));
+    const textToSearch = userComment.toLowerCase();
+    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'ラビ', 'らび', 'うさぎ', 'ウサギ'];
+    const hasKeyword = keywords.some(k => textToSearch.includes(k));
     const shouldDescend = hasKeyword || Math.random() < 0.3;
 
     if (!shouldDescend) return;
