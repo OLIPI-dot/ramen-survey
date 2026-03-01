@@ -437,7 +437,6 @@ function App() {
       alert("😿 削除処理に失敗したよ…");
     } else {
       setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: '[[DELETED]]' } : c));
-      alert("🔒 コメントを削除状態にしました。番号は維持されます。");
     }
   }
 
