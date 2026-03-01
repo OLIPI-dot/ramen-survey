@@ -155,6 +155,10 @@ function App() {
 
   const [currentCommentPage, setCurrentCommentPage] = useState(1); // 💬 コメント用ページネーション
 
+  // 📡 リアルタイム人数
+  const [globalOnlineCount, setGlobalOnlineCount] = useState(1);
+  const [surveyOnlineCount, setSurveyOnlineCount] = useState(1);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [sortMode, searchQuery, filterCategory, filterTag, popularMode]);
@@ -197,6 +201,27 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
     return () => subscription.unsubscribe();
+  }, []);
+
+  // 📡 広場全体のリアルタイム人数追跡
+  useEffect(() => {
+    const channel = supabase.channel('global-presence', {
+      config: { presence: { key: 'online' } }
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const count = Object.keys(state).length;
+        setGlobalOnlineCount(count > 0 ? count : 1);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ online_at: new Date().toISOString() });
+        }
+      });
+
+    return () => { channel.unsubscribe(); };
   }, []);
 
   // 🐰 ラビのトレンドアンケート自動生成魔法 (絶対重複させない版)
@@ -605,27 +630,51 @@ function App() {
           load();
         })
         .subscribe();
-      return () => supabase.removeChannel(ch);
+
+      // 📡 個別アンケートのリアルタイム人数追跡
+      const pCh = supabase.channel(`survey-pres-${currentSurvey.id}`, {
+        config: { presence: { key: 'viewing' } }
+      });
+      pCh
+        .on('presence', { event: 'sync' }, () => {
+          const state = pCh.presenceState();
+          const count = Object.keys(state).length;
+          setSurveyOnlineCount(count > 0 ? count : 1);
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await pCh.track({ viewing_at: new Date().toISOString() });
+          }
+        });
+
+      return () => {
+        supabase.removeChannel(ch);
+        pCh.unsubscribe();
+      };
     }
   }, [view, currentSurvey]);
 
   const refreshSidebar = async () => {
     const { data: sData } = await supabase.from('surveys').select('*').eq('visibility', 'public');
     const { data: oData } = await supabase.from('options').select('survey_id, votes');
+    const { data: cData } = await supabase.from('comments').select('survey_id');
+
     if (sData && oData) {
-      const withVotes = sData.map(s => ({
+      const withStats = sData.map(s => ({
         ...s,
-        total_votes: oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0)
+        total_votes: oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0),
+        comment_count: cData ? cData.filter(c => c.survey_id === s.id).length : 0
       }));
-      setLiveSurveys([...withVotes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10));
-      setPopularSurveys([...withVotes].sort((a, b) => {
-        if ((b.total_votes || 0) !== (a.total_votes || 0)) return (b.total_votes || 0) - (a.total_votes || 0);
-        return (b.view_count || 0) - (a.view_count || 0);
+      setLiveSurveys([...withStats].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10));
+      setPopularSurveys([...withStats].sort((a, b) => {
+        const scoreA = (a.total_votes || 0) * SCORE_VOTE_WEIGHT + (a.view_count || 0);
+        const scoreB = (b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0);
+        return scoreB - scoreA;
       }).slice(0, 10));
 
       const now = new Date();
       const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      const endingSoon = withVotes
+      const endingSoon = withStats
         .filter(s => s.deadline && new Date(s.deadline) > now && new Date(s.deadline) <= next24h)
         .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
         .slice(0, 3);
@@ -884,6 +933,14 @@ function App() {
 
   const Sidebar = () => (
     <div className="live-feed-sidebar">
+      <div className="sidebar-section-card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)', border: '1px solid #ddd6fe' }}>
+        <div className="live-feed-title" style={{ color: '#7c3aed', marginBottom: '8px' }}>📡 広場の状況</div>
+        <div style={{ fontSize: '0.9rem', color: '#4c1d95', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ position: 'relative', display: 'inline-block', width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 8px #10b981' }}></span>
+          いま {globalOnlineCount} 人が広場にいます 🐰✨
+        </div>
+      </div>
+
       <div className="sidebar-section-card" style={{ marginBottom: '24px', border: '2px solid #fee2e2' }}>
         <div className="live-feed-title" style={{ color: '#e11d48' }}>⏰ もうすぐ終了！</div>
         <div className="live-feed-content">
@@ -922,10 +979,12 @@ function App() {
                 {idx === 0 ? '👑' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}位`}
               </span>
               <div className="popular-item-info">
-                <strong style={{ display: 'block', marginBottom: '2px' }}>{s.title}</strong>
-                <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: '#64748b' }}>
+                <strong style={{ display: 'block', marginBottom: '4px' }}>{s.title}</strong>
+                <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap' }}>
                   <span>🗳️ {s.total_votes || 0} 票</span>
                   <span>👁️ {s.view_count || 0}</span>
+                  <span>👍 {s.likes_count || 0}</span>
+                  <span>💬 {s.comment_count || 0}</span>
                 </div>
               </div>
             </div>
@@ -1191,6 +1250,7 @@ function App() {
                 <div className="detail-header">
                   <h1 className="survey-title">{currentSurvey.title}</h1>
                   <div className="detail-meta-bar">
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
                     <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
                     <span>👍 {currentSurvey.likes_count || 0} いいね</span>
                     {currentSurvey.category && <span>🏷️ {currentSurvey.category}</span>}
