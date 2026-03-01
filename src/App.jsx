@@ -698,16 +698,27 @@ function App() {
     const { error } = await supabase.from('surveys').delete().eq('id', surveyId);
     setIsActionLoading(false);
 
-    fetchSurveys(user);
-    navigateTo('list');
+    if (error) {
+      console.error("Survey delete error:", error);
+      alert('😿 アンケートの削除に失敗しました。');
+    } else {
+      setSurveys(prev => prev.filter(s => s.id !== surveyId));
+      setView('list');
+      setCurrentSurvey(null);
+      alert('🗑️ アンケートを完全に削除しました！');
+    }
   };
 
-  // 🔄 公開設定を変更する（オーナーのみ）
+  // 🔄 公開設定を変更する（オーナーまたは管理者）
   const handleUpdateVisibility = async (newVisibility) => {
-    if (!currentSurvey || !user || currentSurvey.user_id !== user.id) return;
+    if (!currentSurvey || !user || (!isAdmin && currentSurvey.user_id !== user.id)) return;
     const { error } = await supabase.from('surveys').update({ visibility: newVisibility }).eq('id', currentSurvey.id);
-    if (error) return alert('変更に失敗しました');
+    if (error) {
+      console.error("Update visibility error:", error);
+      return alert('変更に失敗しました');
+    }
     setCurrentSurvey({ ...currentSurvey, visibility: newVisibility });
+    alert(`公開設定を「${newVisibility}」に変更しました！`);
     fetchSurveys(user);
   };
 
