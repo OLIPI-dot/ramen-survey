@@ -664,7 +664,10 @@ function App() {
         console.log(`⏳ ビューカウント待機中... 残り: ${Math.round((VIEW_COOLDOWN_MS - (now - lastView)) / 1000)}秒`);
       }
     } else if (nextView === 'list') {
-      window.history.pushState({}, '', url);
+      // 🏘️ 広場に戻る時はURLからパラメータを完全に消去する（更新時に詳細に飛ばないように）
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.pushState({}, '', cleanUrl);
+      setCurrentSurvey(null); // 詳細データをクリア
     }
     setView(nextView);
     window.scrollTo(0, 0);
