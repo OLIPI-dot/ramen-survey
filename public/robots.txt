@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://minna-no-vote-square.vercel.app/sitemap.xml
