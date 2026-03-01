@@ -424,16 +424,20 @@ function App() {
     if (!confirm("本当にこのコメントを消しちゃう？🐰💦")) return;
 
     setIsActionLoading(true);
-    let query = supabase.from('comments').delete().eq('id', commentId);
-    if (!isAdmin) {
-      query = query.eq('edit_key', key);
-    }
-    const { error } = await query;
+    // 物理削除から「論理削除（上書き）」に変更 🛡️
+    const { error } = await supabase
+      .from('comments')
+      .update({ content: '[[DELETED]]' })
+      .eq('id', commentId);
+
     setIsActionLoading(false);
 
-    if (error) alert("😿 消せなかったみたい…");
-    else {
-      setComments(prev => prev.filter(c => c.id !== commentId));
+    if (error) {
+      console.error("Soft delete error:", error);
+      alert("😿 削除処理に失敗したよ…");
+    } else {
+      setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: '[[DELETED]]' } : c));
+      alert("🔒 コメントを削除状態にしました。番号は維持されます。");
     }
   }
 
@@ -1363,38 +1367,44 @@ function App() {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="comment-item-body">
-                                    {renderCommentContent(c.content)}
+                                  <div className={`comment-item-body ${c.content === '[[DELETED]]' ? 'deleted-text' : ''}`}>
+                                    {c.content === '[[DELETED]]' ? (
+                                      <span style={{ color: '#ef4444', fontWeight: '500' }}>⚠️ このコメントは削除されました。</span>
+                                    ) : (
+                                      renderCommentContent(c.content)
+                                    )}
                                   </div>
                                 )}
 
-                                <div className="comment-footer-row">
-                                  <div className="comment-reactions">
-                                    <button
-                                      className={`reaction-btn up ${myReactions[`${c.id}_up`] ? 'active' : ''}`}
-                                      onClick={() => handleReaction(c.id, 'up')}
-                                    >
-                                      👍 {c.reactions?.up || 0}
-                                    </button>
-                                    <button
-                                      className={`reaction-btn down ${myReactions[`${c.id}_down`] ? 'active' : ''}`}
-                                      onClick={() => handleReaction(c.id, 'down')}
-                                    >
-                                      👎 {c.reactions?.down || 0}
-                                    </button>
-                                    {user && (
-                                      <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30))} style={{
-                                        background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px'
-                                      }}>🚩</button>
+                                {c.content !== '[[DELETED]]' && (
+                                  <div className="comment-footer-row">
+                                    <div className="comment-reactions">
+                                      <button
+                                        className={`reaction-btn up ${myReactions[`${c.id}_up`] ? 'active' : ''}`}
+                                        onClick={() => handleReaction(c.id, 'up')}
+                                      >
+                                        👍 {c.reactions?.up || 0}
+                                      </button>
+                                      <button
+                                        className={`reaction-btn down ${myReactions[`${c.id}_down`] ? 'active' : ''}`}
+                                        onClick={() => handleReaction(c.id, 'down')}
+                                      >
+                                        👎 {c.reactions?.down || 0}
+                                      </button>
+                                      {user && (
+                                        <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30))} style={{
+                                          background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px'
+                                        }}>🚩</button>
+                                      )}
+                                    </div>
+                                    {(myCommentKeys[c.id] || isAdmin) && !editingCommentId && (
+                                      <div className="comment-owner-actions">
+                                        {myCommentKeys[c.id] && <button className="comment-owner-edit" onClick={() => startEditComment(c)}>修正</button>}
+                                        <button className="comment-owner-delete" onClick={() => handleDeleteComment(c.id)}>削除{isAdmin && !myCommentKeys[c.id] && ' (管理)'}</button>
+                                      </div>
                                     )}
                                   </div>
-                                  {(myCommentKeys[c.id] || isAdmin) && !editingCommentId && (
-                                    <div className="comment-owner-actions">
-                                      {myCommentKeys[c.id] && <button className="comment-owner-edit" onClick={() => startEditComment(c)}>修正</button>}
-                                      <button className="comment-owner-delete" onClick={() => handleDeleteComment(c.id)}>削除{isAdmin && !myCommentKeys[c.id] && ' (管理)'}</button>
-                                    </div>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             );
                           }) : (
