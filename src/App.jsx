@@ -822,7 +822,7 @@ function App() {
   };
 
   // 🚩 通報機能
-  const handleReportContent = async (type, id, contentTitle) => {
+  const handleReportContent = async (type, id, contentTitle, extraContext = '') => {
     if (!user) return alert('🚨 通報にはログインが必要です。');
     if (!window.confirm(`「${contentTitle}」を不適切なコンテンツとして通報しますか？🐰💦`)) return;
 
@@ -832,7 +832,7 @@ function App() {
       const { error: dbError } = await supabase.from('inquiries').insert([{
         type: `通報:${type}`,
         email: user.email,
-        message: `【通報】対象ID: ${id}\n内容概要: ${contentTitle}\n通報者: ${user.email}`
+        message: `【通報】対象ID: ${id}\n内容概要: ${contentTitle}\n${extraContext}\n通報者: ${user.email}`
       }]);
       if (dbError) throw dbError;
 
@@ -845,7 +845,7 @@ function App() {
       await emailjs.send(serviceId, templateId, {
         from_name: '広場パトロール隊',
         inquiry_type: `🚩 通報 (${type})`,
-        message: `対象ID: ${id}\n内容: ${contentTitle}\n通報者: ${user.email}`,
+        message: `対象ID: ${id}\n内容: ${contentTitle}\n${extraContext}\n通報者: ${user.email}`,
         reply_to: user.email
       });
 
@@ -1391,7 +1391,7 @@ function App() {
                                         👎 {c.reactions?.down || 0}
                                       </button>
                                       {user && (
-                                        <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30))} style={{
+                                        <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30), `アンケート: ${currentSurvey.title}\nレス番号: ${comments.length - index}`)} style={{
                                           background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px'
                                         }}>🚩</button>
                                       )}
