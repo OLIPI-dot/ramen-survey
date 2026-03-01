@@ -807,6 +807,43 @@ function App() {
     }
   };
 
+  // 🚩 通報機能
+  const handleReportContent = async (type, id, contentTitle) => {
+    if (!user) return alert('🚨 通報にはログインが必要です。');
+    if (!window.confirm(`「${contentTitle}」を不適切なコンテンツとして通報しますか？🐰💦`)) return;
+
+    setIsActionLoading(true);
+    try {
+      // 1. Supabase DBに保存 (inquiriesテーブルを再利用)
+      const { error: dbError } = await supabase.from('inquiries').insert([{
+        type: `通報:${type}`,
+        email: user.email,
+        message: `【通報】対象ID: ${id}\n内容概要: ${contentTitle}\n通報者: ${user.email}`
+      }]);
+      if (dbError) throw dbError;
+
+      // 2. EmailJSで通知
+      const serviceId = 'service_mkhbkz3';
+      const templateId = 'template_4wpor27';
+      const publicKey = 'wEjNAL8NrmlxBHc6k';
+      emailjs.init(publicKey);
+
+      await emailjs.send(serviceId, templateId, {
+        from_name: '広場パトロール隊',
+        inquiry_type: `🚩 通報 (${type})`,
+        message: `対象ID: ${id}\n内容: ${contentTitle}\n通報者: ${user.email}`,
+        reply_to: user.email
+      });
+
+      alert('🙏 通報ありがとうございます。運営が内容を確認し、適切に対応させていただきます。😊');
+    } catch (error) {
+      console.error("Report Error:", error);
+      alert('😿 通報の送信に失敗しました。時間をおいて試してみてね。');
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const Sidebar = () => (
     <div className="live-feed-sidebar">
       <div className="sidebar-section-card" style={{ marginBottom: '24px', border: '2px solid #fee2e2' }}>
@@ -1168,6 +1205,12 @@ function App() {
                   </button>
                   <button className="share-copy-btn" onClick={() => handleShareResult('copy')}>📋 結果をコピー</button>
                   <button className="share-x-btn" onClick={() => handleShareResult('x')}>𝕏 シェア</button>
+                  {user && (
+                    <button className="report-content-btn" onClick={() => handleReportContent('アンケート', currentSurvey.id, currentSurvey.title)} style={{
+                      background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '24px', cursor: 'pointer',
+                      fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'all 0.2s'
+                    }}>🚩 通報</button>
+                  )}
                   {(user && (currentSurvey.user_id === user.id || isAdmin)) && (
                     <>
                       {currentSurvey.user_id === user.id && (
@@ -1328,6 +1371,11 @@ function App() {
                                     >
                                       👎 {c.reactions?.down || 0}
                                     </button>
+                                    {user && (
+                                      <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30))} style={{
+                                        background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px'
+                                      }}>🚩</button>
+                                    )}
                                   </div>
                                   {(myCommentKeys[c.id] || isAdmin) && !editingCommentId && (
                                     <div className="comment-owner-actions">
