@@ -37,6 +37,30 @@ const CATEGORY_IMAGES = {
   "その他": DEFAULT_SURVEY_IMAGE,
 };
 
+// 🐰 ラビの降臨メッセージ集
+const LABI_RESPONSES = {
+  default: [
+    "呼んだかな？ラビだよ！🐰✨ いつでも広場を見守ってるよ！",
+    "わーい！コメントありがとう！🥕 嬉しいなぁ！",
+    "その意見、とっても素敵だね！✨ さすが広場のみんな！",
+    "ラビもそう思ってたんだ！🐰🥕 気が合うね！",
+    "広場が賑やかで楽しいな〜！🐾 今日も良い一日になりそう！",
+    "ひょっこり降臨！🐰 ラビだよ〜！"
+  ],
+  keywords: [
+    "わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
+    "ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
+    "🥕 はラビの元気の源なんだ！おりぴさんにもお裾分けしたいな〜✨",
+    "ラビは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
+  ],
+  admin: [
+    "おりぴさん！🐰🥕 いつも素敵な広場をありがとう！",
+    "おりぴさんのコメント、ラビは全部チェックしてるよ！✨ 大好き！",
+    "神（おりぴさん）の降臨だー！👏 🥕を捧げなきゃ！",
+    "おりぴさん、お疲れ様！🐰 ラビが癒やしてあげるね〜🌻"
+  ]
+};
+
 const CATEGORY_ICON_STYLE = {
   "エンタメ": { icon: "🎬", color: "#8b5cf6" },
   "グルメ": { icon: "🍜", color: "#f59e0b" },
@@ -421,14 +445,47 @@ function App() {
         setCommentContent('');
         setCommentName(''); // 投稿後は空に
         updateRateLimit(); // 🛡️ 投稿時間を記録
+
+        // 🪄 ラビの降臨チェック
+        triggerLabiDescent(commentContent, isAdmin);
       }
-    } catch (err) {
-      console.error("Critical Post Error:", err);
-      alert("😿 エラーが発生しました。時間を置いて試してね。");
     } finally {
       setIsPostingComment(false);
     }
   }
+
+  // 🪄 ラビの降臨（自動返信）トリガー
+  const triggerLabiDescent = async (userComment, isAdminComment) => {
+    // 条件1: ラビのアンケートかどうか (タイトルかタグに「ラビ」)
+    const isLabiSurvey = currentSurvey?.title.includes('ラビ') || currentSurvey?.tags?.includes('ラビ');
+    if (!isLabiSurvey) return;
+
+    // 条件2: キーワードブースト (100%) または 確率 (30%)
+    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'ラビ', 'うさぎ', 'ウサギ'];
+    const hasKeyword = keywords.some(k => userComment.includes(k));
+    const shouldDescend = hasKeyword || Math.random() < 0.3;
+
+    if (!shouldDescend) return;
+
+    // ⏳ 3〜5秒の溜めを作る
+    setTimeout(async () => {
+      let responseList = LABI_RESPONSES.default;
+      if (hasKeyword) responseList = LABI_RESPONSES.keywords;
+      if (isAdminComment) responseList = LABI_RESPONSES.admin;
+
+      const reply = responseList[Math.floor(Math.random() * responseList.length)];
+
+      const { error } = await supabase.from('comments').insert([{
+        survey_id: currentSurvey.id,
+        user_name: "ラビ🐰(AI)",
+        content: reply,
+        user_id: "labi-ai-id", // 固定ID
+        is_ai: true // AIフラグ（必要ならDBに追加、なければuser_nameで判別）
+      }]);
+
+      if (error) console.error("Labi Descent Error:", error);
+    }, 3000 + Math.random() * 2000);
+  };
 
   async function handleReaction(commentId, type) {
     const reactionKey = `${commentId}_${type}`;
@@ -1421,7 +1478,7 @@ function App() {
                           {paginatedComments.length > 0 ? paginatedComments.map((c, localIdx) => {
                             const index = startIndex + localIdx;
                             return (
-                              <div key={c.id} className="comment-item-card">
+                              <div key={c.id} className={`comment-item-card ${c.user_name?.includes('ラビ🐰') ? 'comment-labi' : ''}`}>
                                 <div className="comment-item-header">
                                   <div className="comment-author-wrap">
                                     <span className="comment-res-num" onClick={() => {
