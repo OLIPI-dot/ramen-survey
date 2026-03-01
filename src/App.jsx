@@ -961,12 +961,15 @@ function App() {
       navigator.clipboard.writeText(copyText).then(() => alert('コピーしました！'));
     } else if (type === 'x') {
       // Xシェア：URLはurl=パラメータで渡してテキスト本文をスッキリさせる
+      const surveyTagsText = currentSurvey.tags && currentSurvey.tags.length > 0
+        ? currentSurvey.tags.map(t => `#${t}`).join(' ')
+        : '';
       const xText = [
         `📊「${title}」`,
         '',
         ...lines,
         '',
-        `計${isTotalVotes}票 #アンケート広場`,
+        `計${isTotalVotes}票 #アンケート広場 ${surveyTagsText}`,
       ].join('\n');
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(url)}`,
@@ -1316,7 +1319,7 @@ function App() {
                     <div className="setup-add-container">
                       <input className="add-input" value={tempTag} onChange={e => setTempTag(e.target.value)}
                         onKeyPress={e => { if (e.key === 'Enter' && tempTag.trim()) { setSurveyTags([...surveyTags, tempTag.trim().replace(/^#/, '')]); setTempTag(''); } }}
-                        placeholder="例：りりたな、朝食、習慣..." />
+                        placeholder="例：推し、お昼ごはん、習慣..." />
                       <button className="add-button" onClick={() => { if (tempTag.trim()) { setSurveyTags([...surveyTags, tempTag.trim().replace(/^#/, '')]); setTempTag(''); } }}>追加</button>
                     </div>
                     {surveyTags.length > 0 && (
@@ -1700,7 +1703,7 @@ function App() {
                 <li>⭐ 気になるアンケートをウォッチリストに追加できます</li>
                 <li>🕒 締切時間を設定したアンケートも作れます</li>
                 <li>🏷️ カテゴリ別に絞り込んで見ることができます</li>
-                <li>🗑️ 終了したアンケートは7日後に自動的に削除されるので安心です</li>
+                <li>🗑️ 終了したアンケートは、公平を期すために<span style={{ fontWeight: 'bold' }}>締切から7日後</span>に自動的に削除されます</li>
               </ul>
               <p>みんなの「ちょっと気になる」を気軽に集められる場所です。ぜひ楽しく使ってください！🌈</p>
             </div>
