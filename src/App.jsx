@@ -1391,17 +1391,17 @@ function App() {
                 </div>
                 <div className="share-result-area">
                   <button
-                    className={`like-survey-btn ${likedSurveys.includes(currentSurvey.id) ? 'liked' : ''}`}
+                    className={`like-survey-btn ${likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? 'liked' : ''}`}
                     onClick={handleLikeSurvey}
                     style={{
-                      background: likedSurveys.includes(currentSurvey.id) ? '#ec4899' : '#fbcfe8',
-                      color: likedSurveys.includes(currentSurvey.id) ? 'white' : '#be185d',
+                      background: likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? '#ec4899' : '#fbcfe8',
+                      color: likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? 'white' : '#be185d',
                       border: 'none', padding: '12px 24px', borderRadius: '24px', cursor: 'pointer',
                       fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
                       transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(236,72,153,0.3)',
                     }}
                   >
-                    {likedSurveys.includes(currentSurvey.id) ? '👍 いいね！ (' : '🤍 いいね！ ('} {currentSurvey.likes_count || 0} )
+                    {likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? '👍 いいね！ (' : '🤍 いいね！ ('} {currentSurvey.likes_count || 0} )
                   </button>
                   <button className="share-copy-btn" onClick={() => handleShareResult('copy')}>📋 結果をコピー</button>
                   <button className="share-x-btn" onClick={() => handleShareResult('x')}>𝕏 シェア</button>
