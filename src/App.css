@@ -833,29 +833,48 @@ body {
 
 /* 🔍 カテゴリ絞り込みバー */
 .category-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  /* 横に並べるのではなく、入り切らなかったら次の行へ */
-  gap: 10px;
-  margin: 16px 0 24px 0;
-  padding: 4px;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  /* 折り返さず一列に */
+  gap: 8px !important;
+  margin: 12px 0 16px 0 !important;
+  overflow-x: auto !important;
+  padding: 4px 4px 12px 4px !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 .category-filter-bar::-webkit-scrollbar {
-  display: none;
+  height: 6px !important;
+  display: block !important;
+}
+
+.category-filter-bar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
 .filter-cat-btn {
+  flex-shrink: 0 !important;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 0.9rem;
+  padding: 5px 12px !important;
+  font-size: 0.85rem !important;
   font-weight: 800;
   color: var(--text-sub);
   cursor: pointer;
   white-space: nowrap;
   transition: 0.2s;
+}
+
+font-size: 0.9rem;
+font-weight: 800;
+color: var(--text-sub);
+cursor: pointer;
+white-space: nowrap;
+transition: 0.2s;
 }
 
 .filter-cat-btn:hover {
