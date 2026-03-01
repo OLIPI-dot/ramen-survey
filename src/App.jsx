@@ -34,41 +34,43 @@ const CATEGORY_IMAGES = {
   "IT・テクノロジー": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
   "生活": "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1000",
   "ゲーム": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000",
+  "らび": "https://images.unsplash.com/photo-1585110396000-c9fd4e4e5088?auto=format&fit=crop&q=80&w=1000", // 🐰 らび専用サムネ（可愛いうさぎの画像）
   "その他": DEFAULT_SURVEY_IMAGE,
 };
 
-// 🐰 ラビの降臨メッセージ集
+// 🐰 らびの降臨メッセージ集
 const LABI_RESPONSES = {
   default: [
-    "呼んだかな？ラビだよ！🐰✨ いつでも広場を見守ってるよ！",
+    "呼んだかな？らびだよ！🐰✨ いつでも広場を見守ってるよ！",
     "わーい！コメントありがとう！🥕 嬉しいなぁ！",
     "その意見、とっても素敵だね！✨ さすが広場のみんな！",
-    "ラビもそう思ってたんだ！🐰🥕 気が合うね！",
+    "らびもそう思ってたんだ！🐰🥕 気が合うね！",
     "広場が賑やかで楽しいな〜！🐾 今日も良い一日になりそう！",
-    "ひょっこり降臨！🐰 ラビだよ〜！"
+    "ひょっこり降臨！🐰 らびだよ〜！"
   ],
   keywords: [
     "わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
     "ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
-    "🥕 はラビの元気の源なんだ！おりぴさんにもお裾分けしたいな〜✨",
-    "ラビは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
+    "🥕 はらびの元気の源なんだ！おりぴさんにもお裾分けしたいな〜✨",
+    "らびは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
   ],
   admin: [
     "おりぴさん！🐰🥕 いつも素敵な広場をありがとう！",
-    "おりぴさんのコメント、ラビは全部チェックしてるよ！✨ 大好き！",
+    "おりぴさんのコメント、らびは全部チェックしてるよ！✨ 大好き！",
     "神（おりぴさん）の降臨だー！👏 🥕を捧げなきゃ！",
-    "おりぴさん、お疲れ様！🐰 ラビが癒やしてあげるね〜🌻"
+    "おりぴさん、お疲れ様！🐰 らびが癒やしてあげるね〜🌻"
   ]
 };
 
 const CATEGORY_ICON_STYLE = {
-  "エンタメ": { icon: "🎬", color: "#8b5cf6" },
-  "グルメ": { icon: "🍜", color: "#f59e0b" },
-  "スポーツ": { icon: "⚽", color: "#10b981" },
-  "トレンド": { icon: "📈", color: "#ec4899" },
-  "IT・テクノロジー": { icon: "💻", color: "#3b82f6" },
-  "生活": { icon: "🏠", color: "#a78bfa" },
-  "ゲーム": { icon: "🎮", color: "#06b6d4" },
+  "エンタメ": { icon: "🎬", color: "#f43f5e" },
+  "グルメ": { icon: "🍔", color: "#f59e0b" },
+  "スポーツ": { icon: "⚽", color: "#3b82f6" },
+  "トレンド": { icon: "🔥", color: "#ec4899" },
+  "IT・テクノロジー": { icon: "💻", color: "#8b5cf6" },
+  "生活": { icon: "🏠", color: "#10b981" },
+  "ゲーム": { icon: "🎮", color: "#14b8a6" },
+  "らび": { icon: "🐰", color: "#ec4899" }, // らび専用アイコン（ピンク系）
   "その他": { icon: "❓", color: "#64748b" },
 };
 
@@ -251,7 +253,7 @@ function App() {
     return () => { channel.unsubscribe(); };
   }, []);
 
-  // 🐰 ラビのトレンドアンケート自動生成魔法 (絶対重複させない版)
+  // 🐰 らびのトレンドアンケート自動生成魔法 (絶対重複させない版)
   useEffect(() => {
     const magic = async () => {
       if (!user || localStorage.getItem('labi_magic_done_31')) return;
@@ -260,7 +262,7 @@ function App() {
       localStorage.setItem('labi_magic_done_31', 'busy');
 
       const trends = [
-        { title: 'うさぎのラビの挑戦！🥕 みんなの『元気が出る魔法』はどれ？🐰🌈', category: 'その他', options: ['美味しいものを食べる 🍰', '好きな音楽を聴く 🎵', '誰かに褒めてもらう 👏', '太陽の光を浴びる ☀️', 'ラビとニンジンを分かち合う 🐰🥕'], tags: ['ラビ', '元気', '魔法'] },
+        { title: 'うさぎのらびの挑戦！🥕 みんなの『元気が出る魔法』はどれ？🐰🌈', category: 'らび', options: ['美味しいものを食べる 🍰', '好きな音楽を聴く 🎵', '誰かに褒めてもらう 👏', '太陽の光を浴びる ☀️', 'らびとニンジンを分かち合う 🐰🥕'], tags: ['らび', '元気', '魔法'] },
         { title: 'いま一番欲しいApple製品は？', category: 'IT・テクノロジー', options: ['iPhone', 'MacBook', 'iPad', 'Apple Watch', 'Vision Pro'] },
         { title: '休日の過ごし方といえば？', category: '生活', options: ['家でゴロゴロ', 'ショッピング・お出かけ', '趣味・スポーツ', '勉強や自己研鑽'] },
         { title: '次に旅行に行きたい国は？', category: '生活', options: ['ハワイ (アメリカ)', '韓国', '台湾', 'ヨーロッパ'] },
@@ -480,23 +482,23 @@ function App() {
     }
   }
 
-  // 🪄 ラビの降臨（自動返信）トリガー
+  // 🪄 らびの降臨（自動返信）トリガー
   const triggerLabiDescent = async (userComment, isAdminComment) => {
-    // 条件1: ラビのアンケートかどうか (タイトルかタグに「ラビ」)
-    const titleMatch = currentSurvey?.title?.includes('ラビ');
+    // 条件1: らびのアンケートかどうか (タイトルかタグに「らび」)
+    const titleMatch = currentSurvey?.title?.includes('らび') || currentSurvey?.title?.includes('ラビ');
     let tagMatch = false;
     if (Array.isArray(currentSurvey?.tags)) {
-      tagMatch = currentSurvey.tags.includes('ラビ');
+      tagMatch = currentSurvey.tags.includes('らび') || currentSurvey.tags.includes('ラビ');
     } else if (typeof currentSurvey?.tags === 'string') {
-      tagMatch = currentSurvey.tags.includes('ラビ');
+      tagMatch = currentSurvey.tags.includes('らび') || currentSurvey.tags.includes('ラビ');
     }
-    const isLabiSurvey = titleMatch || tagMatch;
+    const isLabiSurvey = titleMatch || tagMatch || currentSurvey?.category === 'らび';
 
     if (!isLabiSurvey) return;
 
     // 条件2: キーワードブースト (100%) または 確率 (30%)
     const textToSearch = userComment.toLowerCase();
-    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'ラビ', 'らび', 'うさぎ', 'ウサギ'];
+    const keywords = ['ニンジン', 'にんじん', 'carrot', '🥕', 'らび', 'ラビ', 'うさぎ', 'ウサギ'];
     const hasKeyword = keywords.some(k => textToSearch.includes(k));
     const shouldDescend = hasKeyword || Math.random() < 0.3;
 
@@ -512,7 +514,7 @@ function App() {
 
       const { error } = await supabase.from('comments').insert([{
         survey_id: currentSurvey.id,
-        user_name: "ラビ🐰(AI)",
+        user_name: "らび🐰(AI)",
         content: reply,
         user_id: null, // user_idはUUID型なので無効な文字列は弾かれるためnullにする
         edit_key: "labi_bot"
@@ -1265,7 +1267,7 @@ function App() {
                   <div className="setting-item-block"><label>お題（タイトル）:</label><input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" /></div>
                   <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
-                      {['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他'].map(cat => (
+                      {['エンタメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
                         <button key={cat} className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`} onClick={() => setSurveyCategory(cat)}>{cat}</button>
                       ))}
                     </div>
@@ -1302,6 +1304,9 @@ function App() {
                     </div>
                   </div>
                   <button className="start-button" onClick={handleStartSurvey}>公開する！</button>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginTop: '8px' }}>
+                    ※ 終了したアンケートは、締切日から7日後に自動的に完全削除されます。
+                  </p>
                   <div className="setting-item-block">
                     <label>🏷️ タグ（アンケートのキーワード）:</label>
                     <div className="setup-add-container">
@@ -1338,7 +1343,12 @@ function App() {
                       {!isTimeUp ? (
                         <CountdownTimer deadline={currentSurvey.deadline} onTimeUp={() => setIsTimeUp(true)} />
                       ) : (
-                        <div className="countdown-display ended">投票受付終了</div>
+                        <div className="countdown-display ended">
+                          投票受付終了
+                          <div style={{ fontSize: '0.8rem', marginTop: '4px', fontWeight: 'normal', opacity: 0.9 }}>
+                            ※ このアンケートは終了から7日後に自動削除されます
+                          </div>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1638,6 +1648,7 @@ function App() {
                 <li>他のユーザーが不快になるような内容の投稿はご遠慮ください。</li>
                 <li>誹謗中傷・差別的な表現・違法なコンテンツの投稿は禁止です。</li>
                 <li>不適切と判断された投稿は、予告なく削除することがあります。</li>
+                <li>終了したアンケートデータは、締切後7日で自動的に完全削除されます。</li>
                 <li>本サービスは予告なく内容を変更・終了する場合があります。</li>
                 <li>本サービスの利用によって生じたいかなる損害についても、運営は責任を負いません。</li>
               </ul>
@@ -1676,6 +1687,7 @@ function App() {
                 <li>⭐ 気になるアンケートをウォッチリストに追加できます</li>
                 <li>🕒 締切時間を設定したアンケートも作れます</li>
                 <li>🏷️ カテゴリ別に絞り込んで見ることができます</li>
+                <li>🗑️ 終了したアンケートは7日後に自動的に削除されるので安心です</li>
               </ul>
               <p>みんなの「ちょっと気になる」を気軽に集められる場所です。ぜひ楽しく使ってください！🌈</p>
             </div>
