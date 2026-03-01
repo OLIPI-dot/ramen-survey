@@ -665,8 +665,8 @@ function App() {
         await supabase.rpc('increment_survey_view', { survey_id: survey.id });
       }
     } else if (nextView === 'list') {
-      const cleanUrl = window.location.origin + window.location.pathname;
-      window.history.pushState({ view: 'list' }, '', cleanUrl);
+      // 🏘️ 広場に戻る時はURLからパラメータを完全に消去する（絶対パスで確実に）
+      window.history.pushState({ view: 'list' }, '', window.location.pathname);
       setCurrentSurvey(null);
     }
     setView(nextView);
@@ -803,7 +803,7 @@ function App() {
     setDeadline('');
     setSurveyVisibility('public');
 
-    setView('list');
+    navigateTo('list');
     fetchSurveys(user);
   };
 
@@ -871,8 +871,7 @@ function App() {
       alert('😿 アンケートの削除に失敗しました。');
     } else {
       setSurveys(prev => prev.filter(s => s.id !== surveyId));
-      setView('list');
-      setCurrentSurvey(null);
+      navigateTo('list');
       alert('🗑️ アンケートを完全に削除しました！');
     }
   };
@@ -1488,7 +1487,7 @@ function App() {
                     </div>
                   </div>
                 )}
-                <button className="back-to-list-link" onClick={() => setView('list')}>← 戻る</button>
+                <button className="back-to-list-link" onClick={() => navigateTo('list')}>← 戻る</button>
 
                 {/* 💬 コメント（掲示板）セクションル */}
                 <div className="comments-section-area">
