@@ -14,6 +14,9 @@ const SCORE_VOTE_WEIGHT = 3;
 // 👁️ view_count 重複加算防止
 const VIEW_COOLDOWN_MS = 5 * 60 * 1000;
 
+// 🛡️ 管理者のメールアドレス
+const ADMIN_EMAILS = ['pachu.pachu.pachuly@gmail.com'];
+
 // 🛡️ NGワードフィルター
 const NG_WORDS = ['死ね', '殺す', 'カス', 'アホ', 'バカ', 'きもい', 'キモイ', 'うざい'];
 const hasNGWord = (text) => NG_WORDS.some(ng => text.includes(ng));
@@ -145,6 +148,9 @@ function App() {
   const [filterTag, setFilterTag] = useState(''); // 🏷️ タグ絞り込み
   const [currentPage, setCurrentPage] = useState(1); // 📄 ページネーション用
   const [likedSurveys, setLikedSurveys] = useState(() => JSON.parse(localStorage.getItem('liked_surveys') || '[]')); // 👍 いいね履歴
+
+  // 👑 管理者フラグ
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
 
   const [currentCommentPage, setCurrentCommentPage] = useState(1); // 💬 コメント用ページネーション
 
@@ -414,11 +420,15 @@ function App() {
     if (isActionLoading) return;
     const myKeys = JSON.parse(localStorage.getItem('my_comment_keys') || '{}');
     const key = myKeys[commentId];
-    if (!key) return alert("🐰 自分のコメントしか消せないよ！");
+    if (!key && !isAdmin) return alert("🐰 自分のコメントしか消せないよ！");
     if (!confirm("本当にこのコメントを消しちゃう？🐰💦")) return;
 
     setIsActionLoading(true);
-    const { error } = await supabase.from('comments').delete().eq('id', commentId).eq('edit_key', key);
+    let query = supabase.from('comments').delete().eq('id', commentId);
+    if (!isAdmin) {
+      query = query.eq('edit_key', key);
+    }
+    const { error } = await query;
     setIsActionLoading(false);
 
     if (error) alert("😿 消せなかったみたい…");
@@ -677,14 +687,16 @@ function App() {
     localStorage.setItem('watched_surveys', JSON.stringify(newIds));
   };
 
-  // 🗑️ アンケートを削除する（オーナーのみ）
+  // 🗑️ アンケートを削除する（オーナーまたは管理者）
   const handleDeleteSurvey = async (surveyId) => {
     if (!window.confirm('本当に削除しますか？この操作は元に戻せません。')) return;
 
+    setIsActionLoading(true);
     // 関連データを順番に削除（コメント -> 選択肢 -> アンケート本体）
     await supabase.from('comments').delete().eq('survey_id', surveyId);
     await supabase.from('options').delete().eq('survey_id', surveyId);
-    await supabase.from('surveys').delete().eq('id', surveyId);
+    const { error } = await supabase.from('surveys').delete().eq('id', surveyId);
+    setIsActionLoading(false);
 
     fetchSurveys(user);
     navigateTo('list');
@@ -1156,59 +1168,61 @@ function App() {
                   </button>
                   <button className="share-copy-btn" onClick={() => handleShareResult('copy')}>📋 結果をコピー</button>
                   <button className="share-x-btn" onClick={() => handleShareResult('x')}>𝕏 シェア</button>
-                  {user && currentSurvey.user_id === user.id && (
+                  {(user && (currentSurvey.user_id === user.id || isAdmin)) && (
                     <>
-                      <button className="delete-survey-btn" onClick={async () => {
-                        const input = window.prompt("どれくらい延長しますか？\n例: 「1d12h30m」で1日と12時間30分、「3d」や「3」で3日延長\n※未入力の場合は1日延長されます", "1d");
-                        if (input !== null) {
-                          const valStr = input.trim() || '1d';
-                          // まずは数字のみかをチェック
-                          let addMs = 0;
-                          let displayStr = "";
-                          if (/^\d+$/.test(valStr)) {
-                            addMs = parseInt(valStr, 10) * 24 * 60 * 60 * 1000;
-                            displayStr = `${valStr}日 `;
-                          } else {
-                            // d, h, m の各要素を取り出す
-                            const dMatch = valStr.match(/(\d+)d/i);
-                            const hMatch = valStr.match(/(\d+)h/i);
-                            const mMatch = valStr.match(/(\d+)m/i);
+                      {currentSurvey.user_id === user.id && (
+                        <button className="delete-survey-btn" onClick={async () => {
+                          const input = window.prompt("どれくらい延長しますか？\n例: 「1d12h30m」で1日と12時間30分、「3d」や「3」で3日延長\n※未入力の場合は1日延長されます", "1d");
+                          if (input !== null) {
+                            const valStr = input.trim() || '1d';
+                            // まずは数字のみかをチェック
+                            let addMs = 0;
+                            let displayStr = "";
+                            if (/^\d+$/.test(valStr)) {
+                              addMs = parseInt(valStr, 10) * 24 * 60 * 60 * 1000;
+                              displayStr = `${valStr}日 `;
+                            } else {
+                              // d, h, m の各要素を取り出す
+                              const dMatch = valStr.match(/(\d+)d/i);
+                              const hMatch = valStr.match(/(\d+)h/i);
+                              const mMatch = valStr.match(/(\d+)m/i);
 
-                            if (!dMatch && !hMatch && !mMatch) return alert("😿 入力形式が正しくありません。(例: 1d12h30m, 3d, 3)");
+                              if (!dMatch && !hMatch && !mMatch) return alert("😿 入力形式が正しくありません。(例: 1d12h30m, 3d, 3)");
 
-                            const d = dMatch ? parseInt(dMatch[1], 10) : 0;
-                            const h = hMatch ? parseInt(hMatch[1], 10) : 0;
-                            const m = mMatch ? parseInt(mMatch[1], 10) : 0;
+                              const d = dMatch ? parseInt(dMatch[1], 10) : 0;
+                              const h = hMatch ? parseInt(hMatch[1], 10) : 0;
+                              const m = mMatch ? parseInt(mMatch[1], 10) : 0;
 
-                            addMs = (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000) + (m * 60 * 1000);
+                              addMs = (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000) + (m * 60 * 1000);
 
-                            if (d > 0) displayStr += `${d}日 `;
-                            if (h > 0) displayStr += `${h}時間 `;
-                            if (m > 0) displayStr += `${m}分 `;
+                              if (d > 0) displayStr += `${d}日 `;
+                              if (h > 0) displayStr += `${h}時間 `;
+                              if (m > 0) displayStr += `${m}分 `;
+                            }
+
+                            const currentDeadline = currentSurvey.deadline ? new Date(currentSurvey.deadline) : new Date();
+                            currentDeadline.setTime(currentDeadline.getTime() + addMs);
+
+                            const newIso = currentDeadline.toISOString();
+
+                            const { error } = await supabase.from('surveys').update({ deadline: newIso }).eq('id', currentSurvey.id);
+                            if (!error) {
+                              setCurrentSurvey({ ...currentSurvey, deadline: newIso });
+                              setIsTimeUp(currentDeadline < new Date());
+                              alert(`⏳ ${displayStr.trim()} 延長しました！`);
+                            } else {
+                              alert("😿 延長に失敗しました");
+                            }
                           }
-
-                          const currentDeadline = currentSurvey.deadline ? new Date(currentSurvey.deadline) : new Date();
-                          currentDeadline.setTime(currentDeadline.getTime() + addMs);
-
-                          const newIso = currentDeadline.toISOString();
-
-                          const { error } = await supabase.from('surveys').update({ deadline: newIso }).eq('id', currentSurvey.id);
-                          if (!error) {
-                            setCurrentSurvey({ ...currentSurvey, deadline: newIso });
-                            setIsTimeUp(currentDeadline < new Date());
-                            alert(`⏳ ${displayStr.trim()} 延長しました！`);
-                          } else {
-                            alert("😿 延長に失敗しました");
-                          }
-                        }
-                      }}>⏳ 延長する</button>
-                      <button className="delete-survey-btn" onClick={() => handleDeleteSurvey(currentSurvey.id)}>🗑️ 削除</button>
+                        }}>⏳ 延長する</button>
+                      )}
+                      <button className="delete-survey-btn" onClick={() => handleDeleteSurvey(currentSurvey.id)}>🗑️ 削除{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}</button>
                     </>
                   )}
                 </div>
-                {user && currentSurvey.user_id === user.id && (
+                {user && (currentSurvey.user_id === user.id || isAdmin) && (
                   <div className="owner-visibility-panel">
-                    <span className="owner-vis-label">🔒 公開設定変更:</span>
+                    <span className="owner-vis-label">🔒 公開設定変更{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}:</span>
                     <div className="visibility-selector">
                       {[{ val: 'public', label: '🌐 公開' }, { val: 'limited', label: '🔗 限定公開' }, { val: 'private', label: '🔒 非公開' }].map(v => (
                         <button key={v.val}
@@ -1315,10 +1329,10 @@ function App() {
                                       👎 {c.reactions?.down || 0}
                                     </button>
                                   </div>
-                                  {myCommentKeys[c.id] && !editingCommentId && (
+                                  {(myCommentKeys[c.id] || isAdmin) && !editingCommentId && (
                                     <div className="comment-owner-actions">
-                                      <button className="comment-owner-edit" onClick={() => startEditComment(c)}>修正</button>
-                                      <button className="comment-owner-delete" onClick={() => handleDeleteComment(c.id)}>削除</button>
+                                      {myCommentKeys[c.id] && <button className="comment-owner-edit" onClick={() => startEditComment(c)}>修正</button>}
+                                      <button className="comment-owner-delete" onClick={() => handleDeleteComment(c.id)}>削除{isAdmin && !myCommentKeys[c.id] && ' (管理)'}</button>
                                     </div>
                                   )}
                                 </div>
