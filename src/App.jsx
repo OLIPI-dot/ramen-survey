@@ -457,7 +457,15 @@ function App() {
   // 🪄 ラビの降臨（自動返信）トリガー
   const triggerLabiDescent = async (userComment, isAdminComment) => {
     // 条件1: ラビのアンケートかどうか (タイトルかタグに「ラビ」)
-    const isLabiSurvey = currentSurvey?.title.includes('ラビ') || currentSurvey?.tags?.includes('ラビ');
+    const titleMatch = currentSurvey?.title?.includes('ラビ');
+    let tagMatch = false;
+    if (Array.isArray(currentSurvey?.tags)) {
+      tagMatch = currentSurvey.tags.includes('ラビ');
+    } else if (typeof currentSurvey?.tags === 'string') {
+      tagMatch = currentSurvey.tags.includes('ラビ');
+    }
+    const isLabiSurvey = titleMatch || tagMatch;
+
     if (!isLabiSurvey) return;
 
     // 条件2: キーワードブースト (100%) または 確率 (30%)
