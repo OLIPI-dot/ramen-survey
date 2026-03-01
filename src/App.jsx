@@ -814,6 +814,12 @@ function App() {
 
     // 🏎️ UIを先に更新（楽観的UI更新）
     setCurrentSurvey({ ...currentSurvey, likes_count: newLikesCount });
+
+    // 一覧やランキングなどの全リストの状態も同期させる（重要！）
+    const mapper = s => s.id === currentSurvey.id ? { ...s, likes_count: newLikesCount } : s;
+    setSurveys(prev => prev.map(mapper));
+    setPopularSurveys(prev => prev.map(mapper));
+
     const newLikedIds = isLiked
       ? likedSurveys.filter(id => id !== currentSurvey.id)
       : [...likedSurveys, currentSurvey.id];
