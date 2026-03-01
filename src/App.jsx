@@ -1265,9 +1265,9 @@ function App() {
                                   )}
                                 </div>
                               </div>
-                              {/* 💎 7個目ごとに広告を差し込む魔法 */}
-                              {(idx + 1) % 7 === 0 && (
-                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 7)}`} />
+                              {/* 💎 9個目（3行）ごとに広告を差し込む魔法 */}
+                              {(idx + 1) % 9 === 0 && (
+                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 9)}`} />
                               )}
                             </React.Fragment>
                           );
@@ -1298,7 +1298,6 @@ function App() {
                     return <Pagination current={currentPage} total={totalPages} onPageChange={(p) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />;
                   })()}
                 </div>
-                {!isLoading && surveys.length > 0 && <AdSenseBox slot="9429738476925701" />}
               </>
             )}
 
