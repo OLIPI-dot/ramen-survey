@@ -665,40 +665,9 @@ function App() {
         await supabase.rpc('increment_survey_view', { survey_id: survey.id });
       }
     } else if (nextView === 'list') {
-      window.history.pushState({ view: 'list' }, '', url);
-      setCurrentSurvey(null);
-    }
-    setView(nextView);
-    window.scrollTo(0, 0);
-  };
-
-  const navigateTo = async (nextView, survey = null) => {
-    const url = new URL(window.location.origin + window.location.pathname);
-    if (nextView === 'details' && survey) {
-      if (survey.visibility === 'private' && (!user || user.id !== survey.user_id)) {
-        return alert('非公開です🔒');
-      }
-      url.searchParams.set('s', survey.id);
-      window.history.pushState({}, '', url);
-      setCurrentSurvey(survey);
-      setIsTimeUp(survey.deadline && new Date(survey.deadline) < new Date());
-      const viewKey = `last_view_${survey.id}`;
-      const lastView = parseInt(localStorage.getItem(viewKey) || '0', 10);
-      const now = Date.now();
-      if (now - lastView > VIEW_COOLDOWN_MS) {
-        console.log("🚀 ビューカウント増加RPC実行中(通常遷移)...");
-        localStorage.setItem(viewKey, now.toString());
-        const { error: rpcErr } = await supabase.rpc('increment_survey_view', { survey_id: survey.id });
-        if (rpcErr) console.error("❌ ビューカウント増加エラー(通常遷移):", rpcErr);
-        else console.log("✅ ビューカウント増加成功(通常遷移)");
-      } else {
-        console.log(`⏳ ビューカウント待機中... 残り: ${Math.round((VIEW_COOLDOWN_MS - (now - lastView)) / 1000)}秒`);
-      }
-    } else if (nextView === 'list') {
-      // 🏘️ 広場に戻る時はURLからパラメータを完全に消去する（更新時に詳細に飛ばないように）
       const cleanUrl = window.location.origin + window.location.pathname;
-      window.history.pushState({}, '', cleanUrl);
-      setCurrentSurvey(null); // 詳細データをクリア
+      window.history.pushState({ view: 'list' }, '', cleanUrl);
+      setCurrentSurvey(null);
     }
     setView(nextView);
     window.scrollTo(0, 0);
@@ -722,11 +691,19 @@ function App() {
 
     const allSurveys = [...(sData || []), ...mine];
     if (allSurveys.length > 0) {
-      setSurveys(allSurveys.map(s => ({
+      const updatedList = allSurveys.map(s => ({
         ...s,
         total_votes: oData ? oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0,
         comment_count: cData ? cData.filter(c => c.survey_id === s.id).length : 0
-      })));
+      }));
+      setSurveys(updatedList);
+
+      // 💎 重要: 詳細画面を開いている場合、そのデータも最新版に差し替える
+      setCurrentSurvey(prev => {
+        if (!prev) return null;
+        const latest = updatedList.find(s => String(s.id) === String(prev.id));
+        return latest ? { ...latest } : prev;
+      });
     } else {
       setSurveys([]);
     }
