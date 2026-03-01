@@ -475,7 +475,9 @@ function App() {
         updateRateLimit(); // 🛡️ 投稿時間を記録
 
         // 🪄 ラビの降臨チェック
-        triggerLabiDescent(commentContent, isAdmin);
+        // コメントリストの先頭に追加される想定なので、この時点での自分自身の番号は comments.length + 1
+        const resNum = comments.length + 1;
+        triggerLabiDescent(commentContent, finalName, isAdmin, resNum);
       }
     } finally {
       setIsPostingComment(false);
@@ -483,7 +485,7 @@ function App() {
   }
 
   // 🪄 らびの降臨（自動返信）トリガー
-  const triggerLabiDescent = async (userComment, isAdminComment) => {
+  const triggerLabiDescent = async (userComment, userName, isAdminComment, resNum) => {
     // 条件1: らびのアンケートかどうか (タイトルかタグに「らび」)
     const titleMatch = currentSurvey?.title?.includes('らび') || currentSurvey?.title?.includes('ラビ');
     let tagMatch = false;
@@ -508,9 +510,12 @@ function App() {
     setTimeout(async () => {
       let responseList = LABI_RESPONSES.default;
       if (hasKeyword) responseList = LABI_RESPONSES.keywords;
-      if (isAdminComment) responseList = LABI_RESPONSES.admin;
+      if (isAdminComment && userName.includes('おりぴ')) responseList = LABI_RESPONSES.admin;
 
-      const reply = responseList[Math.floor(Math.random() * responseList.length)];
+      let reply = responseList[Math.floor(Math.random() * responseList.length)];
+      if (resNum) {
+        reply = `>>${resNum}\n${reply}`;
+      }
 
       const { error } = await supabase.from('comments').insert([{
         survey_id: currentSurvey.id,
@@ -1476,6 +1481,8 @@ function App() {
                       value={commentName}
                       onChange={e => setCommentName(e.target.value)}
                       className="comment-name-input"
+                      autoComplete="off"
+                      name="comment-author-name-random-str"
                     />
                     <textarea
                       placeholder="コメントを書いてね！みんなでワイワイ話そう🐰✨"
@@ -1506,7 +1513,7 @@ function App() {
                           {paginatedComments.length > 0 ? paginatedComments.map((c, localIdx) => {
                             const index = startIndex + localIdx;
                             return (
-                              <div key={c.id} className={`comment-item-card ${c.user_name?.includes('ラビ🐰') ? 'comment-labi' : ''}`}>
+                              <div key={c.id} className={`comment-item-card ${c.user_name?.includes('らび🐰') ? 'comment-labi' : ''}`}>
                                 <div className="comment-item-header">
                                   <div className="comment-author-wrap">
                                     <span className="comment-res-num" onClick={() => {
