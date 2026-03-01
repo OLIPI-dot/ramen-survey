@@ -609,37 +609,68 @@ function App() {
     window.scrollTo(0, 0);
   }, [view]);
 
-  // 🔗 URL の ?s=<id> パラメータからアンケートを直接読み込む（限定公開URLシェア対応）
-  useEffect(() => {
+  // 🔗 URL の ?s=<id> パラメータからアンケートを直接読み込む
+  const loadFromUrl = async () => {
     const params = new URLSearchParams(window.location.search);
     const surveyId = params.get('s');
-    if (!surveyId) return;
-    const loadFromUrl = async () => {
-      const { data: sv } = await supabase.from('surveys').select('*').eq('id', surveyId).single();
-      if (!sv) return;
-      if (sv.visibility === 'private' && (!user || user.id !== sv.user_id)) {
-        alert('非公開のアンケートです🔒');
-        return;
+    // IDがない、または無効な文字列（'null','undefined'など）の場合は無視
+    if (!surveyId || surveyId === 'null' || surveyId === 'undefined') {
+      setView('list');
+      setCurrentSurvey(null);
+      return;
+    }
+
+    const { data: sv } = await supabase.from('surveys').select('*').eq('id', surveyId).single();
+    if (!sv) {
+      setView('list');
+      setCurrentSurvey(null);
+      return;
+    }
+
+    if (sv.visibility === 'private' && (!user || user.id !== sv.user_id)) {
+      alert('非公開のアンケートです🔒');
+      setView('list');
+      return;
+    }
+
+    setCurrentSurvey(sv);
+    setIsTimeUp(sv.deadline && new Date(sv.deadline) < new Date());
+    setView('details');
+  };
+
+  // ブラウザの戻る・進むボタンに対応するセンサー センサーを追加！
+  useEffect(() => {
+    const handlePopState = () => loadFromUrl();
+    window.addEventListener('popstate', handlePopState);
+    loadFromUrl(); // 初回読み込み
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [user]); // userが変わった時も再チェック
+
+  const navigateTo = async (nextView, survey = null) => {
+    const url = new URL(window.location.origin + window.location.pathname);
+    if (nextView === 'details' && survey) {
+      if (survey.visibility === 'private' && (!user || user.id !== survey.user_id)) {
+        return alert('非公開です🔒');
       }
-      setCurrentSurvey(sv);
-      setIsTimeUp(sv.deadline && new Date(sv.deadline) < new Date());
-      setView('details');
-      // URLからの直接訪問時もビューカウントを増やす
-      const viewKey = `last_view_${sv.id}`;
+      url.searchParams.set('s', survey.id);
+      window.history.pushState({ surveyId: survey.id }, '', url);
+      setCurrentSurvey(survey);
+      setIsTimeUp(survey.deadline && new Date(survey.deadline) < new Date());
+
+      const viewKey = `last_view_${survey.id}`;
       const lastView = parseInt(localStorage.getItem(viewKey) || '0', 10);
       const now = Date.now();
       if (now - lastView > VIEW_COOLDOWN_MS) {
-        console.log("🚀 ビューカウント増加RPC実行中(URL経由)...");
         localStorage.setItem(viewKey, now.toString());
-        const { error: rpcErr } = await supabase.rpc('increment_survey_view', { survey_id: sv.id });
-        if (rpcErr) console.error("❌ ビューカウント増加エラー(URL経由):", rpcErr);
-        else console.log("✅ ビューカウント増加成功(URL経由)");
-      } else {
-        console.log(`⏳ ビューカウント待機中... 残り: ${Math.round((VIEW_COOLDOWN_MS - (now - lastView)) / 1000)}秒`);
+        await supabase.rpc('increment_survey_view', { survey_id: survey.id });
       }
-    };
-    loadFromUrl();
-  }, []);
+    } else if (nextView === 'list') {
+      window.history.pushState({ view: 'list' }, '', url);
+      setCurrentSurvey(null);
+    }
+    setView(nextView);
+    window.scrollTo(0, 0);
+  };
 
   const navigateTo = async (nextView, survey = null) => {
     const url = new URL(window.location.origin + window.location.pathname);
