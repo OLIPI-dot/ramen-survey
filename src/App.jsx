@@ -27,15 +27,15 @@ const DEFAULT_SURVEY_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a8
 
 // 🏷️ カテゴリ別デフォルトサムネ
 const CATEGORY_IMAGES = {
-  "エンタメ": "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&q=80&w=1000",
-  "グルメ": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1000",
-  "スポーツ": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=1000",
-  "トレンド": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000",
-  "IT・テクノロジー": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
-  "生活": "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&q=80&w=1000",
-  "ゲーム": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000",
-  "アニメ": "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&q=80&w=1000", // 📺 アニメ用カテゴリ画像
-  "らび": "https://images.unsplash.com/photo-1585110396000-c9fd4e4e5088?auto=format&fit=crop&q=80&w=1000", // 🐰 らび専用サムネ（可愛いうさぎの画像）
+  "エンタメ": "https://images.unsplash.com/photo-1514525253361-bee8718a300c?auto=format&fit=crop&q=80&w=1000", // ライブ・フェス
+  "アニメ": "https://images.unsplash.com/photo-1613376023733-0d743e414c30?auto=format&fit=crop&q=80&w=1000", // ポップなイラスト
+  "グルメ": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1000", // 美味しそうな料理
+  "スポーツ": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=1000", // 熱気あるスタジアム
+  "トレンド": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000", // テクノロジー・話題
+  "IT・テクノロジー": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000", // 近未来・サイバー
+  "生活": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1000", // おしゃれなカフェ・日常
+  "ゲーム": "https://images.unsplash.com/photo-1550745679-5652175bdd48?auto=format&fit=crop&q=80&w=1000", // ネオン・ガジェット
+  "らび": "https://images.unsplash.com/photo-1585110396000-c9fd4e4e5088?auto=format&fit=crop&q=80&w=1000", // 🐰 うさぎさん
   "その他": DEFAULT_SURVEY_IMAGE,
 };
 
