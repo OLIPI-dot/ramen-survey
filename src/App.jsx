@@ -656,21 +656,16 @@ function App() {
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 🌟 らびの「TOPページも逃さない！究極」魔法！
+      // 🌟 らびの「大成功 ＆ 完璧計測」魔法！
       // 1. ブラウザのタイトルを更新
       document.title = pageTitle;
 
       // 2. page_view イベントを明示的に送信！
-      // config よりも、SPAではこちらのほうが「今ページが変わったよ！」と伝わりやすいんだよ✨
       window.gtag('event', 'page_view', {
         page_title: pageTitle,
         page_location: window.location.href,
-        page_path: virtualPath,
-        debug_mode: true
+        page_path: virtualPath
       });
-
-      // 3. おりぴさんがコンソールで「今だ！」とわかるようにログを出すよ！
-      console.log(`📊 GA計測発動！: ${pageTitle} (path: ${virtualPath})`);
     }
   }, [view, currentSurvey?.id]);
 
