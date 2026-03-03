@@ -638,16 +638,19 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    // 🐰 らびのGA計測魔法
+    // 🐰 らびのGA計測魔法（SPA対応強化版！）
     if (window.gtag) {
       const pageTitle = currentSurvey
         ? `${currentSurvey.title} - みんなのアンケート広場`
         : (view === 'list' ? 'みんなのアンケート広場' : 'アンケート作成 - みんなのアンケート広場');
 
-      window.gtag('event', 'page_view', {
+      const pagePath = window.location.pathname + window.location.search;
+
+      // config を使うことで、GA4 の「現在のページ」情報を強制的に更新するよ！
+      window.gtag('config', 'G-7XDW2RW3L7', {
         page_title: pageTitle,
         page_location: window.location.href,
-        page_path: window.location.pathname + window.location.search
+        page_path: pagePath
       });
     }
   }, [view, currentSurvey?.id]);
