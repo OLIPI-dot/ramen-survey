@@ -652,18 +652,21 @@ function App() {
         ? `${currentSurvey.title} - みんなのアンケート広場`
         : (view === 'list' ? 'みんなのアンケート広場' : 'アンケート作成 - みんなのアンケート広場');
 
-      // 仮想パスを生成して、GAのレポートで別々のページとして認識されやすくするよ！
-      // ?s=137 などを /survey/137 として送る「らびの仮想パス魔法」🧙‍♂️🥕
       const virtualPath = currentSurvey
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 'event' の 'page_view' を明示的に呼ぶのが、SPAでの一番確実な方法だよ！✨
-      window.gtag('event', 'page_view', {
-        page_title: pageTitle,
-        page_location: window.location.href,
-        page_path: virtualPath // ここを仮想パスに差し替え！
-      });
+      // 🌟 らびの究極固定魔法！
+      // 1. ブラウザのタイトルを更新。これで「滞在時間」イベント等もこの名前になるよ！
+      document.title = pageTitle;
+
+      // 2. パラメータをGAに「セット」して、その後の自動イベントでもこの値を使い続けるようにするよ！
+      window.gtag('set', 'page_title', pageTitle);
+      window.gtag('set', 'page_path', virtualPath);
+      window.gtag('set', 'page_location', window.location.href);
+
+      // 3. 全てが整った状態でページビューイベントを送信！
+      window.gtag('event', 'page_view');
     }
   }, [view, currentSurvey?.id]);
 
