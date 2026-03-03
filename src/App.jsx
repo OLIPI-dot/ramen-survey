@@ -117,7 +117,7 @@ const AdSenseBox = ({ slot, format = 'auto' }) => {
     }
     const script = document.createElement('script');
     script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9429738476925701";
-    script.async = true; script.crossOrigin = "anonymous"; script.setAttribute('data-adsbygoogle', 'true');
+    script.async = true; script.crossOrigin = "anonymous";
     script.onload = initAd;
     document.head.appendChild(script);
   }, []);
