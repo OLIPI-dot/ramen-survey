@@ -661,13 +661,15 @@ function App() {
       document.title = pageTitle;
 
       // 2. config 命令で Google に報告！ 
-      // debug_mode を ON にして、管理画面の「DebugView」でリアルタイムに動きが見えるようにするよ！✨
       window.gtag('config', 'G-7XDW2RW3L7', {
         page_title: pageTitle,
         page_location: window.location.href,
         page_path: virtualPath,
-        debug_mode: true // これでおいぴさんが何を見てるか、DebugViewで1秒ごとにわかるようになるよ！
+        debug_mode: true
       });
+
+      // 3. おりぴさんが安心できるように、こっそりログにも出すよ！🥕✨
+      console.log(`📊 GA計測魔法発動！: ${pageTitle} (${virtualPath})`);
     }
   }, [view, currentSurvey?.id]);
 
