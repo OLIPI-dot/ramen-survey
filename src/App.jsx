@@ -656,17 +656,17 @@ function App() {
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 🌟 らびの究極固定魔法！
-      // 1. ブラウザのタイトルを更新。これで「滞在時間」イベント等もこの名前になるよ！
+      // 🌟 らびの最終・超確実魔法！
+      // ブラウザのタイトルを即座に更新（自動計測イベント対策）
       document.title = pageTitle;
 
-      // 2. パラメータをGAに「セット」して、その後の自動イベントでもこの値を使い続けるようにするよ！
-      window.gtag('set', 'page_title', pageTitle);
-      window.gtag('set', 'page_path', virtualPath);
-      window.gtag('set', 'page_location', window.location.href);
-
-      // 3. 全てが整った状態でページビューイベントを送信！
-      window.gtag('event', 'page_view');
+      // すべての情報を1つのイベントに詰め込んで送るのが、SPAでは一番「事故」が少ないよ！🥕✨
+      window.gtag('event', 'page_view', {
+        page_title: pageTitle,
+        page_location: window.location.href,
+        page_path: virtualPath,
+        send_to: 'G-7XDW2RW3L7' // 念のため送信先も明示！
+      });
     }
   }, [view, currentSurvey?.id]);
 
