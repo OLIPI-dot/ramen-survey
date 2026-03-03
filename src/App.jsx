@@ -634,10 +634,23 @@ function App() {
     }
   }
 
-  // 🖱️ ページ遷移時に一番上へ戻る魔法
+  // 🖱️ ページ遷移時に一番上へ戻る魔法 & 📊 Google Analytics 追跡
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [view]);
+
+    // 🐰 らびのGA計測魔法
+    if (window.gtag) {
+      const pageTitle = currentSurvey
+        ? `${currentSurvey.title} - みんなのアンケート広場`
+        : (view === 'list' ? 'みんなのアンケート広場' : 'アンケート作成 - みんなのアンケート広場');
+
+      window.gtag('event', 'page_view', {
+        page_title: pageTitle,
+        page_location: window.location.href,
+        page_path: window.location.pathname + window.location.search
+      });
+    }
+  }, [view, currentSurvey?.id]);
 
   // 🔗 URL の ?s=<id> パラメータからアンケートを直接読み込む
   const loadFromUrl = async () => {
