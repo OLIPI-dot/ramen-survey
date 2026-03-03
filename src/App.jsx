@@ -656,16 +656,16 @@ function App() {
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 🌟 らびの最終・超確実魔法！
-      // ブラウザのタイトルを即座に更新（自動計測イベント対策）
+      // 🌟 らびの原点回帰魔法！
+      // 1. ブラウザのタイトルを更新
       document.title = pageTitle;
 
-      // すべての情報を1つのイベントに詰め込んで送るのが、SPAでは一番「事故」が少ないよ！🥕✨
-      window.gtag('event', 'page_view', {
+      // 2. config 命令を使って、ページ情報の更新とページビュー送信を同時に行うよ！
+      // これがSPAでは一番安定して「アクティブユーザー」として認識される方法だよ！✨
+      window.gtag('config', 'G-7XDW2RW3L7', {
         page_title: pageTitle,
         page_location: window.location.href,
-        page_path: virtualPath,
-        send_to: 'G-7XDW2RW3L7' // 念のため送信先も明示！
+        page_path: virtualPath
       });
     }
   }, [view, currentSurvey?.id]);
