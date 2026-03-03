@@ -656,16 +656,21 @@ function App() {
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 🌟 らびの「大成功 ＆ 完璧計測」魔法！
-      // 1. ブラウザのタイトルを即座に更新
+      // 🌟 らびの「TOPページも忘れない！」復活魔法！
+      // 1. ブラウザのタイトルを更新
       document.title = pageTitle;
 
-      // 2. config 命令で Google に報告！
+      // 2. config 命令で報告！ 
+      // debug_mode を ON にして、動きを見えやすくするよ！✨
       window.gtag('config', 'G-7XDW2RW3L7', {
         page_title: pageTitle,
         page_location: window.location.href,
-        page_path: virtualPath
+        page_path: virtualPath,
+        debug_mode: true
       });
+
+      // 3. ちゃんと動いてるか、おりぴさんがコンソールで見えるようにするよ！
+      console.log(`📊 GA計測発動！: ${pageTitle} (path: ${virtualPath})`);
     }
   }, [view, currentSurvey?.id]);
 
