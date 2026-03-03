@@ -2438,3 +2438,24 @@ body {
 .detail-hero-container:hover .detail-hero-img {
   transform: scale(1.05);
 }
+
+/* 🔗 コメント内のURLリンク用スタイル */
+.comment-url-link {
+  color: #3b82f6 !important;
+  text-underline-offset: 3px;
+  text-decoration: underline !important;
+  transition: opacity 0.2s;
+  font-weight: 500;
+}
+
+.comment-url-link:hover {
+  opacity: 0.8;
+  color: #2563eb !important;
+}
+
+.comment-anchor-link {
+  color: #8b5cf6;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 4px;
+}

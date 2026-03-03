@@ -354,19 +354,21 @@ function App() {
           .on('postgres_changes', {
             event: '*',
             schema: 'public',
-            table: 'comments',
-            filter: `survey_id=eq.${currentSurvey.id}`
+            table: 'comments'
           }, payload => {
+            // 他のアンケートのコメントも流れてくる可能性があるため、ID一致チェックを行う
             if (payload.eventType === 'INSERT') {
-              setComments(prev => [payload.new, ...prev]);
+              // INSERTの場合は survey_id が含まれているはずなのでチェック可能
+              if (payload.new.survey_id === currentSurvey.id) {
+                setComments(prev => [payload.new, ...prev]);
+              }
             } else if (payload.eventType === 'UPDATE') {
-              setComments(prev => prev.map(c => c.id === payload.new.id ? payload.new : c));
+              // UPDATEで survey_id が無い場合でも、現在のリストにその ID があれば更新対象
+              setComments(prev => prev.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c));
             } else if (payload.eventType === 'DELETE') {
-              setComments(prev => {
-                // old.id が来ない場合があるため、もし無い場合はそのまま
-                if (!payload.old || !payload.old.id) return prev;
-                return prev.filter(c => c.id !== payload.old.id);
-              });
+              if (payload.old && payload.old.id) {
+                setComments(prev => prev.filter(c => c.id !== payload.old.id));
+              }
             }
           })
           .subscribe();
@@ -423,10 +425,20 @@ function App() {
 
   const renderCommentContent = (content) => {
     if (!content) return null;
-    const parts = content.split(/(>>\d+)/g);
+    // 第2弾：より広範かつ確実なURL検出正規表現
+    const parts = content.split(/(https?:\/\/[^\s]+|>>\d+)/g);
     return parts.map((part, i) => {
-      if (part.match(/^>>\d+$/)) {
+      if (!part) return null;
+      if (part.startsWith('>>') && /^>>\d+$/.test(part)) {
         return <span key={i} className="comment-anchor-link">{part}</span>;
+      }
+      if (/^https?:\/\/\S+$/.test(part)) {
+        const cleanUrl = part.trim();
+        return (
+          <a key={i} href={cleanUrl} target="_blank" rel="noopener noreferrer" className="comment-url-link">
+            {cleanUrl}
+          </a>
+        );
       }
       return part;
     });
