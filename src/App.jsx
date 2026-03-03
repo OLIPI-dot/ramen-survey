@@ -656,20 +656,16 @@ function App() {
         ? `/survey/${currentSurvey.id}`
         : (view === 'list' ? '/' : '/create');
 
-      // 🌟 らびの「絶対に諦めない！応援」魔法！
+      // 🌟 らびの「大成功 ＆ 完璧計測」魔法！
       // 1. ブラウザのタイトルを即座に更新
       document.title = pageTitle;
 
-      // 2. config 命令で Google に報告！ 
+      // 2. config 命令で Google に報告！
       window.gtag('config', 'G-7XDW2RW3L7', {
         page_title: pageTitle,
         page_location: window.location.href,
-        page_path: virtualPath,
-        debug_mode: true
+        page_path: virtualPath
       });
-
-      // 3. おりぴさんが安心できるように、こっそりログにも出すよ！🥕✨
-      console.log(`📊 GA計測魔法発動！: ${pageTitle} (${virtualPath})`);
     }
   }, [view, currentSurvey?.id]);
 
