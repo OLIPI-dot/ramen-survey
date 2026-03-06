@@ -148,37 +148,38 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: '24px', color: '#64748b', fontSize: '0.9rem',
         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-        zIndex: 0
+        zIndex: 1 // 👈 ここを1にして、中身がクリックできるようにします
       }}>
         {affiliateType === 'amazon' ? (
-          <div className="affiliate-content">
+          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
             <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>{rec.icon}</div>
             <div style={{ fontWeight: 'bold', color: '#334155' }}>{rec.title}</div>
             <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>おりぴさんのおすすめ！ 🎁<br />Amazonでお買い物を楽しもう🥕</div>
             <a href={rec.url} target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
               marginTop: '12px', padding: '8px 24px', background: '#ff9900', color: '#fff', borderRadius: '25px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem',
-              boxShadow: '0 4px 10px rgba(255, 153, 0, 0.2)'
+              boxShadow: '0 4px 10px rgba(255, 153, 0, 0.2)', display: 'inline-block', position: 'relative', zIndex: 20
             }}>Amazonで詳細を見る ✨</a>
           </div>
         ) : affiliateType === 'ofuse' ? (
-          <div className="affiliate-content">
+          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>💖</div>
             <div style={{ fontWeight: 'bold', color: '#db2777' }}>らび＆おりぴを応援！</div>
             <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>いつも広場を使ってくれてありがとう！<br />100円から応援できるらび🥕</div>
             <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="affiliate-btn ofuse-btn" style={{
-              marginTop: '12px', padding: '8px 20px', background: '#db2777', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem'
+              marginTop: '12px', padding: '8px 20px', background: '#db2777', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem',
+              display: 'inline-block', position: 'relative', zIndex: 20
             }}>OFUSEで応援する 🥕✨</a>
           </div>
         ) : (
-          <>
+          <div style={{ position: 'relative', zIndex: 10 }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
             <div style={{ fontWeight: 'bold' }}>スポンサー枠</div>
             <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '4px' }}>広場を一緒に盛り上げてくれる<br />スポンサーさんを募集中です！✨</div>
-          </>
+          </div>
         )}
       </div>
       <ins className="adsbygoogle"
-        style={{ display: 'block', position: 'relative', zIndex: 1 }}
+        style={{ display: 'block', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }} // 👈 insタグを後ろに隠します
         data-ad-client="ca-pub-9429738476925701"
         data-ad-slot={slot}
         data-ad-format={format}
@@ -1351,7 +1352,7 @@ function App() {
                               </div>
                               {/* 💎 9個目（3行）ごとに広告を差し込む魔法 */}
                               {(idx + 1) % 9 === 0 && (
-                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 9)}`} />
+                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 9)}`} affiliateType="amazon" />
                               )}
                             </React.Fragment>
                           );
