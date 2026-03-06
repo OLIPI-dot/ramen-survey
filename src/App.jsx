@@ -111,11 +111,11 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   // 🥕 おりぴさんの特別な紹介ID！
   const ASSOCIATE_ID = 'olipivote-22';
 
-  // ✨ おすすめ商品リスト
+  // ✨ おすすめ商品リスト (最新の在庫あり商品に修正)
   const RECOMMENDATIONS = [
-    { title: 'mofusand ポテトスナック', url: `https://www.amazon.co.jp/dp/B0DHHM7D1V?tag=${ASSOCIATE_ID}`, icon: '🍟' },
-    { title: 'mofusand キャンディ', url: `https://www.amazon.co.jp/dp/B0DLT6KMTY?tag=${ASSOCIATE_ID}`, icon: '🍭' },
-    { title: 'アンケート作りのノート', url: `https://www.amazon.co.jp/s?k=%E3%83%8E%E3%83%BC%E3%83%88&tag=${ASSOCIATE_ID}`, icon: '📝' }
+    { title: 'mofusand なかよしにゃんこ缶', url: `https://www.amazon.co.jp/dp/B0GPQ4PW1H?tag=${ASSOCIATE_ID}`, icon: '🐱' },
+    { title: 'mofusand スイートトランク缶', url: `https://www.amazon.co.jp/dp/B0GPQFS6R4?tag=${ASSOCIATE_ID}`, icon: '🧳' },
+    { title: 'mofusand キャラマグネッツ', url: `https://www.amazon.co.jp/dp/B0CFY7WRZ6?tag=${ASSOCIATE_ID}`, icon: '🎁' }
   ];
 
   // ランダムに1つ選ぶよ
@@ -139,7 +139,7 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
+    <div className="adsense-container-wrapper" style={{ margin: '32px 0', textAlign: 'center', minHeight: '260px', position: 'relative' }}>
       {/* 🛡️ 審査中・広告未配信時の代替表示 */}
       <div className="ads-placeholder" style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
