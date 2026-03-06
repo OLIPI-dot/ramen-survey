@@ -145,16 +145,15 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
+    <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', position: 'relative' }}>
       {/* 🛡️ 審査中・広告未配信時の代替表示 */}
       <div className="ads-placeholder" style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        border: '2px dashed #cbd5e1', borderRadius: '16px',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+        border: '2px dashed #ec4899', borderRadius: '16px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: '24px', color: '#64748b', fontSize: '0.9rem',
-        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-        zIndex: 1 // 👈 ここを1にして、中身がクリックできるようにします
+        boxShadow: '0 8px 30px rgba(0,0,0,0.05)',
+        zIndex: 1
       }}>
         {affiliateType === 'amazon' ? (
           <div className="affiliate-content" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', gap: '24px', flexWrap: 'wrap' }}>
@@ -162,7 +161,7 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
               <img src={rec.image} alt={rec.title} referrerPolicy="no-referrer" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
             </div>
             <div style={{ textAlign: 'left', maxWidth: '300px' }}>
-              <div style={{ fontWeight: '800', color: '#334155', fontSize: '0.95rem', marginBottom: '6px', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{rec.title}</div>
+              <div style={{ fontWeight: '800', color: '#334155', fontSize: '1rem', marginBottom: '8px', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{rec.title}</div>
               <a href={rec.url} target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
                 padding: '6px 18px', background: 'linear-gradient(135deg, #ff9900 0%, #ffb347 100%)', color: '#fff', borderRadius: '25px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.8rem',
                 boxShadow: '0 4px 8px rgba(255, 153, 0, 0.2)', display: 'inline-block', position: 'relative', zIndex: 20
