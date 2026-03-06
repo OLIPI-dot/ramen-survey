@@ -1806,7 +1806,7 @@ function App() {
             padding: '20px', borderTop: '1px solid rgba(226, 232, 240, 0.6)',
             textAlign: 'center', background: 'linear-gradient(to right, transparent, #fff5f7, transparent)'
           }}>
-            <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ec4899', fontWeight: 'bold' }}>🐰 らびと「おりぴ」を応援する 🥕</p>
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ec4899', fontWeight: 'bold' }}>🐰 うさぎのらびを応援する 🥕</p>
             <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="footer-ofuse-btn" style={{
               display: 'inline-block', padding: '10px 24px', background: '#db2777', color: '#fff',
               borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1rem',
