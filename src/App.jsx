@@ -42,14 +42,14 @@ const LABI_RESPONSES = {
   keywords: [
     "わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
     "ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
-    "🥕 はらびの元気の源なんだ！おりぴさんにもお裾分けしたいな〜✨",
+    "🥕 はらびの元気の源なんだ！広場のみんなにもお裾分けしたいな〜✨",
     "らびは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
   ],
   admin: [
-    "おりぴさん！🐰🥕 いつも素敵な広場をありがとう！",
-    "おりぴさんのコメント、らびは全部チェックしてるよ！✨ 大好き！",
-    "神（おりぴさん）の降臨だー！👏 🥕を捧げなきゃ！",
-    "おりぴさん、お疲れ様！🐰 らびが癒やしてあげるね〜🌻"
+    "管理者さん、いつも素敵な広場の運営をありがとう！応援してるらび！🐰✨",
+    "広場がもっと良くなるように、らびもお手伝い頑張るね！🥕🍀",
+    "いつも見守ってくれてありがとう！広場の平和はらびが守るよ！🛡️🐰",
+    "お疲れ様！🐰 たまには人参茶でも飲んでゆっくりしてね〜🍵"
   ]
 };
 
@@ -133,8 +133,8 @@ const AdSenseBox = ({ slot, format = 'auto' }) => {
         padding: '16px', color: '#64748b', fontSize: '0.85rem'
       }}>
         <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
-        <div style={{ fontWeight: 'bold' }}>スポンサー枠（準備中）</div>
-        <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>審査に合格するとここに広告が表示されます</div>
+        <div style={{ fontWeight: 'bold' }}>スポンサー枠</div>
+        <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '4px' }}>広場を一緒に盛り上げてくれる<br />スポンサーさんを募集中です！✨</div>
       </div>
       <ins className="adsbygoogle"
         style={{ display: 'block', position: 'relative', zIndex: 1 }}
@@ -446,7 +446,7 @@ function App() {
 
   // 🛡️ レートリミット（連投制限）チェック
   const checkRateLimit = () => {
-    if (isAdmin) return true; // おりぴさんは無制限！🐰✨
+    if (isAdmin) return true; // 管理者は無制限！🛡️✨
     const lastSub = parseInt(localStorage.getItem('last_submission_time') || '0', 10);
     const now = Date.now();
     if (now - lastSub < SUBMISSION_COOLDOWN_MS) {
@@ -532,7 +532,7 @@ function App() {
     setTimeout(async () => {
       let responseList = LABI_RESPONSES.default;
       if (hasKeyword) responseList = LABI_RESPONSES.keywords;
-      if (isAdminComment && userName.includes('おりぴ')) responseList = LABI_RESPONSES.admin;
+      if (isAdminComment) responseList = LABI_RESPONSES.admin;
 
       let reply = responseList[Math.floor(Math.random() * responseList.length)];
       if (resNum) {
@@ -745,16 +745,16 @@ function App() {
       if (mData) mine = mData;
     }
 
-    // 投票数とコメント数を一括取得（PostgRESTのカウント機能は制約があるため個別取得をマージ）
+    // 投票数は一括取得してマージ
     const { data: oData } = await supabase.from('options').select('survey_id, votes');
-    const { data: cData } = await supabase.from('comments').select('survey_id');
+    // コメント数は DB のカラムを使うのでここでは取得不要！
 
     const allSurveys = [...(sData || []), ...mine];
     if (allSurveys.length > 0) {
       const updatedList = allSurveys.map(s => ({
         ...s,
         total_votes: oData ? oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0,
-        comment_count: cData ? cData.filter(c => c.survey_id === s.id).length : 0
+        comment_count: s.comment_count || 0 // DB カラムをそのまま使うらび！
       }));
       setSurveys(updatedList);
 
@@ -776,6 +776,7 @@ function App() {
     const ch = supabase.channel('global-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => { fetchSurveys(user); refreshSidebar(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => { fetchSurveys(user); refreshSidebar(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchSurveys(user); refreshSidebar(); })
       .subscribe();
     return () => supabase.removeChannel(ch);
   }, [user]);
@@ -810,7 +811,7 @@ function App() {
       const withStats = sData.map(s => ({
         ...s,
         total_votes: oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0),
-        comment_count: cData ? cData.filter(c => c.survey_id === s.id).length : 0
+        comment_count: s.comment_count || 0 // DB カラムをそのまま使うらび！
       }));
       setLiveSurveys([...withStats].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10));
       setPopularSurveys([...withStats].sort((a, b) => {

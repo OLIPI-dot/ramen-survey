@@ -57,9 +57,15 @@ async function postDailySurvey() {
         body: JSON.stringify(surveyData)
     });
 
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`❌ アンケート作成失敗! Status: ${res.status}`, errorText);
+        process.exit(1);
+    }
+
     const created = await res.json();
     if (!created || !created[0]) {
-        console.error('Failed to create survey:', created);
+        console.error('❌ アンケート作成成功のレスポンスが不正らび:', created);
         process.exit(1);
     }
 
@@ -73,7 +79,7 @@ async function postDailySurvey() {
         votes: 0
     }));
 
-    await fetch(`${url}/rest/v1/options`, {
+    const resOpts = await fetch(`${url}/rest/v1/options`, {
         method: 'POST',
         headers: {
             'apikey': key,
@@ -82,7 +88,8 @@ async function postDailySurvey() {
         },
         body: JSON.stringify(optsData)
     });
-    console.log('✅ 選択肢の追加完了！');
+    if (!resOpts.ok) console.error('⚠️ 選択肢の追加でエラーが発生したかも？', await resOpts.text());
+    else console.log('✅ 選択肢の追加完了！');
 
     // 3. らびの初期コメント
     const commentData = {
@@ -93,7 +100,7 @@ async function postDailySurvey() {
         edit_key: 'labi_bot'
     };
 
-    await fetch(`${url}/rest/v1/comments`, {
+    const resComm = await fetch(`${url}/rest/v1/comments`, {
         method: 'POST',
         headers: {
             'apikey': key,
@@ -102,7 +109,9 @@ async function postDailySurvey() {
         },
         body: JSON.stringify([commentData])
     });
-    console.log('✅ 初期コメント完了！');
+    if (!resComm.ok) console.error('⚠️ 初期コメントの追加でエラーが発生したかも？', await resComm.text());
+    else console.log('✅ 初期コメント完了！');
+
     console.log('🐰🌈 魔法完了らびっ！🥕✨');
 }
 
