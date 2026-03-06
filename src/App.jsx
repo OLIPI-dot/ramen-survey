@@ -111,11 +111,14 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   // 🥕 おりぴさんの特別な紹介ID！
   const ASSOCIATE_ID = 'olipivote-22';
 
-  // ✨ おすすめ商品リスト (最新の在庫あり商品に修正)
+  // ✨ バリエーション豊かなおすすめ商品リスト（お菓子・文具・雑貨・バス用品）
   const RECOMMENDATIONS = [
-    { title: 'mofusand なかよしにゃんこ缶', url: `https://www.amazon.co.jp/dp/B0GPQ4PW1H?tag=${ASSOCIATE_ID}`, icon: '🐱' },
-    { title: 'mofusand スイートトランク缶', url: `https://www.amazon.co.jp/dp/B0GPQFS6R4?tag=${ASSOCIATE_ID}`, icon: '🧳' },
-    { title: 'mofusand キャラマグネッツ', url: `https://www.amazon.co.jp/dp/B0CFY7WRZ6?tag=${ASSOCIATE_ID}`, icon: '🎁' }
+    { title: 'mofusand なかよしにゃんこ缶', url: `https://www.amazon.co.jp/dp/B0GPQ4PW1H?tag=${ASSOCIATE_ID}`, asin: 'B0GPQ4PW1H', icon: '🐱', category: 'お菓子ギフト' },
+    { title: 'mofusand びっくらたまご', url: `https://www.amazon.co.jp/dp/B0GHMSBSJF?tag=${ASSOCIATE_ID}`, asin: 'B0GHMSBSJF', icon: '🛁', category: 'バス用品' },
+    { title: 'mofusand ウカンムリクリップ', url: `https://www.amazon.co.jp/dp/B0DW8RGKST?tag=${ASSOCIATE_ID}`, asin: 'B0DW8RGKST', icon: '📎', category: '便利な文房具' },
+    { title: 'mofusand 2WAYオープナー', url: `https://www.amazon.co.jp/dp/B0DW91LHL1?tag=${ASSOCIATE_ID}`, asin: 'B0DW91LHL1', icon: 'ドリンク', category: '便利グッズ' },
+    { title: 'mofusand タオルハンカチ', url: `https://www.amazon.co.jp/dp/B0CNK9KYD5?tag=${ASSOCIATE_ID}`, asin: 'B0CNK9KYD5', icon: '�', category: 'かわいい雑貨' },
+    { title: 'mofusand クリアシール', url: `https://www.amazon.co.jp/dp/B0CC88WPXW?tag=${ASSOCIATE_ID}`, asin: 'B0CC88WPXW', icon: '✨', category: '文具・シール' }
   ];
 
   // ランダムに1つ選ぶよ
@@ -151,23 +154,46 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
         zIndex: 1 // 👈 ここを1にして、中身がクリックできるようにします
       }}>
         {affiliateType === 'amazon' ? (
-          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
-            <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>{rec.icon}</div>
-            <div style={{ fontWeight: 'bold', color: '#334155' }}>{rec.title}</div>
-            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>おりぴさんのおすすめ！ 🎁<br />Amazonでお買い物を楽しもう🥕</div>
+          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+            <div className="product-category" style={{ fontSize: '0.7rem', color: '#ec4899', fontWeight: 'bold', letterSpacing: '0.05em', marginBottom: '8px', textTransform: 'uppercase' }}>
+              ✨ {rec.category} ✨
+            </div>
+            <div className="product-image-wrap" style={{
+              width: '120px', height: '120px', background: '#fff', borderRadius: '12px', padding: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden', border: '1px solid #f1f5f9', position: 'relative'
+            }}>
+              <img
+                src={`https://ws-fe.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${rec.asin}&Format=_SL250_&ID=AsinImage&MarketPlace=JP&ServiceVersion=20070822&WS=1&tag=${ASSOCIATE_ID}`}
+                alt={rec.title}
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <div style={{ display: 'none', fontSize: '3rem' }}>{rec.icon}</div>
+            </div>
+            <div className="product-title" style={{ fontWeight: '800', color: '#1e293b', fontSize: '1.05rem', marginBottom: '4px' }}>{rec.title}</div>
+            <div className="product-recommend" style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500' }}>おりぴさん厳選のおすすめ！ 💖</div>
             <a href={rec.url} target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
-              marginTop: '12px', padding: '8px 24px', background: '#ff9900', color: '#fff', borderRadius: '25px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem',
-              boxShadow: '0 4px 10px rgba(255, 153, 0, 0.2)', display: 'inline-block', position: 'relative', zIndex: 20
-            }}>Amazonで詳細を見る ✨</a>
+              marginTop: '16px', padding: '10px 32px', background: 'linear-gradient(135deg, #ff9900 0%, #ffb347 100%)',
+              color: '#fff', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.95rem',
+              boxShadow: '0 6px 15px rgba(255, 153, 0, 0.3)', display: 'inline-block', position: 'relative', zIndex: 20,
+              transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+            }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.08)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+              Amazonで詳しく見る ✨
+            </a>
           </div>
         ) : affiliateType === 'ofuse' ? (
           <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>💖</div>
-            <div style={{ fontWeight: 'bold', color: '#db2777' }}>らび＆おりぴを応援！</div>
-            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>いつも広場を使ってくれてありがとう！<br />100円から応援できるらび🥕</div>
+            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🎁</div>
+            <div style={{ fontWeight: '900', color: '#db2777', fontSize: '1.2rem' }}>らび＆おりぴを応援！</div>
+            <div style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '8px', color: '#475569' }}>いつも広場を使ってくれてありがとう！<br />100円から応援メッセージを送れるらび🥕</div>
             <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="affiliate-btn ofuse-btn" style={{
-              marginTop: '12px', padding: '8px 20px', background: '#db2777', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem',
-              display: 'inline-block', position: 'relative', zIndex: 20
+              marginTop: '18px', padding: '10px 28px', background: 'linear-gradient(135deg, #db2777 0%, #f43f5e 100%)',
+              color: '#fff', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem',
+              display: 'inline-block', position: 'relative', zIndex: 20, boxShadow: '0 6px 15px rgba(219, 39, 119, 0.3)'
             }}>OFUSEで応援する 🥕✨</a>
           </div>
         ) : (
