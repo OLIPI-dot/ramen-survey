@@ -107,7 +107,7 @@ const CountdownTimer = ({ deadline, onTimeUp }) => {
   return <div className="countdown-display">{timeLeft}</div>;
 };
 
-const AdSenseBox = ({ slot, format = 'auto' }) => {
+const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   useEffect(() => {
     const initAd = () => {
       try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { }
@@ -124,17 +124,41 @@ const AdSenseBox = ({ slot, format = 'auto' }) => {
 
   return (
     <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
-      {/* 🛡️ 審査中・広告未配信時のプレースホルダー */}
+      {/* 🛡️ 審査中・広告未配信時の代替表示 */}
       <div className="ads-placeholder" style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'rgba(248, 250, 252, 0.8)',
-        border: '2px dashed #cbd5e1', borderRadius: '12px',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        border: '2px dashed #cbd5e1', borderRadius: '16px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '16px', color: '#64748b', fontSize: '0.85rem'
+        padding: '24px', color: '#64748b', fontSize: '0.9rem',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+        zIndex: 0
       }}>
-        <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
-        <div style={{ fontWeight: 'bold' }}>スポンサー枠</div>
-        <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '4px' }}>広場を一緒に盛り上げてくれる<br />スポンサーさんを募集中です！✨</div>
+        {affiliateType === 'amazon' ? (
+          <div className="affiliate-content">
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>🛒</div>
+            <div style={{ fontWeight: 'bold', color: '#334155' }}>らびのおすすめアイテム</div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>アンケート作りのお供に！<br />Amazonでお買い物を楽しもう🥕</div>
+            <a href="https://www.amazon.co.jp/" target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
+              marginTop: '12px', padding: '8px 20px', background: '#ff9900', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem'
+            }}>Amazonで見る ✨</a>
+          </div>
+        ) : affiliateType === 'ofuse' ? (
+          <div className="affiliate-content">
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>💖</div>
+            <div style={{ fontWeight: 'bold', color: '#db2777' }}>らび＆おりぴを応援！</div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>いつも広場を使ってくれてありがとう！<br />100円から応援できるらび🥕</div>
+            <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="affiliate-btn ofuse-btn" style={{
+              marginTop: '12px', padding: '8px 20px', background: '#db2777', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem'
+            }}>OFUSEで応援する 🥕✨</a>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>✨</div>
+            <div style={{ fontWeight: 'bold' }}>スポンサー枠</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '4px' }}>広場を一緒に盛り上げてくれる<br />スポンサーさんを募集中です！✨</div>
+          </>
+        )}
       </div>
       <ins className="adsbygoogle"
         style={{ display: 'block', position: 'relative', zIndex: 1 }}
@@ -1543,7 +1567,7 @@ function App() {
                     </>
                   )}
                 </div>
-                <AdSenseBox slot="detail_after_votes_placeholder" />
+                <AdSenseBox slot="detail_after_votes_placeholder" affiliateType="amazon" />
                 {user && (currentSurvey.user_id === user.id || isAdmin) && (
                   <div className="owner-visibility-panel">
                     <span className="owner-vis-label">🔒 公開設定変更{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}:</span>
@@ -1731,6 +1755,23 @@ function App() {
               </div>
             </div>
           </div>
+
+          {/* 🥕 らびの応援コーナー */}
+          <div className="footer-support-section" style={{
+            padding: '20px', borderTop: '1px solid rgba(226, 232, 240, 0.6)',
+            textAlign: 'center', background: 'linear-gradient(to right, transparent, #fff5f7, transparent)'
+          }}>
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ec4899', fontWeight: 'bold' }}>🐰 らびと「おりぴ」を応援する 🥕</p>
+            <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="footer-ofuse-btn" style={{
+              display: 'inline-block', padding: '10px 24px', background: '#db2777', color: '#fff',
+              borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1rem',
+              boxShadow: '0 4px 12px rgba(219, 39, 119, 0.3)', transition: 'transform 0.2s'
+            }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+              OFUSEで応援メッセージを送る ✨
+            </a>
+          </div>
+
           <div className="footer-bottom">© 2026 アンケート広場 / Powered by olipi projects</div>
         </footer>
       )}
