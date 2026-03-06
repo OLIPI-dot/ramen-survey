@@ -1,6 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
+// 日本時間 (JST) を取得する魔法
+const getJSTDate = () => {
+    const now = new Date();
+    return new Intl.DateTimeFormat('ja-JP', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        timeZone: 'Asia/Tokyo'
+    }).format(now);
+};
+
 // 環境変数の取得：process.env (GitHub Actions等) を優先し、なければ .env ファイルを読み込む
 const getEnv = (key) => {
     if (process.env[key]) return process.env[key];
@@ -35,6 +45,26 @@ const selectedTopic = topics[Math.floor(Math.random() * topics.length)];
 const deadlineUTC = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
 async function postDailySurvey() {
+    const jstNow = getJSTDate();
+    console.log(`⏰ 現在時刻 (JST): ${jstNow}`);
+    console.log(`🔍 重複チェック中... [${selectedTopic.title}]`);
+
+    // 0. 重複チェック（同じタイトルのアンケートが既にないか確認）
+    const checkRes = await fetch(`${url}/rest/v1/surveys?title=eq.${encodeURIComponent(selectedTopic.title)}&select=id`, {
+        headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`
+        }
+    });
+
+    if (checkRes.ok) {
+        const existing = await checkRes.json();
+        if (existing && existing.length > 0) {
+            console.log(`✅ すでに同じアンケートがあるみたい！投稿をスキップするらびっ！ (ID: ${existing[0].id})`);
+            return;
+        }
+    }
+
     console.log(`🤖 らびの毎日アンケート投稿魔法、発動！ [${selectedTopic.title}]`);
 
     // 1. アンケート本体の作成
