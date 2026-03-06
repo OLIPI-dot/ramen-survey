@@ -1,0 +1,28 @@
+name: Labi Daily Survey Launcher 🐰🚀
+
+on:
+  schedule:
+    # 毎日UTC 03:00 (JST 12:00 お昼時) に実行らびっ！
+    - cron: '0 3 * * *'
+  workflow_dispatch: # 手動実行も可能らび！
+
+permissions:
+  contents: read
+
+jobs:
+  post-survey:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: "${{ secrets.VITE_SUPABASE_URL }}"
+      VITE_SUPABASE_ANON_KEY: "${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Daily Poster Script 🥕
+        run: node scripts/daily_poster.cjs
