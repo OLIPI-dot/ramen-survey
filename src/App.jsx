@@ -142,16 +142,10 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="recommend-box-wrapper" style={{ margin: '0', textAlign: 'center', height: '100%', minHeight: '380px', position: 'relative', overflow: 'hidden' }}>
-      {/* 🛡️ 代替表示 (名前をads-placeholderから変更してブロックを回避) */}
+    <div className="survey-item-card recommend-box-card" style={{ cursor: 'default', position: 'relative', overflow: 'hidden', minHeight: '340px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', border: '2px dashed #ec4899', background: 'linear-gradient(135deg, #fff5f7 0%, #ffffff 100%)' }}>
       <div className="recommend-placeholder" style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-        border: '2px dashed #ec4899', borderRadius: '24px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '24px', color: '#64748b', fontSize: '0.9rem',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-        zIndex: 1
+        padding: '20px', width: '100%', height: '100%'
       }}>
         {affiliateType === 'amazon' ? (
           <div className="affiliate-content" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
