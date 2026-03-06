@@ -480,9 +480,10 @@ body {
   }
 }
 
-/* 💎 スポンサー枠は普通のカードとして並べる（スパンさせない） */
-.survey-list .recommend-box-card {
-  grid-column: auto;
+/* 💎 広告（スポンサー枠）を横いっぱいに広げる */
+.survey-list .adsense-container-wrapper {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 .survey-item-card {

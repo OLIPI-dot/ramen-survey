@@ -111,10 +111,10 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   // 🥕 おりぴさんの特別な紹介ID！
   const ASSOCIATE_ID = 'olipivote-22';
 
-  // ✨ バリエーション豊かなおすすめ商品リスト（画像URL直接指定で確実に表示！）
+  // ✨ おすすめ商品リスト
   const RECOMMENDATIONS = [
     { title: 'by Amazon エナジードリンク', url: 'https://amzn.to/4rVsb47', image: 'https://m.media-amazon.com/images/I/81YLVVDtZRL._AC_SX679_.jpg', icon: '⚡', category: 'おりぴ飲物' },
-    { title: 'SONY 65インチ 4Kブラビア', url: 'https://amzn.to/3N15HiU', image: 'https://m.media-amazon.com/images/I/61N0XNFinyL._AC_SY879_.jpg', icon: '�', category: 'おりぴ家電' },
+    { title: 'SONY 65インチ 4Kブラビア', url: 'https://amzn.to/3N15HiU', image: 'https://m.media-amazon.com/images/I/61N0XNFinyL._AC_SY879_.jpg', icon: '📺', category: 'おりぴ家電' },
     { title: 'Shark 自動ゴミ収集掃除機', url: 'https://amzn.to/4bgVp6q', image: 'https://m.media-amazon.com/images/I/51F7qXg9W+L._AC_SX679_.jpg', icon: '🧹', category: 'おりぴ家電' },
     { title: 'LISEN USB-C ケーブル 2M', url: 'https://amzn.to/4aQsQO4', image: 'https://m.media-amazon.com/images/I/81eeRU5gwtL._AC_SX679_.jpg', icon: '🔌', category: 'おりぴPC' },
     { title: 'UGREEN USB-C ケーブル 2M', url: 'https://amzn.to/40ekjhW', image: 'https://m.media-amazon.com/images/I/61DgZxJhEZL._AC_SY879_.jpg', icon: '🔌', category: 'おりぴPC' },
@@ -145,53 +145,35 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="survey-item-card recommend-box-card" style={{ cursor: 'default', position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', border: '2px dashed #ec4899', background: 'linear-gradient(135deg, #fff5f7 0%, #ffffff 100%)', padding: '16px', boxSizing: 'border-box' }}>
-      <div className="recommend-placeholder" style={{
+    <div className="adsense-container-wrapper" style={{ margin: '24px 0', textAlign: 'center', minHeight: '120px', position: 'relative' }}>
+      {/* 🛡️ 審査中・広告未配信時の代替表示 */}
+      <div className="ads-placeholder" style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        border: '2px dashed #cbd5e1', borderRadius: '16px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '20px', width: '100%', height: '100%'
+        padding: '24px', color: '#64748b', fontSize: '0.9rem',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+        zIndex: 1 // 👈 ここを1にして、中身がクリックできるようにします
       }}>
         {affiliateType === 'amazon' ? (
-          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-            <div className="product-category" style={{ fontSize: '0.7rem', color: '#ec4899', fontWeight: 'bold', letterSpacing: '0.05em', marginBottom: '8px', textTransform: 'uppercase' }}>
-              ✨ {rec.category} ✨
-            </div>
-            <div className="product-image-wrap" style={{
-              width: '120px', height: '120px', background: '#fff', borderRadius: '12px', padding: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              overflow: 'hidden', border: '1px solid #f1f5f9', position: 'relative'
-            }}>
-              <img
-                src={rec.image}
-                alt={rec.title}
-                referrerPolicy="no-referrer"
-                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              <div style={{ display: 'none', fontSize: '3.5rem', alignItems: 'center', justifyContent: 'center', height: '100%' }}>{rec.icon}</div>
-            </div>
-            <div className="product-title" style={{ fontWeight: '800', color: '#1e293b', fontSize: '1.05rem', marginBottom: '4px' }}>{rec.title}</div>
-            <div className="product-recommend" style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500' }}>おりぴさん厳選のおすすめ！ 💖</div>
+          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
+            <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>{rec.icon}</div>
+            <div style={{ fontWeight: 'bold', color: '#334155' }}>{rec.title}</div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>おりぴさんのおすすめ！ 🎁<br />Amazonでお買い物を楽しもう🥕</div>
             <a href={rec.url} target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
-              marginTop: '16px', padding: '10px 32px', background: 'linear-gradient(135deg, #ff9900 0%, #ffb347 100%)',
-              color: '#fff', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.95rem',
-              boxShadow: '0 6px 15px rgba(255, 153, 0, 0.3)', display: 'inline-block', position: 'relative', zIndex: 20,
-              transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-            }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.08)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-              Amazonで詳しく見る ✨
-            </a>
+              marginTop: '12px', padding: '8px 24px', background: '#ff9900', color: '#fff', borderRadius: '25px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem',
+              boxShadow: '0 4px 10px rgba(255, 153, 0, 0.2)', display: 'inline-block', position: 'relative', zIndex: 20
+            }}>Amazonで詳細を見る ✨</a>
           </div>
         ) : affiliateType === 'ofuse' ? (
           <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🎁</div>
-            <div style={{ fontWeight: '900', color: '#db2777', fontSize: '1.2rem' }}>らび＆おりぴを応援！</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '8px', color: '#475569' }}>いつも広場を使ってくれてありがとう！<br />100円から応援メッセージを送れるらび🥕</div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>💖</div>
+            <div style={{ fontWeight: 'bold', color: '#db2777' }}>らび＆おりぴを応援！</div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '4px' }}>いつも広場を使ってくれてありがとう！<br />100円から応援できるらび🥕</div>
             <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="affiliate-btn ofuse-btn" style={{
-              marginTop: '18px', padding: '10px 28px', background: 'linear-gradient(135deg, #db2777 0%, #f43f5e 100%)',
-              color: '#fff', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem',
-              display: 'inline-block', position: 'relative', zIndex: 20, boxShadow: '0 6px 15px rgba(219, 39, 119, 0.3)'
+              marginTop: '12px', padding: '8px 20px', background: '#db2777', color: '#fff', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem',
+              display: 'inline-block', position: 'relative', zIndex: 20
             }}>OFUSEで応援する 🥕✨</a>
           </div>
         ) : (
