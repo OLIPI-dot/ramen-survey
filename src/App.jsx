@@ -114,9 +114,9 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   // ✨ バリエーション豊かなおすすめ商品リスト（画像URL直接指定で確実に表示！）
   const RECOMMENDATIONS = [
     { title: 'mofusand なかよしにゃんこ缶', url: `https://www.amazon.co.jp/dp/B0GPQ4PW1H?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/71nS0Y+0kEL._AC_SL400_.jpg', icon: '🐱', category: 'お菓子ギフト' },
-    { title: 'mofusand びっくらたまご', url: `https://www.amazon.co.jp/dp/B0GHMSBSJF?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/71WpB2HshDL._AC_SL400_.jpg', icon: '🛁', category: 'バス用品' },
-    { title: 'mofusand ウカンムリクリップ', url: `https://www.amazon.co.jp/dp/B0DW8RGKST?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/51r2X7f+UmL._AC_SL400_.jpg', icon: '📎', category: '便利な文房具' },
-    { title: 'mofusand 2WAYオープナー', url: `https://www.amazon.co.jp/dp/B0DW91LHL1?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/511Q5kS03rL._AC_SL400_.jpg', icon: '🥤', category: '便利グッズ' },
+    { title: 'by Amazon エナジードリンク', url: 'https://amzn.to/4rVsb47', image: 'https://m.media-amazon.com/images/I/81YLVVDtZRL._AC_SX679_.jpg', icon: '⚡', category: 'おりぴ飲料' },
+    { title: 'SONY 65インチ 4Kブラビア', url: 'https://amzn.to/3N15HiU', image: 'https://m.media-amazon.com/images/I/61N0XNFinyL._AC_SY879_.jpg', icon: '�', category: 'おりぴ家電' },
+    { title: 'Shark 自動ゴミ収集掃除機', url: 'https://amzn.to/4bgVp6q', image: 'https://m.media-amazon.com/images/I/51F7qXg9W+L._AC_SX679_.jpg', icon: '�', category: 'おりぴ家電' },
     { title: 'mofusand タオルハンカチ', url: `https://www.amazon.co.jp/dp/B0CNK9KYD5?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/71618rRE97L._AC_SL400_.jpg', icon: '🌿', category: 'かわいい雑貨' },
     { title: 'mofusand クリアシール', url: `https://www.amazon.co.jp/dp/B0CC88WPXW?tag=${ASSOCIATE_ID}`, image: 'https://m.media-amazon.com/images/I/81An4JmO8zL._AC_SL400_.jpg', icon: '✨', category: '文具・シール' }
   ];
@@ -142,7 +142,7 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="recommend-box-wrapper" style={{ margin: '40px 0', textAlign: 'center', minHeight: '320px', position: 'relative', overflow: 'visible' }}>
+    <div className="recommend-box-wrapper" style={{ margin: '0', textAlign: 'center', height: '100%', minHeight: '380px', position: 'relative', overflow: 'hidden' }}>
       {/* 🛡️ 代替表示 (名前をads-placeholderから変更してブロックを回避) */}
       <div className="recommend-placeholder" style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
