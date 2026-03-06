@@ -139,7 +139,7 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   }, []);
 
   return (
-    <div className="adsense-container-wrapper" style={{ margin: '32px 0', textAlign: 'center', minHeight: '260px', position: 'relative' }}>
+    <div className="adsense-container-wrapper" style={{ margin: '40px 0', textAlign: 'center', minHeight: '300px', position: 'relative', overflow: 'visible' }}>
       {/* 🛡️ 審査中・広告未配信時の代替表示 */}
       <div className="ads-placeholder" style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
