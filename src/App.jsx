@@ -1561,55 +1561,75 @@ function App() {
                     }}>🚩 通報</button>
                   )}
                   {(user && (currentSurvey.user_id === user.id || isAdmin)) && (
-                    <>
+                    <div className="admin-actions-group" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '10px' }}>
                       {currentSurvey.user_id === user.id && (
-                        <button className="delete-survey-btn" onClick={async () => {
-                          const input = window.prompt("どれくらい延長しますか？\n例: 「1d12h30m」で1日と12時間30分、「3d」や「3」で3日延長\n※未入力の場合は1日延長されます", "1d");
-                          if (input !== null) {
-                            const valStr = input.trim() || '1d';
-                            // まずは数字のみかをチェック
-                            let addMs = 0;
-                            let displayStr = "";
-                            if (/^\d+$/.test(valStr)) {
-                              addMs = parseInt(valStr, 10) * 24 * 60 * 60 * 1000;
-                              displayStr = `${valStr}日 `;
-                            } else {
-                              // d, h, m の各要素を取り出す
-                              const dMatch = valStr.match(/(\d+)d/i);
-                              const hMatch = valStr.match(/(\d+)h/i);
-                              const mMatch = valStr.match(/(\d+)m/i);
+                        <>
+                          <button className="delete-survey-btn" onClick={async () => {
+                            const input = window.prompt("どれくらい延長しますか？\n例: 「1d12h30m」で1日と12時間30分、「3d」や「3」で3日延長\n※未入力の場合は1日延長されます", "1d");
+                            if (input !== null) {
+                              const valStr = input.trim() || '1d';
+                              // まずは数字のみかをチェック
+                              let addMs = 0;
+                              let displayStr = "";
+                              if (/^\d+$/.test(valStr)) {
+                                addMs = parseInt(valStr, 10) * 24 * 60 * 60 * 1000;
+                                displayStr = `${valStr}日 `;
+                              } else {
+                                // d, h, m の各要素を取り出す
+                                const dMatch = valStr.match(/(\d+)d/i);
+                                const hMatch = valStr.match(/(\d+)h/i);
+                                const mMatch = valStr.match(/(\d+)m/i);
 
-                              if (!dMatch && !hMatch && !mMatch) return alert("😿 入力形式が正しくありません。(例: 1d12h30m, 3d, 3)");
+                                if (!dMatch && !hMatch && !mMatch) return alert("😿 入力形式が正しくありません。(例: 1d12h30m, 3d, 3)");
 
-                              const d = dMatch ? parseInt(dMatch[1], 10) : 0;
-                              const h = hMatch ? parseInt(hMatch[1], 10) : 0;
-                              const m = mMatch ? parseInt(mMatch[1], 10) : 0;
+                                const d = dMatch ? parseInt(dMatch[1], 10) : 0;
+                                const h = hMatch ? parseInt(hMatch[1], 10) : 0;
+                                const m = mMatch ? parseInt(mMatch[1], 10) : 0;
 
-                              addMs = (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000) + (m * 60 * 1000);
+                                addMs = (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000) + (m * 60 * 1000);
 
-                              if (d > 0) displayStr += `${d}日 `;
-                              if (h > 0) displayStr += `${h}時間 `;
-                              if (m > 0) displayStr += `${m}分 `;
+                                if (d > 0) displayStr += `${d}日 `;
+                                if (h > 0) displayStr += `${h}時間 `;
+                                if (m > 0) displayStr += `${m}分 `;
+                              }
+
+                              const currentDeadline = currentSurvey.deadline ? new Date(currentSurvey.deadline) : new Date();
+                              currentDeadline.setTime(currentDeadline.getTime() + addMs);
+
+                              const newIso = currentDeadline.toISOString();
+
+                              const { error } = await supabase.from('surveys').update({ deadline: newIso }).eq('id', currentSurvey.id);
+                              if (!error) {
+                                setCurrentSurvey({ ...currentSurvey, deadline: newIso });
+                                setIsTimeUp(currentDeadline < new Date());
+                                alert(`⏳ ${displayStr.trim()} 延長しました！`);
+                              } else {
+                                alert("😿 延長に失敗しました");
+                              }
                             }
-
-                            const currentDeadline = currentSurvey.deadline ? new Date(currentSurvey.deadline) : new Date();
-                            currentDeadline.setTime(currentDeadline.getTime() + addMs);
-
-                            const newIso = currentDeadline.toISOString();
-
-                            const { error } = await supabase.from('surveys').update({ deadline: newIso }).eq('id', currentSurvey.id);
-                            if (!error) {
-                              setCurrentSurvey({ ...currentSurvey, deadline: newIso });
-                              setIsTimeUp(currentDeadline < new Date());
-                              alert(`⏳ ${displayStr.trim()} 延長しました！`);
-                            } else {
-                              alert("😿 延長に失敗しました");
+                          }}>⏳ 延長する</button>
+                          
+                          <button className="end-survey-btn" style={{
+                            background: '#fff1f2', color: '#e11d48', border: '1px solid #fda4af', padding: '12px 20px', borderRadius: '24px', cursor: 'pointer',
+                            fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'all 0.2s'
+                          }} onClick={async () => {
+                            if (window.confirm("本当にこのアンケートの受付を今すぐ終了しますか？\n（終了すると新たな投票ができなくなります）")) {
+                              const nowIso = new Date().toISOString();
+                              const { error } = await supabase.from('surveys').update({ deadline: nowIso }).eq('id', currentSurvey.id);
+                              if (!error) {
+                                setCurrentSurvey({ ...currentSurvey, deadline: nowIso });
+                                setIsTimeUp(true);
+                                alert("🛑 アンケートの受付を終了しました！");
+                              } else {
+                                alert("😿 終了処理に失敗しました");
+                              }
                             }
-                          }
-                        }}>⏳ 延長する</button>
+                          }}>🛑 今すぐ終了</button>
+                        </>
                       )}
+                      
                       <button className="delete-survey-btn" onClick={() => handleDeleteSurvey(currentSurvey.id)}>🗑️ 削除{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}</button>
-                    </>
+                    </div>
                   )}
                 </div>
                 <AdSenseBox slot="detail_after_votes_placeholder" affiliateType="amazon" />

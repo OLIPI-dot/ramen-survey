@@ -38,36 +38,31 @@ if (!url || !key) {
 const topicsPath = path.join(__dirname, '../src/data/labi_topics.json');
 const topics = JSON.parse(fs.readFileSync(topicsPath, 'utf8'));
 
+// 投稿済み管理（簡易版：直近のタイトルを記録するなど）
+// 今回はランダムに1つ選ぶシンプルな実装にします
+const selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+
+const deadlineUTC = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
 async function postDailySurvey() {
     const jstNow = getJSTDate();
-    const deadlineUTC = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     console.log(`⏰ 現在時刻 (JST): ${jstNow}`);
+    console.log(`🔍 重複チェック中... [${selectedTopic.title}]`);
 
-    // 0. 投稿済みのタイトルを取得して、未投稿のネタを探す魔法
-    console.log('🔍 過去の投稿履歴を確認中...');
-    const historyRes = await fetch(`${url}/rest/v1/surveys?category=eq.らび&select=title`, {
+    // 0. 重複チェック（同じタイトルのアンケートが既にないか確認）
+    const checkRes = await fetch(`${url}/rest/v1/surveys?title=eq.${encodeURIComponent(selectedTopic.title)}&select=id`, {
         headers: {
             'apikey': key,
             'Authorization': `Bearer ${key}`
         }
     });
 
-    let postedTitles = [];
-    if (historyRes.ok) {
-        const history = await historyRes.json();
-        postedTitles = history.map(h => h.title);
-    }
-
-    // 未投稿のネタをフィルタリング
-    const availableTopics = topics.filter(t => !postedTitles.includes(t.title));
-
-    let selectedTopic;
-    if (availableTopics.length > 0) {
-        console.log(`✨ 未投稿のネタが ${availableTopics.length} 件見つかったらび！`);
-        selectedTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
-    } else {
-        console.log('⚠️ 全てのネタを投稿しちゃったみたい！古いものからランダムに選ぶらびっ！');
-        selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+    if (checkRes.ok) {
+        const existing = await checkRes.json();
+        if (existing && existing.length > 0) {
+            console.log(`✅ すでに同じアンケートがあるみたい！投稿をスキップするらびっ！ (ID: ${existing[0].id})`);
+            return;
+        }
     }
 
     console.log(`🤖 らびの毎日アンケート投稿魔法、発動！ [${selectedTopic.title}]`);
@@ -126,11 +121,11 @@ async function postDailySurvey() {
     if (!resOpts.ok) console.error('⚠️ 選択肢の追加でエラーが発生したかも？', await resOpts.text());
     else console.log('✅ 選択肢の追加完了！');
 
-    // 3. らびの初期コメント (文言をスッキリ修正！)
+    // 3. らびの初期コメント
     const commentData = {
         survey_id: surveyId,
         user_name: 'らび🐰(AI)',
-        content: 'みんなの「本音」、らびに教えてねっ！🥕✨',
+        content: 'みんなの「本音」、らびに教えてねっ！🥕✨ お昼休みの息抜きにどうぞっ！',
         user_id: null,
         edit_key: 'labi_bot'
     };

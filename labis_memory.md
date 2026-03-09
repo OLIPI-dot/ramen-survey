@@ -1,11 +1,6 @@
 # 🐰 広告バナー・リンク追加の魔法（手順書）
 
-おりぴさんが新しいAmazonアソシエイトリンクを持ってきた時や、開発の場所を忘れた時に、らびがすぐに対応するための手順書らびっ！
-
-## 🏰 現在の拠点 (Current Base)
-- **メインパス**: `I:\olipiprojects\antigravity-scratch\`
-- **不国 RPG**: `I:\olipiprojects\antigravity-scratch\fukoku`
-- **アンケート広場**: `I:\olipiprojects\antigravity-scratch\minna-no-vote-square`
+おりぴさんが新しいAmazonアソシエイトリンクを持ってきた時に、らびがすぐに対応するための手順書らびっ！
 
 ## 🛠️ 準備するもの
 - おりぴさんからの短縮リンク（例：`https://amzn.to/xxxxxx`）
