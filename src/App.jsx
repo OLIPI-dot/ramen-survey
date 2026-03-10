@@ -1805,10 +1805,10 @@ function App() {
               <div className="footer-link-group">
                 <h5>📚 サイト情報</h5>
                 <ul>
-                  <li onClick={() => setShowingAbout(true)} className="footer-link-item">🌟 このサイトについて</li>
-                  <li onClick={() => setShowingTerms(true)} className="footer-link-item">📖 利用規約</li>
-                  <li onClick={() => setShowingPrivacy(true)} className="footer-link-item">📄 プライバシーポリシー</li>
-                  <li onClick={() => setShowingContact(true)} className="footer-link-item">📩 お問い合わせ</li>
+                  <li className="footer-link-item"><a href="/about.html" onClick={e => { e.preventDefault(); setShowingAbout(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>🌟 このサイトについて</a></li>
+                  <li className="footer-link-item"><a href="/terms.html" onClick={e => { e.preventDefault(); setShowingTerms(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>📖 利用規約</a></li>
+                  <li className="footer-link-item"><a href="/privacy.html" onClick={e => { e.preventDefault(); setShowingPrivacy(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>📄 プライバシーポリシー</a></li>
+                  <li className="footer-link-item" onClick={() => setShowingContact(true)}>📩 お問い合わせ</li>
                 </ul>
               </div>
               <div className="footer-link-group">
