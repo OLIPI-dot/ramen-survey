@@ -1353,7 +1353,26 @@ function App() {
                                 <div className="category-icon-thumb" style={{ background: CATEGORY_ICON_STYLE[s.category]?.color }}>{CATEGORY_ICON_STYLE[s.category]?.icon}</div>
                                 <div className="survey-item-content">
                                   <div className="survey-item-info">
-                                    <span className="survey-item-title">{showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}{s.title}</span>
+                                    <span className="survey-item-title">
+                                      {showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}
+                                      {s.tags?.includes('お知らせ') && s.title.includes('||') 
+                                        ? s.title.split('||')[0].trim() 
+                                        : s.title}
+                                    </span>
+                                    {s.tags?.includes('お知らせ') && s.title.includes('||') && (
+                                      <div className="survey-item-description" style={{ 
+                                        fontSize: '0.85rem', 
+                                        color: '#475569', 
+                                        marginTop: '4px', 
+                                        lineHeight: '1.5',
+                                        background: '#f8fafc',
+                                        padding: '8px',
+                                        borderRadius: '8px',
+                                        borderLeft: '4px solid #7c3aed'
+                                      }}>
+                                        {s.title.split('||')[1].trim()}
+                                      </div>
+                                    )}
                                     <div className="card-right-actions">
                                       <button className={`watch-star-btn ${watchedIds.includes(s.id) ? 'active' : ''}`} onClick={(e) => toggleWatch(e, s.id)}>{watchedIds.includes(s.id) ? '★' : '☆'}</button>
                                       <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>{isEnded ? '終了' : '受付中'}</span>
@@ -1485,7 +1504,25 @@ function App() {
               <div className="score-card">
                 {/* ヒーロー画像を削除 */}
                 <div className="detail-header">
-                  <h1 className="survey-title">{currentSurvey.title}</h1>
+                  <h1 className="survey-title">
+                    {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') 
+                      ? currentSurvey.title.split('||')[0].trim() 
+                      : currentSurvey.title}
+                  </h1>
+                  {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') && (
+                    <div className="survey-description-box" style={{
+                      fontSize: '1rem',
+                      color: '#334155',
+                      lineHeight: '1.7',
+                      background: '#f1f5f9',
+                      padding: '20px',
+                      borderRadius: '16px',
+                      marginBottom: '20px',
+                      borderLeft: '6px solid #7c3aed'
+                    }}>
+                      {currentSurvey.title.split('||')[1].trim()}
+                    </div>
+                  )}
                   <div className="detail-meta-bar">
                     <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
                     <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
