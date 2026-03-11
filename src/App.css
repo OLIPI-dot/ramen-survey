@@ -1,4 +1,4 @@
-﻿/* 🌈 アンケート広場：究極の完成版デザイン（不死身の安定版） 🌈 */
+/* 🌈 アンケート広場：究極の完成版デザイン（不死身の安定版） 🌈 */
 :root {
   --primary-color: #6366f1;
   --primary-light: #e0e7ff;
@@ -51,6 +51,8 @@ body,
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
   -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -94,9 +96,8 @@ body {
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  gap: 20px !important;
-  padding: 10px 0 !important;
-  /* スマホでは左右パディングなし */
+  gap: 16px !important;
+  padding: 12px 10px !important; /* スマホでは左右にわずかな隙間 */
   width: 100% !important;
 }
 
@@ -154,7 +155,7 @@ body {
   max-width: 100%;
   background: var(--card-bg);
   border-radius: 0;
-  padding: 15px;
+  padding: 20px 16px; /* スマホ向けに調整 */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   border: none;
   width: 100%;
@@ -320,11 +321,11 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 16px 24px;
+  padding: 14px 20px;
   border: 2px solid #e2e8f0;
   border-radius: 22px;
   background: #f8fafc;
-  font-size: 1rem;
+  font-size: 16px; /* 👈 スマホでズームされないための最小サイズ */
   transition: 0.3s;
 }
 
@@ -619,11 +620,11 @@ body {
 
 .survey-item-title {
   font-weight: 900;
-  font-size: 1.15rem;
+  font-size: 1.1rem; /* スマホで少し控えめに */
   color: #334155;
   display: block;
   /* Flexを解除して自然な改行に */
-  line-height: 1.4;
+  line-height: 1.5;
   word-break: break-all;
   flex: 1;
 }
@@ -1717,21 +1718,21 @@ body {
 @media (max-width: 600px) {
   .survey-item-card {
     align-items: center !important;
-    padding: 10px !important;
+    padding: 12px !important;
   }
 
   .category-icon-thumb {
-    width: 38px !important;
-    height: 38px !important;
-    flex: 0 0 38px !important;
-    font-size: 16px !important;
-    margin-right: 8px !important;
+    width: 48px !important;
+    height: 48px !important;
+    flex: 0 0 48px !important;
+    font-size: 20px !important;
+    margin-right: 12px !important;
   }
 
   .survey-item-title {
-    font-size: 0.88rem !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
+    font-size: 16px !important; /* スマホでの基準サイズ */
+    font-weight: 800 !important;
+    line-height: 1.4 !important;
   }
 
   .card-right-actions {
@@ -1740,16 +1741,14 @@ body {
 
   .status-badge {
     padding: 3px 8px !important;
-    font-size: 0.7rem !important;
+    font-size: 12px !important;
   }
 
-  /* 🗳️/👁️ アイコンと数字を横並びに固定（iPhone 13 mini 対策） */
+  /* 🗳️/👁️ アイコンと数字を横並びに固定 */
   .survey-item-meta-row {
     flex-wrap: wrap !important;
-    gap: 6px !important;
-    /* 少し詰めました */
-    overflow: hidden;
-    margin-top: 4px !important;
+    gap: 8px !important;
+    margin-top: 6px !important;
     min-width: 0 !important;
   }
 
@@ -1757,9 +1756,8 @@ body {
     white-space: nowrap !important;
     display: flex !important;
     align-items: center !important;
-    gap: 2px !important;
-    font-size: 0.75rem !important;
-    /* 少し小さくして確実に収めます */
+    gap: 3px !important;
+    font-size: 13px !important;
   }
 
   .survey-item-deadline {
@@ -1770,10 +1768,10 @@ body {
     min-width: 0 !important;
   }
 
-  /* タブの文字切れ対策（マイアンケートなど） */
+  /* タブの文字切れ対策 */
   .tab-switcher button {
-    padding: 8px 6px !important;
-    font-size: 0.82rem !important;
+    padding: 10px 12px !important;
+    font-size: 14px !important;
     min-width: fit-content !important;
     white-space: nowrap !important;
   }
@@ -1782,16 +1780,16 @@ body {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    gap: 6px !important;
-    padding: 5px !important;
+    gap: 8px !important;
+    padding: 6px !important;
     scrollbar-width: none !important;
   }
 
   .popular-sub-tabs button {
     flex: 0 0 auto !important;
     white-space: nowrap !important;
-    padding: 6px 12px !important;
-    font-size: 0.78rem !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
   }
 }
 
