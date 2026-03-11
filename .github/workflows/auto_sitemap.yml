@@ -1,0 +1,46 @@
+name: Auto Sitemap Generator 🐰🗺️
+
+on:
+  schedule:
+    # 6時間おきに実行（1:00, 7:00, 13:00, 19:00 JST付近）
+    - cron: '0 */6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/data/**'
+      - 'scripts/generate_sitemap.cjs'
+  workflow_dispatch: # 手動実行も可能らび！
+
+permissions:
+  contents: write
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: "${{ secrets.VITE_SUPABASE_URL }}"
+      VITE_SUPABASE_ANON_KEY: "${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate Sitemap 🗺️
+        run: node scripts/generate_sitemap.cjs
+
+      - name: Commit and Push if changed 🚀
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/sitemap.xml
+          if ! git diff --cached --exit-code; then
+            git commit -m "chore: automated sitemap update 🐰🤖"
+            git push
+          else
+            echo "No changes in sitemap. Skip push."
+          fi
