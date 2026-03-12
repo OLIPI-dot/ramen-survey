@@ -2057,11 +2057,11 @@ body {
   }
 
   .survey-item-title {
-    font-size: 1.02rem !important;
-    line-height: 1.3 !important;
-    margin-bottom: 4px !important;
-    color: #1e293b !important;
-    font-weight: 800 !important;
+    font-size: 1.06rem !important;
+    line-height: 1.5 !important; /* 行間を広げて読みやすく */
+    margin-bottom: 10px !important; /* 下のバッジとの余白を確保 */
+    color: #0f172a !important; /* 少し濃くしてクッキリ */
+    font-weight: 700 !important; /* 太すぎたのを少し抑えてスッキリ */
     display: block !important;
     width: 100% !important;
   }
