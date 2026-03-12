@@ -1443,7 +1443,6 @@ function App() {
                                     <div className="survey-item-info">
                                       <span className="survey-item-title" style={{
                                         backgroundColor: `${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}14`,
-                                        borderLeft: `4px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}`,
                                         padding: '4px 12px',
                                         borderRadius: '6px',
                                         display: 'block',
