@@ -534,7 +534,10 @@ body {
     font-size: 7rem !important; /* もっともっとおっきく！ */
     color: inherit !important; /* 絵文字の元の色を出す */
     text-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.3), transparent) !important;
+    /* 🎨 絵文字の「白抜け（透過）」対策：中央に白い円形グラデを配置 */
+    background-image: 
+      radial-gradient(circle, #ffffff 40%, transparent 70%),
+      linear-gradient(135deg, rgba(255,255,255,0.3), transparent) !important;
     background-color: inherit; /* 本体の背景色（青など）を活かす */
   }
 
