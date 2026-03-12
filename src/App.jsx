@@ -281,6 +281,15 @@ function App() {
   const [filterTag, setFilterTag] = useState(''); // 🏷️ タグ絞り込み
   const [currentPage, setCurrentPage] = useState(1); // 📄 ページネーション用
   const [likedSurveys, setLikedSurveys] = useState(() => JSON.parse(localStorage.getItem('liked_surveys') || '[]')); // 👍 いいね履歴
+  const [surveyYoutube, setSurveyYoutube] = useState(''); // 📺 YouTube動画URL
+
+  // 📺 YouTube URLからIDを抽出する魔法
+  const extractYoutubeId = (url) => {
+    if (!url) return null;
+    const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
   // 👑 管理者フラグ
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
@@ -431,20 +440,38 @@ function App() {
     magic();
   }, [user]);
 
-  // 💬 コメント取得＆リアルタイム購読ロジック & 個別アンケート見てる人数追跡
+  // 💬 詳細画面のデータ取得＆リアルタイム購読ロジック
   useEffect(() => {
     if (view === 'details' && currentSurvey) {
       let activeCommentChannel;
       let activePresenceChannel;
+      let activeOptionsChannel;
 
-      const fetchAndSubscribe = async () => {
-        const { data, error } = await supabase
+      const initDetailView = async () => {
+        // 1. オプションと投票状況の取得
+        const { data: optData } = await supabase.from('options').select('*').eq('survey_id', currentSurvey.id).order('id', { ascending: true });
+        if (optData) {
+          setOptions(optData);
+          setIsTotalVotes(optData.reduce((sum, item) => sum + item.votes, 0));
+        }
+        setVotedOption(localStorage.getItem(`voted_survey_${currentSurvey.id}`));
+
+        // 2. コメントの取得
+        const { data: commData, error: commError } = await supabase
           .from('comments')
           .select('*')
           .eq('survey_id', currentSurvey.id)
           .order('created_at', { ascending: false });
-        if (!error) setComments(data);
+        if (!commError) setComments(commData);
 
+        // 3. リアルタイム購読 (オプション)
+        activeOptionsChannel = supabase.channel(`opts-${currentSurvey.id}`)
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'options', filter: `survey_id=eq.${currentSurvey.id}` }, () => {
+            initDetailView(); // 更新があったら再取得（再帰的ですが購読は重複しません）
+          })
+          .subscribe();
+
+        // 4. リアルタイム購読 (コメント)
         activeCommentChannel = supabase
           .channel(`comments_realtime_${currentSurvey.id}`)
           .on('postgres_changes', {
@@ -452,24 +479,17 @@ function App() {
             schema: 'public',
             table: 'comments'
           }, payload => {
-            // 他のアンケートのコメントも流れてくる可能性があるため、ID一致チェックを行う
-            if (payload.eventType === 'INSERT') {
-              // INSERTの場合は survey_id が含まれているはずなのでチェック可能
-              if (payload.new.survey_id === currentSurvey.id) {
-                setComments(prev => [payload.new, ...prev]);
-              }
+            if (payload.eventType === 'INSERT' && payload.new.survey_id === currentSurvey.id) {
+              setComments(prev => [payload.new, ...prev]);
             } else if (payload.eventType === 'UPDATE') {
-              // UPDATEで survey_id が無い場合でも、現在のリストにその ID があれば更新対象
               setComments(prev => prev.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c));
-            } else if (payload.eventType === 'DELETE') {
-              if (payload.old && payload.old.id) {
-                setComments(prev => prev.filter(c => c.id !== payload.old.id));
-              }
+            } else if (payload.eventType === 'DELETE' && payload.old?.id) {
+              setComments(prev => prev.filter(c => c.id !== payload.old.id));
             }
           })
           .subscribe();
 
-        // 個別アンケートのリアルタイム視聴人数（Presence）
+        // 5. リアルタイム視聴人数（Presence）
         const clientId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
         activePresenceChannel = supabase.channel(`survey-presence-${currentSurvey.id}`, {
           config: { presence: { key: clientId } }
@@ -488,16 +508,17 @@ function App() {
           });
       };
 
-      fetchAndSubscribe();
+      initDetailView();
 
       return () => {
         if (activeCommentChannel) supabase.removeChannel(activeCommentChannel);
         if (activePresenceChannel) supabase.removeChannel(activePresenceChannel);
+        if (activeOptionsChannel) supabase.removeChannel(activeOptionsChannel);
       };
     } else {
       setComments([]);
       setCurrentCommentPage(1);
-      setSurveyOnlineCount(1); // リセット
+      setSurveyOnlineCount(1);
     }
   }, [view, currentSurvey]);
 
@@ -906,26 +927,6 @@ function App() {
     return () => supabase.removeChannel(ch);
   }, [user]);
 
-  useEffect(() => {
-    if (view === 'details' && currentSurvey) {
-      const load = async () => {
-        const { data } = await supabase.from('options').select('*').eq('survey_id', currentSurvey.id).order('id', { ascending: true });
-        if (data) { setOptions(data); setIsTotalVotes(data.reduce((sum, item) => sum + item.votes, 0)); }
-        setVotedOption(localStorage.getItem(`voted_survey_${currentSurvey.id}`));
-      };
-      load();
-
-      const ch = supabase.channel(`opts-${currentSurvey.id}`)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'options', filter: `survey_id=eq.${currentSurvey.id}` }, () => {
-          load();
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(ch);
-      };
-    }
-  }, [view, currentSurvey]);
 
   const refreshSidebar = async () => {
     const { data: sData } = await supabase.from('surveys').select('*').eq('visibility', 'public');
@@ -973,8 +974,18 @@ function App() {
     if (!deadline) return alert('⏰ いつまでアンケートを取るか、締切日時を設定してください！');
 
     const finalImage = surveyImage.trim(); // 自動セットを廃止
+    
+    // 📺 YouTube動画の処理
+    let processedImage = finalImage;
+    if (surveyYoutube.trim()) {
+      const ytId = extractYoutubeId(surveyYoutube.trim());
+      if (ytId) {
+        processedImage = `yt:${ytId}`; // YouTube IDは "yt:" プレフィックスを付けて保存
+      }
+    }
+
     const finalDeadline = new Date(`${deadline}:00+09:00`).toISOString();
-    const { data, error } = await supabase.from('surveys').insert([{ title: surveyTitle, deadline: finalDeadline, user_id: user.id, image_url: finalImage, category: surveyCategory, visibility: surveyVisibility, tags: surveyTags }]).select();
+    const { data, error } = await supabase.from('surveys').insert([{ title: surveyTitle, deadline: finalDeadline, user_id: user.id, image_url: processedImage, category: surveyCategory, visibility: surveyVisibility, tags: surveyTags }]).select();
     if (error) {
       alert('公開に失敗しました。エラー: ' + error.message);
       return;
@@ -986,6 +997,7 @@ function App() {
     setSurveyTitle('');
     setSurveyCategory('');
     setSurveyImage('');
+    setSurveyYoutube('');
     setSetupOptions([]);
     setSurveyTags([]);
     setDeadline('');
@@ -1530,6 +1542,7 @@ function App() {
                 <h2 className="setup-title">📝 新しく作る</h2>
                 <div className="create-form">
                   <div className="setting-item-block"><label>お題（タイトル）:</label><input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" /></div>
+                  <div className="setting-item-block"><label>📺 YouTube動画を貼る（URL）:</label><input className="title-input" value={surveyYoutube} onChange={e => setSurveyYoutube(e.target.value)} placeholder="例：https://www.youtube.com/watch?v=..." /></div>
                   <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
                       {(isAdmin ? ['ニュース・経済', 'エンタメ', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['ニュース・経済', 'エンタメ', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
@@ -1615,6 +1628,37 @@ function App() {
                       {currentSurvey.title.split('||')[1].trim()}
                     </div>
                   )}
+
+                  {/* 📺 YouTube動画プレイヤーの埋め込み */}
+                  {currentSurvey.image_url && currentSurvey.image_url.startsWith('yt:') && (
+                    <div className="youtube-embed-area" style={{ width: '100%', marginBottom: '24px' }}>
+                      <div className="youtube-embed-container" style={{
+                        position: 'relative',
+                        width: '100%',
+                        paddingTop: '56.25%', /* 16:9 Aspect Ratio */
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        boxShadow: '0 12px 30px -10px rgba(0,0,0,0.2)',
+                        background: '#000'
+                      }}>
+                        <iframe
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            border: 'none'
+                          }}
+                          src={`https://www.youtube.com/embed/${currentSurvey.image_url.split(':')[1]}?rel=0&modestbranding=1`}
+                          title="YouTube video player"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="detail-meta-bar">
                     <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
                     <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
