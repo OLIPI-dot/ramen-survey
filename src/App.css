@@ -531,6 +531,10 @@ body {
     margin-right: 0 !important;
     margin-bottom: 12px !important;
     border-radius: 16px !important;
+    font-size: 3.6rem !important; /* PCではおっきく！ */
+    color: white !important; /* 白基調でクッキリ */
+    text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent) !important; /* グラデを CSS で重ねる */
   }
 
   .survey-item-info {

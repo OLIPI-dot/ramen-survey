@@ -57,7 +57,7 @@ const LABI_RESPONSES = {
 const CATEGORY_ICON_STYLE = {
   "エンタメ": { icon: "🎬", color: "#f43f5e" },
   "グルメ": { icon: "🍔", color: "#f59e0b" },
-  "スポーツ": { icon: "⚽", color: "#3b82f6" },
+  "スポーツ": { icon: "⚽", color: "#2563eb" },
   "トレンド": { icon: "🔥", color: "#ec4899" },
   "IT・テクノロジー": { icon: "💻", color: "#8b5cf6" },
   "生活": { icon: "🏠", color: "#10b981" },
