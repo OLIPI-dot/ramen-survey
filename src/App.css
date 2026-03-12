@@ -621,6 +621,7 @@ body {
   min-width: 0;
 }
 
+
 .survey-item-info {
   display: flex;
   justify-content: space-between;
@@ -2100,10 +2101,17 @@ body {
   .card-right-actions {
     display: flex !important;
     justify-content: flex-start !important;
-    gap: 10px !important;
+    gap: 8px !important;
     margin-top: 4px !important;
-    width: 100% !important;
+    width: fit-content !important; /* コンテンツに合わせる */
     align-items: center !important;
+    /* 💎 白い背景ラベルにして視認性をアップ */
+    background: rgba(255, 255, 255, 0.9) !important;
+    padding: 2px 10px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    backdrop-filter: blur(4px) !important;
+    border: 1px solid rgba(255, 255, 255, 1) !important;
   }
 
   .status-badge {
