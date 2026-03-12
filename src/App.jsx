@@ -1434,14 +1434,13 @@ function App() {
                                 } : {}}
                               >
                                 {s.tags?.includes('お知らせ') && (
-                                  <span style={{ position: 'absolute', top: '8px', right: '12px', fontSize: '1.2rem', animation: 'glitter 2s infinite ease-in-out' }}>✨</span>
+                                  <div className="category-icon-thumb" style={{ 
+                                    background: (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color,
+                                    border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`
+                                  }}>
+                                    {(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).icon}
+                                  </div>
                                 )}
-                                <div className="category-icon-thumb" style={{ 
-                                  background: (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color,
-                                  border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`
-                                }}>
-                                  {(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).icon}
-                                </div>
                                 <div className="survey-item-content">
                                   <div className="survey-item-info">
                                     <span className="survey-item-title">
@@ -1449,6 +1448,9 @@ function App() {
                                       {s.tags?.includes('お知らせ') && s.title.includes('||') 
                                         ? s.title.split('||')[0].trim() 
                                         : s.title}
+                                      {s.tags?.includes('お知らせ') && (
+                                        <span style={{ marginLeft: '8px', fontSize: '1.2rem', display: 'inline-block', animation: 'glitter 2s infinite ease-in-out', verticalAlign: 'middle' }}>✨</span>
+                                      )}
                                     </span>
                                     {/* 💡 お知らせの本文は一覧では非表示にし、詳細画面でのみ表示するらび！ */}
                                     <div className="card-right-actions">
