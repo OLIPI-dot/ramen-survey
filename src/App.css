@@ -576,10 +576,10 @@ body {
 }
 
 .survey-item-card:hover {
-  background: white;
-  border-color: var(--cat-color, var(--primary-color));
+  background: color-mix(in srgb, var(--cat-color), transparent 92%) !important;
+  border-color: var(--cat-color, var(--primary-color)) !important;
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 .survey-item-thumb {
@@ -2045,12 +2045,12 @@ body {
     transition: all 0.2s ease !important;
   }
 
-  /* 👆 タップした時の反応：もっと「押した感」が出るように背景を少し濃く！ */
+  /* 👆 タップした時の反応：背景がカテゴリカラーに染まる「逆転の逆転」デザイン！ */
   .survey-item-card:active,
   .survey-item-card:hover {
     border-color: var(--cat-color, var(--primary-color)) !important;
-    background: white !important; /* 基本は白背景に切り替わる（可読性確保） */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    background: color-mix(in srgb, var(--cat-color), transparent 85%) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05) !important;
     transform: translateY(-2px);
   }
 

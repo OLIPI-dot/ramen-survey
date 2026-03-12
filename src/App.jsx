@@ -1433,8 +1433,8 @@ function App() {
                                   position: 'relative',
                                   '--cat-color': '#fbbf24'
                                 } : {
-                                  background: `${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}26`,
-                                  border: `1px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}33`,
+                                  background: 'white',
+                                  border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`,
                                   '--cat-color': (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color
                                 }}
                               >
@@ -1447,13 +1447,13 @@ function App() {
                                   <div className="survey-item-content">
                                     <div className="survey-item-info">
                                       <span className="survey-item-title" style={{
-                                        backgroundColor: 'white',
-                                        padding: '10px 14px',
-                                        borderRadius: '12px',
+                                        backgroundColor: 'transparent',
+                                        padding: '4px 0',
+                                        borderRadius: '0',
                                         display: 'block',
                                         marginBottom: '10px',
-                                        boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-                                        border: `1px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}15`,
+                                        boxShadow: 'none',
+                                        border: 'none',
                                         color: '#1e293b'
                                       }}>
                                         {showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}
