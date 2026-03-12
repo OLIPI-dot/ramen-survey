@@ -489,17 +489,19 @@ body {
 
 .survey-item-card {
   display: flex !important;
-  align-items: center !important;
-  background: #f8fafc;
-  border-radius: 24px;
-  padding: 20px;
+  flex-direction: row !important; /* 横並びを強制 */
+  align-items: flex-start !important; /* 上揃え */
+  background: white !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0 !important;
   position: relative;
   min-width: 0 !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  gap: 12px !important; /* アイコンとタイトルの隙間 */
 }
 
 .ads-placeholder:hover {
@@ -585,20 +587,19 @@ body {
 
 /* 🎨 カテゴリアイコンサムネ（一覧用・軽量・神UI） */
 .category-icon-thumb {
-  width: 72px !important;
-  height: 72px !important;
-  flex: 0 0 72px !important;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  margin-right: 20px;
+  width: 48px !important; /* スマホ向けに小さく */
+  height: 48px !important;
+  flex: 0 0 48px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.4rem !important;
   background: #f1f5f9;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
   color: #64748b;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  flex-shrink: 0 !important;
   transition: transform 0.2s ease;
   backdrop-filter: blur(2px);
 }
@@ -1639,11 +1640,7 @@ body {
   margin-bottom: 25px;
 }
 
-@media (max-width: 600px) {
-  .my-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+
 
 .my-stat-card {
   background: white;
@@ -1718,83 +1715,7 @@ body {
   }
 }
 
-@media (max-width: 600px) {
-  .survey-item-card {
-    align-items: center !important;
-    padding: 12px !important;
-  }
 
-  .category-icon-thumb {
-    width: 48px !important;
-    height: 48px !important;
-    flex: 0 0 48px !important;
-    font-size: 20px !important;
-    margin-right: 12px !important;
-  }
-
-  .survey-item-title {
-    font-size: 16px !important; /* スマホでの基準サイズ */
-    font-weight: 800 !important;
-    line-height: 1.4 !important;
-  }
-
-  .card-right-actions {
-    gap: 8px !important;
-  }
-
-  .status-badge {
-    padding: 3px 8px !important;
-    font-size: 12px !important;
-  }
-
-  /* 🗳️/👁️ アイコンと数字を横並びに固定 */
-  .survey-item-meta-row {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    margin-top: 6px !important;
-    min-width: 0 !important;
-  }
-
-  .survey-item-meta-row span {
-    white-space: nowrap !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 3px !important;
-    font-size: 13px !important;
-  }
-
-  .survey-item-deadline {
-    margin-right: 4px !important;
-    flex-shrink: 1 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    min-width: 0 !important;
-  }
-
-  /* タブの文字切れ対策 */
-  .tab-switcher button {
-    padding: 10px 12px !important;
-    font-size: 14px !important;
-    min-width: fit-content !important;
-    white-space: nowrap !important;
-  }
-
-  .popular-sub-tabs {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    gap: 8px !important;
-    padding: 6px !important;
-    scrollbar-width: none !important;
-  }
-
-  .popular-sub-tabs button {
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-  }
-}
 
 .app-footer {
   padding: 60px 0;
@@ -2098,30 +2019,106 @@ body {
 
 /* 📱 モバイル専用の最終微調整 (ラビ・チューニング) */
 @media (max-width: 600px) {
-  .survey-item-meta-row {
-    gap: 6px;
+  /* 📊 マイ統計グリッドの調整 */
+  .my-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
-  .survey-item-deadline,
-  .survey-item-votes,
-  .survey-item-views {
-    font-size: 0.75rem;
-    padding: 3px 8px;
+  /* 💎 アンケートカード：究極の横並び＆タイトル広々設定 */
+  .survey-item-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    padding: 10px !important;
+    gap: 10px !important;
+    border-radius: 16px !important;
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
   }
 
-  .countdown-display {
-    font-size: 0.8rem;
-    padding: 3px 10px;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    margin-top: 4px;
-    display: block;
-    /* モバイルでは一行占有 */
+  .category-icon-thumb {
+    width: 38px !important; /* さらに少し小さく */
+    height: 38px !important;
+    flex: 0 0 38px !important;
+    font-size: 1rem !important;
+    margin-right: 0 !important;
+    border-radius: 8px !important;
+  }
+
+  .survey-item-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .survey-item-info {
+    display: block !important; /* バッジを下の行に追い出してタイトルの横幅を100%確保 */
+    width: 100% !important;
+    margin-bottom: 4px !important;
   }
 
   .survey-item-title {
-    font-size: 1rem !important;
+    font-size: 1.02rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+    color: #1e293b !important;
+    font-weight: 800 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .card-right-actions {
+    display: flex !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    margin-top: 4px !important;
+    width: 100% !important;
+    align-items: center !important;
+  }
+
+  .status-badge {
+    padding: 2px 8px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .watch-star-btn {
+    font-size: 1.3rem !important;
+  }
+
+  /* 🗳️/👁️ 統計情報の微調整 */
+  .survey-item-meta-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
+  }
+
+  .survey-item-meta-row span {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* 🕒 期限表示 */
+  .survey-item-deadline {
+    font-size: 11px !important;
+  }
+
+  .countdown-display {
+    width: 100% !important;
+    font-size: 0.75rem !important;
+    text-align: center !important;
+    margin-top: 6px !important;
+    padding: 4px !important;
+  }
+
+  /* 🔘 タブ・ボタンの調整 */
+  .tab-switcher button {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+  }
+
+  .popular-sub-tabs button {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
   }
 }
 
