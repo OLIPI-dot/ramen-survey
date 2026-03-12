@@ -2042,7 +2042,17 @@ body {
     border-radius: 16px !important;
     background: white !important;
     border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
   }
+
+  /* 👆 タップした時の青い反応を復活！ */
+  .survey-item-card:active,
+  .survey-item-card:hover {
+    border-color: var(--primary-color) !important;
+    background: #f8faff !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1) !important;
+  }
+
 
   /* 📢 モバイルでもお知らせは黄金に輝くデザインを徹底死守！ */
   .survey-item-card.announcement-card {
