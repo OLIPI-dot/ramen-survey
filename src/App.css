@@ -531,10 +531,11 @@ body {
     margin-right: 0 !important;
     margin-bottom: 12px !important;
     border-radius: 16px !important;
-    font-size: 5.5rem !important; /* PCではもっとおっきく！ */
-    /* color: white を削除して元の絵文字の色を活かす */
-    text-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.4), transparent) !important; /* 背景色を活かしてグラデを重ねる */
+    font-size: 7rem !important; /* もっともっとおっきく！ */
+    color: inherit !important; /* 絵文字の元の色を出す */
+    text-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.3), transparent) !important;
+    background-color: inherit; /* 本体の背景色（青など）を活かす */
   }
 
   .survey-item-info {
