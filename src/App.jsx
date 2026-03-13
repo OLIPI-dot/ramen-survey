@@ -277,24 +277,26 @@ function App() {
     const urls = input.split(/[\s,]+/).filter(Boolean);
     const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const ids = urls.map(url => {
-      if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-      const match = url.match(regex);
+      const trimmed = url.trim();
+      if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+      const match = trimmed.match(regex);
       return match ? match[1] : null;
     }).filter(Boolean);
-    return ids.length > 0 ? ids.join(',') : null;
+    return ids.length > 0 ? Array.from(new Set(ids)).join(',') : null;
   };
 
   // 📺 ニコニコ動画 URLからIDを抽出する魔法
   const extractNicoId = (input) => {
     if (!input) return null;
     const urls = input.split(/[\s,]+/).filter(Boolean);
-    const regex = /(?:nicovideo\.jp\/watch\/|nico\.ms\/)([a-z0-9]+)/;
+    const regex = /(?:nicovideo\.jp\/watch\/|nico\.ms\/|www\.nicovideo\.jp\/watch\/)([a-z]{2}\d+|\d+)/;
     const ids = urls.map(url => {
-      if (/^[a-z]{2}\d+$/.test(url)) return url; // sm123... などの形式
-      const match = url.match(regex);
+      const trimmed = url.trim();
+      if (/^[a-z]{2}\d+$/.test(trimmed) || /^\d+$/.test(trimmed)) return trimmed; // sm123... などの形式
+      const match = trimmed.match(regex);
       return match ? match[1] : null;
     }).filter(Boolean);
-    return ids.length > 0 ? ids.join(',') : null;
+    return ids.length > 0 ? Array.from(new Set(ids)).join(',') : null;
   };
 
   // 👑 管理者フラグ
