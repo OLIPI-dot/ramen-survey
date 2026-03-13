@@ -65,6 +65,7 @@ const CATEGORY_ICON_STYLE = {
   "音楽": { icon: "🎵", color: "#8b5cf6" }, // 🎵 音楽（バイオレット系）
   "ゲーム": { icon: "🎮", color: "#14b8a6" },
   "アニメ": { icon: "📺", color: "#6366f1" }, // 📺 アニメ用アイコン（インディゴ系に変更してITと差別化）
+  "自然": { icon: "🌿", color: "#22c55e" }, // 🌿 自然（グリーン系）
   "らび": { icon: "🐰", color: "#ec4899" }, // らび専用アイコン（ピンク系）
   "その他": { icon: "❓", color: "#64748b" },
 };
@@ -166,21 +167,7 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
         zIndex: 1,
         transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
       }}>
-        {affiliateType === 'amazon' ? (
-          <div className="affiliate-content" style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', gap: '30px', flexWrap: 'wrap', padding: '10px' }}>
-            <div className="product-image-container" style={{ width: '140px', height: '140px', background: '#fff', borderRadius: '16px', padding: '8px', boxShadow: '0 4px 20px rgba(236, 72, 153, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, border: '1px solid #ffe4e6', transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-              <img src={rec.image} alt={rec.title} referrerPolicy="no-referrer" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-            </div>
-            <div style={{ textAlign: 'center', maxWidth: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontSize: '0.75rem', color: '#ec4899', fontWeight: 'bold', marginBottom: '8px', letterSpacing: '0.05em' }}>💖 おすすめアイテム 💖</div>
-              <div style={{ fontWeight: '900', color: '#1e293b', fontSize: '1.1rem', marginBottom: '15px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{rec.title}</div>
-              <a href={rec.url} target="_blank" rel="noopener noreferrer" className="affiliate-btn amazon-btn" style={{
-                padding: '12px 32px', background: 'linear-gradient(135deg, #ff9900 0%, #ffb347 100%)', color: '#fff', borderRadius: '40px', textDecoration: 'none', fontWeight: '800', fontSize: '1rem',
-                boxShadow: '0 6px 20px rgba(255, 153, 0, 0.3)', display: 'inline-block', position: 'relative', zIndex: 20, transition: 'transform 0.2s'
-              }}>Amazonで詳しく見る ✨</a>
-            </div>
-          </div>
-        ) : affiliateType === 'ofuse' ? (
+        {affiliateType === 'ofuse' ? (
           <div className="affiliate-content" style={{ position: 'relative', zIndex: 10 }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>💖</div>
             <div style={{ fontWeight: 'bold', color: '#db2777' }}>らび＆おりぴを応援！</div>
@@ -1378,7 +1365,7 @@ function App() {
                   </div>
                 )}
                 <div className="category-filter-bar">
-                  {['すべて', 'ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
+                  {['すべて', 'ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
                     <button key={cat} className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`} onClick={() => setFilterCategory(cat)}>{cat}</button>
                   ))}
                 </div>
@@ -1582,7 +1569,7 @@ function App() {
                   <div className="setting-item-block"><label>📺 YouTube動画を貼る（URL）:</label><input className="title-input" value={surveyYoutube} onChange={e => setSurveyYoutube(e.target.value)} placeholder="例：https://www.youtube.com/watch?v=..." /></div>
                   <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
-                      {(isAdmin ? ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
+                      {(isAdmin ? ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
                         <button key={cat} className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`} onClick={() => setSurveyCategory(cat)}>{cat}</button>
                       ))}
                     </div>
@@ -1666,20 +1653,57 @@ function App() {
                     </div>
                   )}
 
-                  {/* 📺 YouTube動画プレイヤーの埋め込み */}
+                  {/* 📺 YouTube動画プレイヤーの埋め込み (中央寄せを極限まで徹底) */}
                   {currentSurvey.image_url && currentSurvey.image_url.startsWith('yt:') && (
-                    <div className="youtube-multi-container">
-                      {currentSurvey.image_url.split(':')[1].split(',').map((id, idx) => (
-                        <div key={idx} className="youtube-multi-item">
-                          <iframe
-                            loading="lazy"
-                            src={`https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`}
-                            title={`YouTube video player ${idx + 1}`}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                          ></iframe>
-                        </div>
-                      ))}
+                    <div className="youtube-multi-container" style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', margin: '30px auto', width: '100%', maxWidth: '900px', textAlign: 'center'
+                    }}>
+                      {currentSurvey.image_url.split(':')[1].split(',').map((id, idx) => {
+                        const videoId = id.trim();
+                        return (
+                          <div key={idx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div className="youtube-multi-item" style={{
+                              position: 'relative', width: '100%', aspectRatio: '16/9',
+                              borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
+                              background: '#000', margin: '0 auto', border: '1px solid rgba(255,255,255,0.1)'
+                            }}>
+                              <iframe
+                                loading="lazy"
+                                src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                                title={`YouTube video player ${idx + 1}`}
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                              ></iframe>
+                            </div>
+                            <div style={{ marginTop: '15px' }}>
+                              <button
+                                onClick={() => window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer')}
+                                className="yt-direct-link-btn"
+                                style={{
+                                  display: 'inline-flex', alignItems: 'center', gap: '10px',
+                                  padding: '10px 24px', background: '#ffffff', color: '#ef4444',
+                                  borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem',
+                                  fontWeight: '900', border: '2px solid #fee2e2', transition: 'all 0.2s',
+                                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.08)'
+                                }}
+                                onMouseOver={(e) => { 
+                                  e.currentTarget.style.background = '#ef4444'; 
+                                  e.currentTarget.style.color = '#ffffff';
+                                  e.currentTarget.style.boxShadow = '0 6px 15px rgba(239, 68, 68, 0.2)';
+                                }}
+                                onMouseOut={(e) => { 
+                                  e.currentTarget.style.background = '#ffffff'; 
+                                  e.currentTarget.style.color = '#ef4444';
+                                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.08)';
+                                }}
+                              >
+                                <span style={{ fontSize: '1.2rem' }}>📺</span> YouTubeで直接見る (再生できない場合)
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
