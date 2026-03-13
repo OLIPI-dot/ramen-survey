@@ -1089,13 +1089,13 @@ function App() {
   const handleUpdateVisibility = async (newVisibility) => {
     if (!currentSurvey || !user || (!isAdmin && currentSurvey.user_id !== user.id)) return;
     setIsActionLoading(true);
-    const { data, error } = await supabase.from('surveys').update({ visibility: newVisibility }).eq('id', currentSurvey.id).select().single();
+    const { error } = await supabase.from('surveys').update({ visibility: newVisibility }).eq('id', currentSurvey.id);
     setIsActionLoading(false);
     if (error) {
       console.error("Update visibility error:", error);
       return alert('変更に失敗しました');
     }
-    if (data) setCurrentSurvey(data);
+    setCurrentSurvey({ ...currentSurvey, visibility: newVisibility });
     alert(`公開設定を「${newVisibility}」に変更しました！`);
     fetchSurveys(user);
   };
@@ -1104,13 +1104,13 @@ function App() {
   const handleUpdateCategory = async (newCategory) => {
     if (!currentSurvey || !user || (!isAdmin && currentSurvey.user_id !== user.id)) return;
     setIsActionLoading(true);
-    const { data, error } = await supabase.from('surveys').update({ category: newCategory }).eq('id', currentSurvey.id).select().single();
+    const { error } = await supabase.from('surveys').update({ category: newCategory }).eq('id', currentSurvey.id);
     setIsActionLoading(false);
     if (error) {
       console.error("Update category error:", error);
       return alert('😿 カテゴリの変更に失敗しました。');
     }
-    if (data) setCurrentSurvey(data);
+    setCurrentSurvey({ ...currentSurvey, category: newCategory });
     setIsEditingCategory(false);
     alert(`🏷️ カテゴリを「${newCategory}」に変更しましたらびっ！`);
     fetchSurveys(user);
@@ -1120,19 +1120,19 @@ function App() {
   const handleUpdateTags = async () => {
     if (!currentSurvey || !user || (!isAdmin && currentSurvey.user_id !== user.id)) return;
     setIsActionLoading(true);
-    // カンマ区切りを配列に変換（空の要素を除去、トリミング）
     const newTags = tagEditValue.split(/[,、]/).map(t => t.trim()).filter(t => t !== "");
-    const { data, error } = await supabase.from('surveys').update({ tags: newTags }).eq('id', currentSurvey.id).select().single();
+    const { error } = await supabase.from('surveys').update({ tags: newTags }).eq('id', currentSurvey.id);
     setIsActionLoading(false);
     if (error) {
       console.error("Update tags error:", error);
       return alert('😿 タグの更新に失敗しました。');
     }
-    if (data) setCurrentSurvey(data);
+    setCurrentSurvey({ ...currentSurvey, tags: newTags });
     setIsEditingTags(false);
     alert('🏷️ タグを更新しましたらびっ！');
     fetchSurveys(user);
   };
+
   // 📩 お問い合わせをDBに保存する
   const handleSubmitInquiry = async () => {
     if (!contactMessage.trim()) return alert('内容を入力してください');
