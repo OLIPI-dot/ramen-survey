@@ -887,7 +887,11 @@ function App() {
     // ログイン中なら自分の非公開/限定公開アンケートも取得
     let mine = [];
     if (currentUser) {
-      const { data: mData } = await supabase.from('surveys').select('*').eq('user_id', currentUser.id).neq('visibility', 'public');
+      let query = supabase.from('surveys').select('*').neq('visibility', 'public');
+      if (!isAdmin) {
+        query = query.eq('user_id', currentUser.id);
+      }
+      const { data: mData } = await query;
       if (mData) mine = mData;
     }
 
@@ -1100,6 +1104,7 @@ function App() {
     setCurrentSurvey({ ...currentSurvey, category: newCategory });
     setIsEditingCategory(false);
     alert(`🏷️ カテゴリを「${newCategory}」に変更しましたらびっ！`);
+    fetchSurveys(user);
   };
 
   // 🏷️ タグを更新する（オーナーまたは管理者）
@@ -1118,6 +1123,7 @@ function App() {
     setCurrentSurvey({ ...currentSurvey, tags: newTags });
     setIsEditingTags(false);
     alert('🏷️ タグを更新しましたらびっ！');
+    fetchSurveys(user);
   };
 
   // 📩 お問い合わせをDBに保存する
