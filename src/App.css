@@ -2553,3 +2553,32 @@ body {
   cursor: pointer;
   margin-right: 4px;
 }
+
+/* 📺 複数YouTube動画用プレミアムコンテナ */
+.youtube-multi-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.youtube-multi-item {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  background: #000;
+  aspect-ratio: 16 / 9;
+  transition: transform 0.3s ease;
+}
+
+.youtube-multi-item:hover {
+  transform: scale(1.01);
+}
+
+.youtube-multi-item iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

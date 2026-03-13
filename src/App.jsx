@@ -285,11 +285,20 @@ function App() {
   const [surveyYoutube, setSurveyYoutube] = useState(''); // 📺 YouTube動画URL
 
   // 📺 YouTube URLからIDを抽出する魔法
-  const extractYoutubeId = (url) => {
-    if (!url) return null;
+  const extractYoutubeId = (input) => {
+    if (!input) return null;
+    // URLやIDがカンマ、スペース、改行などで混在していてもパースできるようにするらびっ！
+    const urls = input.split(/[\s,]+/).filter(Boolean);
     const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
+    
+    const ids = urls.map(url => {
+      // すでに11文字のIDっぽい場合はそのまま、URLなら抽出するらびっ
+      if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+      const match = url.match(regex);
+      return match ? match[1] : null;
+    }).filter(Boolean);
+
+    return ids.length > 0 ? ids.join(',') : null;
   };
 
   // 👑 管理者フラグ
@@ -1659,31 +1668,18 @@ function App() {
 
                   {/* 📺 YouTube動画プレイヤーの埋め込み */}
                   {currentSurvey.image_url && currentSurvey.image_url.startsWith('yt:') && (
-                    <div className="youtube-embed-area" style={{ width: '100%', marginBottom: '24px' }}>
-                      <div className="youtube-embed-container" style={{
-                        position: 'relative',
-                        width: '100%',
-                        paddingTop: '56.25%', /* 16:9 Aspect Ratio */
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        boxShadow: '0 12px 30px -10px rgba(0,0,0,0.2)',
-                        background: '#000'
-                      }}>
-                        <iframe
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            border: 'none'
-                          }}
-                          src={`https://www.youtube.com/embed/${currentSurvey.image_url.split(':')[1]}?rel=0&modestbranding=1`}
-                          title="YouTube video player"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                        ></iframe>
-                      </div>
+                    <div className="youtube-multi-container">
+                      {currentSurvey.image_url.split(':')[1].split(',').map((id, idx) => (
+                        <div key={idx} className="youtube-multi-item">
+                          <iframe
+                            loading="lazy"
+                            src={`https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`}
+                            title={`YouTube video player ${idx + 1}`}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      ))}
                     </div>
                   )}
 
