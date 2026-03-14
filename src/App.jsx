@@ -1027,13 +1027,20 @@ function App() {
     // 📺 動画（YouTube/ニコニコ）の処理
     let processedImage = finalImage;
     if (surveyYoutube.trim()) {
-      const ytId = extractYoutubeId(surveyYoutube.trim());
-      const nicoId = extractNicoId(surveyYoutube.trim());
-      
-      if (ytId) {
-        processedImage = `yt:${ytId}`;
-      } else if (nicoId) {
-        processedImage = `nico:${nicoId}`;
+      const parts = surveyYoutube.trim().split(/[\s,]+/).filter(Boolean);
+      const videoEntries = parts.map(part => {
+        const ytId = extractYoutubeId(part);
+        const nicoId = extractNicoId(part);
+        if (ytId && (part.includes('youtube.com') || part.includes('youtu.be') || !nicoId)) {
+          return `yt:${ytId}`;
+        } else if (nicoId) {
+          return `nico:${nicoId}`;
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (videoEntries.length > 0) {
+        processedImage = videoEntries.join(',');
       }
     }
 
@@ -1767,72 +1774,78 @@ function App() {
 
                    {/* 📺 動画プレイヤーの埋め込み (YouTube / ニコニコ) */}
                   {currentSurvey.image_url && (currentSurvey.image_url.includes('yt:') || currentSurvey.image_url.includes('nico:')) ? (() => {
-                    const isNico = currentSurvey.image_url.includes('nico:');
-                    const prefix = isNico ? 'nico:' : 'yt:';
-                    // プレフィックスをより柔軟に取り除くために、コロンで止める
-                    const rawIds = currentSurvey.image_url.split(':').slice(1).join(':') || '';
-                    const videoIds = rawIds.split(',').map(s => s.trim()).filter(Boolean);
+                    // 各動画（yt:ID または nico:ID）をカンマで分割して個別に判定
+                    const videoEntries = currentSurvey.image_url.split(',').map(s => s.trim()).filter(Boolean);
                     
-                    if (videoIds.length === 0) return null;
+                    if (videoEntries.length === 0) return null;
 
                     return (
                       <div className="video-multi-container" style={{
                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', margin: '30px auto', width: '100%', maxWidth: '900px', textAlign: 'center',
-                        minHeight: '200px' // 万が一中身が空でも高さを確保して存在を確認
+                        minHeight: '200px'
                       }}>
-                        {videoIds.map((videoId, idx) => (
-                          <div key={idx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div className="video-multi-item" style={{
-                              position: 'relative', width: '100%', aspectRatio: '16/9',
-                              borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
-                              background: '#000', margin: '0 auto', border: '1px solid rgba(255,255,255,0.1)'
-                            }}>
-                              {isNico ? (
-                                <iframe
-                                  loading="lazy"
-                                  src={`https://embed.nicovideo.jp/watch/${videoId}`}
-                                  title={`Nico Nico video player ${idx + 1}`}
-                                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                  allowFullScreen
-                                ></iframe>
-                              ) : (
-                                <iframe
-                                  loading="lazy"
-                                  src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-                                  title={`YouTube video player ${idx + 1}`}
-                                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                  allowFullScreen
-                                ></iframe>
-                              )}
+                        {videoEntries.map((entry, idx) => {
+                          const isNico = entry.startsWith('nico:');
+                          const isYT = entry.startsWith('yt:');
+                          if (!isNico && !isYT) return null;
+
+                          // プレフィックスを飛ばした後の実際のIDを取得
+                          const videoId = isNico ? entry.substring(5) : entry.substring(3);
+                          
+                          return (
+                            <div key={idx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div className="video-multi-item" style={{
+                                position: 'relative', width: '100%', aspectRatio: '16/9',
+                                borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
+                                background: '#000', margin: '0 auto', border: '1px solid rgba(255,255,255,0.1)'
+                              }}>
+                                {isNico ? (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://embed.nicovideo.jp/watch/${videoId}`}
+                                    title={`Nico Nico video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allowFullScreen
+                                  ></iframe>
+                                ) : (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                                    title={`YouTube video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                  ></iframe>
+                                )}
+                              </div>
+                              <div style={{ marginTop: '15px' }}>
+                                <button
+                                  onClick={() => window.open(isNico ? `https://www.nicovideo.jp/watch/${videoId}` : `https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer')}
+                                  className="video-direct-link-btn"
+                                  style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '10px',
+                                    padding: '10px 24px', background: '#ffffff', color: isNico ? '#333' : '#ef4444',
+                                    borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem',
+                                    fontWeight: '900', border: `2px solid ${isNico ? '#e2e8f0' : '#fee2e2'}`, transition: 'all 0.2s',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                                  }}
+                                  onMouseOver={(e) => { 
+                                    e.currentTarget.style.background = isNico ? '#333' : '#ef4444'; 
+                                    e.currentTarget.style.color = '#ffffff';
+                                    e.currentTarget.style.boxShadow = `0 6px 15px rgba(${isNico ? '51,51,51' : '239,68,68'}, 0.3)`;
+                                  }}
+                                  onMouseOut={(e) => { 
+                                    e.currentTarget.style.background = '#ffffff'; 
+                                    e.currentTarget.style.color = isNico ? '#333' : '#ef4444';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+                                  }}
+                                >
+                                  <span style={{ fontSize: '1.2rem' }}>📺</span> {isNico ? 'ニコニコ動画' : 'YouTube'}で直接見る (再生できない場合)
+                                </button>
+                              </div>
                             </div>
-                            <div style={{ marginTop: '15px' }}>
-                              <button
-                                onClick={() => window.open(isNico ? `https://www.nicovideo.jp/watch/${videoId}` : `https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer')}
-                                className="video-direct-link-btn"
-                                style={{
-                                  display: 'inline-flex', alignItems: 'center', gap: '10px',
-                                  padding: '10px 24px', background: '#ffffff', color: isNico ? '#333' : '#ef4444',
-                                  borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem',
-                                  fontWeight: '900', border: `2px solid ${isNico ? '#e2e8f0' : '#fee2e2'}`, transition: 'all 0.2s',
-                                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
-                                }}
-                                onMouseOver={(e) => { 
-                                  e.currentTarget.style.background = isNico ? '#333' : '#ef4444'; 
-                                  e.currentTarget.style.color = '#ffffff';
-                                  e.currentTarget.style.boxShadow = `0 6px 15px radial-gradient(circle, ${isNico ? '#333' : '#ef4444'} 0%, transparent 70%)`;
-                                }}
-                                onMouseOut={(e) => { 
-                                  e.currentTarget.style.background = '#ffffff'; 
-                                  e.currentTarget.style.color = isNico ? '#333' : '#ef4444';
-                                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
-                                }}
-                              >
-                                <span style={{ fontSize: '1.2rem' }}>📺</span> {isNico ? 'ニコニコ動画' : 'YouTube'}で直接見る (再生できない場合)
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     );
                   })() : null}
