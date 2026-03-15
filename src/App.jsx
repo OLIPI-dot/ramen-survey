@@ -781,9 +781,9 @@ function App() {
       ? `${currentSurvey.title} - みんなのアンケート広場`
       : (view === 'list' ? 'みんなのアンケート広場｜匿名で気軽に投票・本音が集まるアンケートコミュニティ' : 'アンケート作成 - みんなのアンケート広場');
 
-    const metaDescription = currentSurvey
-      ? `【${currentSurvey.category}】${currentSurvey.title}のアンケート実施中！みんなはどう思ってる？匿名で1タップ投票して、リアルタイムの結果やコメントをチェックしよう！🐰🥕`
-      : 'みんなのアンケート広場は、誰でもかんたんに匿名でアンケートを作成・投票できる場所です。日常の疑問や本音を共有して、みんなの意見を楽しく集約しましょう！';
+    const metaKeywords = currentSurvey
+      ? `${currentSurvey.category}, ${Array.isArray(currentSurvey.tags) ? currentSurvey.tags.join(', ') : (currentSurvey.tags || '')}, アンケート, 投票, みんなのアンケート広場`
+      : 'アンケート, 投票, 匿名, 掲示板, コミュニティ, 意見共有, トレンド, みんなのアンケート広場, らび';
 
     const currentUrl = currentSurvey 
       ? `https://minna-no-vote-square.vercel.app/?s=${currentSurvey.id}` 
@@ -809,6 +809,7 @@ function App() {
     };
 
     updateMeta('meta[name="description"]', 'content', metaDescription);
+    updateMeta('meta[name="keywords"]', 'content', metaKeywords);
     updateMeta('meta[property="og:title"]', 'content', pageTitle);
     updateMeta('meta[property="og:description"]', 'content', metaDescription);
     updateMeta('meta[property="og:url"]', 'content', currentUrl);
@@ -849,6 +850,25 @@ function App() {
       scriptTag.id = 'json-ld-structured-data';
       scriptTag.type = 'application/ld+json';
       scriptTag.text = JSON.stringify(structuredData);
+      document.head.appendChild(scriptTag);
+    } else if (view === 'list' && surveys.length > 0) {
+      // 🏘️ トップページ用の構造化データ (ItemList)
+      const listData = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "最新のアンケート一覧",
+        "description": "みんなのアンケート広場で現在実施中の人気アンケート一覧です。",
+        "itemListElement": surveys.slice(0, 10).map((sv, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `https://minna-no-vote-square.vercel.app/?s=${sv.id}`,
+          "name": sv.title
+        }))
+      };
+      scriptTag = document.createElement('script');
+      scriptTag.id = 'json-ld-structured-data';
+      scriptTag.type = 'application/ld+json';
+      scriptTag.text = JSON.stringify(listData);
       document.head.appendChild(scriptTag);
     }
 
