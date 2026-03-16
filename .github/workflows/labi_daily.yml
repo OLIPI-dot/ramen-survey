@@ -1,9 +1,9 @@
 name: Labi Daily Survey Launcher 🐰🚀
 
 on:
-  schedule:
-    # 毎日UTC 03:00 (JST 12:00 お昼時) に実行らびっ！
-    - cron: '0 3 * * *'
+#  schedule:
+#    # 毎日UTC 03:00 (JST 12:00 お昼時) に実行らびっ！
+#    - cron: '0 3 * * *'
   workflow_dispatch: # 手動実行も可能らび！
 
 permissions:
