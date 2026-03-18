@@ -33,6 +33,7 @@ async function postWasaBeefSurvey() {
             "買い溜めせずに再開を待つ"
         ],
         tags: ["わさビーフ", "山芳製菓", "ニュース", "国際情勢", "ホルムズ海峡"],
+        description: "原材料の調達や物流への影響が懸念されているらび。お菓子ひとつにも世界情勢が関わっていることを実感するニュースだね。みんなで今後の動向を見守っていこうらび。",
         comment: "まさか大好きな『わさビーフ』にまで国際情勢の影響がくるなんて、らびもビックリらび……！😱 遠い国の出来事だと思ってたことが、自分たちの生活に繋がってるんだね。みんなは、このニュースを見てどう思ったかな？🐰🛡️"
     };
 
@@ -73,6 +74,8 @@ async function postWasaBeefSurvey() {
         category: topic.category,
         image_url: `yt:${videoId}`,
         tags: topic.tags,
+        description: topic.description,
+        is_official: true,
         visibility: 'public',
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
     }]).select();

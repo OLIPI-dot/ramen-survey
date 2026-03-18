@@ -74,7 +74,8 @@ async function postDailySurvey() {
         visibility: 'public',
         deadline: deadlineUTC,
         tags: selectedTopic.tags,
-        description: selectedTopic.description || `らびの毎日アンケートだよっ！🐰🥕\n今回のテーマは『${selectedTopic.title}』らび。\n\nみんなの「本音」、らびに教えてねっ！✨🥇🏆`
+        description: selectedTopic.description || `らびの毎日アンケートだよっ！🐰🥕\n今回のテーマは『${selectedTopic.title}』らび。\n\nみんなの「本音」、らびに教えてねっ！✨🥇🏆`,
+        is_official: true
     };
 
     const res = await fetch(`${url}/rest/v1/surveys`, {

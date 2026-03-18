@@ -518,8 +518,8 @@ body {
 
 @media (min-width: 1024px) {
   .survey-list {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 24px;
+    /* 💎 UX改善: おりぴさんの要望によりスマホと同じ完全1カラム（縦並び）レイアウトにし、1記事に全集中させる */
+    gap: 24px; /* PCでは少し余白を広めに */
   }
 }
 
@@ -559,21 +559,23 @@ body {
 
 @media (min-width: 1024px) {
   .survey-item-card {
-    flex-direction: column !important;
+    /* 💎 1カラム化に伴い、細長い横向き（row）レイアウトを維持 */
+    flex-direction: row !important;
     align-items: flex-start !important;
-    padding: 16px !important;
-    height: 100%;
+    padding: 20px !important;
+    height: auto;
   }
 
   .survey-item-thumb,
   .category-icon-thumb {
-    width: 100% !important;
-    height: 150px !important;
-    flex: none !important;
-    margin-right: 0 !important;
-    margin-bottom: 12px !important;
-    border-radius: 20px !important; /* 角丸を復活 */
-    font-size: 6rem !important; /* 少し落ち着かせたサイズに */
+    /* 💎 横置きレイアウトのため、サムネは左側に大きく配置 */
+    width: 200px !important;
+    height: 200px !important;
+    flex: 0 0 200px !important;
+    margin-right: 32px !important;
+    margin-bottom: 0 !important;
+    border-radius: 24px !important; 
+    font-size: 7rem !important; 
     color: inherit !important;
     /* ⚽️ 絵文字の透過部分が目立たないよう、文字自体に細い白縁取り(text-shadow)を適用 */
     text-shadow: 
@@ -584,8 +586,9 @@ body {
   }
 
   .survey-item-info {
-    flex-direction: column;
-    gap: 8px;
+    /* 💎 タイトルと右上のアクションボタンの横並びを基本スタイルから継承 */
+    flex-direction: row;
+    gap: 16px;
     width: 100%;
   }
 
@@ -600,9 +603,16 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
+  .survey-item-content {
+    /* 💎 右上の絶対配置ボタン群と被らないようにコンテンツ全体に十分な右パディングを付与して余白を確保 */
+    padding-right: 220px !important;
+  }
+
   .survey-item-title {
-    font-size: 1.05rem;
-    line-height: 1.4;
+    /* 💎 1カラム化に合わせてPCでのタイトルフォントを大幅に拡大 */
+    font-size: 1.45rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -612,8 +622,26 @@ body {
 
   .survey-item-meta-row {
     margin-top: auto !important;
-    /* カードの高さを揃えた時にメタ情報を下部に配置 */
-    padding-top: 12px;
+    padding-top: 14px;
+    font-size: 0.95rem;
+    gap: 12px;
+  }
+
+  /* 💎 PC用のメタ情報＆タグのサイズアップ */
+  .survey-item-created-at,
+  .survey-item-deadline {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+
+  .card-stats-row span {
+    font-size: 0.95rem;
+    padding: 4px 10px;
+  }
+
+  .tag-bubble {
+    font-size: 0.9rem !important;
+    padding: 4px 12px !important;
   }
 }
 
@@ -625,14 +653,69 @@ body {
 }
 
 .survey-item-thumb {
-  width: 80px !important;
-  height: 80px !important;
-  flex: 0 0 80px !important;
-  /* 👈 絶対に縮まない・伸びない */
-  border-radius: 18px;
+  width: 100px !important;
+  height: 100px !important;
+  flex: 0 0 100px !important;
+  /* 👈 スマホ用でも少し大きめに調整して見やすく */
+  border-radius: 16px;
   object-fit: cover;
-  margin-right: 22px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 💎 動画とカテゴリアイコンを干渉させない縦積みラッパー（スマホ対応） */
+.video-thumb-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex: 0 0 100px !important;
+  width: 100px !important;
+  margin-right: 16px !important;
+  gap: 8px !important;
+}
+
+@media (min-width: 1024px) {
+  .video-thumb-wrapper {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+    margin-right: 32px !important;
+    gap: 14px !important;
+  }
+  .survey-item-thumb {
+    width: 200px !important;
+    height: 200px !important;
+    flex: 0 0 200px !important;
+    border-radius: 24px !important;
+    margin-right: 0 !important;
+  }
+}
+
+.video-thumb-wrapper .survey-item-thumb {
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.thumb-category-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 1024px) {
+  .thumb-category-badge {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+  }
 }
 
 /* 🎨 カテゴリアイコンサムネ（一覧用・軽量・神UI） */

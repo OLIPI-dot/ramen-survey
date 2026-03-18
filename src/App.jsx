@@ -273,6 +273,7 @@ function App() {
   const [likedSurveys, setLikedSurveys] = useState(() => JSON.parse(localStorage.getItem('liked_surveys') || '[]')); // 👍 いいね履歴
   const [surveyYoutube, setSurveyYoutube] = useState(''); // 📺 YouTube動画URL
   const [surveyDescription, setSurveyDescription] = useState(''); // 📝 解説文 / 参考URL
+  const [activeTab, setActiveTab] = useState('official'); // ⚖️ 'official' or 'user'
 
   // 📺 YouTube URLからIDを抽出する魔法
   const extractYoutubeId = (input) => {
@@ -661,26 +662,37 @@ function App() {
     if (!shouldDescend) return;
 
     // ⏳ 3〜5秒の溜めを作る
+    const delay = 3000 + Math.random() * 2000;
+    console.log(`🐰 Labi is planning to descend in ${Math.round(delay)}ms...`);
+    
     setTimeout(async () => {
-      let responseList = LABI_RESPONSES.default;
-      if (hasKeyword) responseList = LABI_RESPONSES.keywords;
-      if (isAdminComment) responseList = LABI_RESPONSES.admin;
+      try {
+        let responseList = LABI_RESPONSES.default;
+        if (hasKeyword) responseList = LABI_RESPONSES.keywords;
+        if (isAdminComment) responseList = LABI_RESPONSES.admin;
 
-      let reply = responseList[Math.floor(Math.random() * responseList.length)];
-      if (resNum) {
-        reply = `>>${resNum}\n${reply}`;
+        let reply = responseList[Math.floor(Math.random() * responseList.length)];
+        if (resNum) {
+          reply = `>>${resNum}\n${reply}`;
+        }
+
+        const { error } = await supabase.from('comments').insert([{
+          survey_id: currentSurvey.id,
+          user_name: "らび🐰(AI)",
+          content: reply,
+          user_id: null,
+          edit_key: "labi_bot"
+        }]);
+
+        if (error) {
+          console.error("🐰 Labi Descent Failed:", error.message);
+        } else {
+          console.log("🐰 Labi descended successfully!");
+        }
+      } catch (e) {
+        console.error("🐰 Labi Descent Exception:", e);
       }
-
-      const { error } = await supabase.from('comments').insert([{
-        survey_id: currentSurvey.id,
-        user_name: "らび🐰(AI)",
-        content: reply,
-        user_id: null, // user_idはUUID型なので無効な文字列は弾かれるためnullにする
-        edit_key: "labi_bot"
-      }]);
-
-      if (error) console.error("Labi Descent Error:", error);
-    }, 3000 + Math.random() * 2000);
+    }, delay);
   };
 
   async function handleReaction(commentId, type) {
@@ -959,8 +971,8 @@ function App() {
 
   const fetchSurveys = async (currentUser) => {
     setIsLoading(true);
-    // アンケート本体（解説文も含むらび！）
-    const { data: sData } = await supabase.from('surveys').select('*').eq('visibility', 'public');
+    // アンケート本体（解説文と公式フラグも取得らび！）
+    const { data: sData } = await supabase.from('surveys').select('*, is_official').eq('visibility', 'public');
 
     // ログイン中なら自分の非公開/限定公開アンケートも取得
     let mine = [];
@@ -983,11 +995,30 @@ function App() {
     const isActuallyAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
 
     if (allSurveys.length > 0) {
-      const updatedList = allSurveys.map(s => ({
-        ...s,
-        total_votes: oData ? oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0,
-        comment_count: s.comment_count || 0
-      }));
+      const updatedList = allSurveys.map(s => {
+        // 💎 新しい仕様 (2026/03/19以降): DBの is_official フラグを絶対的な正とする
+        let isOfficialPattern = s.is_official === true;
+
+        // 💎 後方互換性 (2026/03/19以前のレガシー投稿用): DBフラグが無くても公式投稿だったものを救済する
+        const isLegacy = new Date(s.created_at) < new Date('2026-03-19T00:00:00Z');
+        
+        if (!isOfficialPattern && isLegacy) {
+          // 過去の公式投稿の特徴：特定のタグを持っている、またはニュース風のタイトル（【】や「」始まり）
+          const hasOfficialTag = s.tags && s.tags.some(tag => ['お知らせ', 'ニュース', '話題', '速報', '注目', '2chまとめアンテナ'].includes(tag) || tag.includes('トピックス') || tag.includes('新聞'));
+          const hasOfficialTitle = s.title && /^(【.*?】|「.*?」)/.test(s.title);
+          
+          if (hasOfficialTag || hasOfficialTitle) {
+            isOfficialPattern = true;
+          }
+        }
+
+        return {
+          ...s,
+          is_official: isOfficialPattern,
+          total_votes: oData ? oData.filter(o => o.survey_id === s.id).reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0,
+          comment_count: s.comment_count || 0
+        };
+      });
       // 💎 重要: 詳細画面を開いている場合のみ、最新データで上書きする
       // 🛡️ ガード: 直前に手動更新した場合は、DBの反映遅延を考慮して10秒間上書きを禁止する
       setCurrentSurvey(prev => {
@@ -1541,12 +1572,13 @@ function App() {
                   )}
                 </div>
                 <button className="create-new-button" onClick={() => user ? setView('create') : alert("🌟 広場をもっと楽しもう！\n\nアンケートを作るには、ログインが必要だよ。上の「Googleでログイン」から、らびと一緒に始めよう！🐰🥕")}>＋ 新しいアンケートを作る</button>
+                {!user && <SiteConceptSection />}
                 <div className="search-container">
                   <input type="text" placeholder="🔍 アンケートを検索する..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="search-input" />
                 </div>
                 <div className="tab-switcher">
-                  <button className={sortMode === 'today' ? 'active' : ''} onClick={() => setSortMode('today')}>⌛ 今日の旬ネタ</button>
-                  <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>⏳ 新着</button>
+                  <button className={sortMode === 'today' ? 'active' : ''} onClick={() => setSortMode('today')}>☀️ 今日の話題</button>
+                  <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>🆕 新着順</button>
                   <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
                   <button className={sortMode === 'watching' ? 'active' : ''} onClick={() => setSortMode('watching')}>⭐ ウォッチ中</button>
                   <button className={sortMode === 'ended' ? 'active' : ''} onClick={() => setSortMode('ended')}>📁 アーカイブ</button>
@@ -1587,13 +1619,51 @@ function App() {
                     </div>
                   );
                 })()}
-                <SiteConceptSection />
+
+                {/* ⚖️ 公式・ユーザー切り替えタブ */}
+                {view === 'list' && !searchQuery && filterCategory === 'すべて' && !filterTag && (
+                  <div className="official-tab-navigation" style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '2px solid #f1f5f9', paddingBottom: '4px' }}>
+                    <button 
+                      onClick={() => setActiveTab('official')} 
+                      className={`tab-btn ${activeTab === 'official' ? 'active' : ''}`}
+                      style={{ 
+                        padding: '8px 4px', fontSize: '1.1rem', fontWeight: 'bold', color: activeTab === 'official' ? '#8b5cf6' : '#94a3b8', 
+                        background: 'none', border: 'none', borderBottom: activeTab === 'official' ? '3px solid #8b5cf6' : '3px solid transparent',
+                        cursor: 'pointer', transition: 'all 0.2s', position: 'relative'
+                      }}
+                    >
+                      📢 公式・ニュース
+                      {activeTab === 'official' && <span style={{ position: 'absolute', top: '-4px', right: '-8px', fontSize: '0.7rem', background: '#ec4899', color: '#fff', borderRadius: '10px', padding: '1px 5px' }}>HOT</span>}
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('user')} 
+                      className={`tab-btn ${activeTab === 'user' ? 'active' : ''}`}
+                      style={{ 
+                        padding: '8px 4px', fontSize: '1.1rem', fontWeight: 'bold', color: activeTab === 'user' ? '#8b5cf6' : '#94a3b8', 
+                        background: 'none', border: 'none', borderBottom: activeTab === 'user' ? '3px solid #8b5cf6' : '3px solid transparent',
+                        cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      👥 みんなの投稿
+                    </button>
+                  </div>
+                )}
+
                 <div className="survey-list">
                   {isLoading ? <div className="empty-msg">読み込み中...</div> : (() => {
                     const filtered = surveys
                       .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
                       .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
                       .filter(s => {
+                        // ⚖️ 公式・ユーザー切り替えタブのフィルタ背景（検索中などは無効）
+                        if (!searchQuery && filterCategory === 'すべて' && !filterTag) {
+                          if (activeTab === 'official') {
+                            if (!s.is_official) return false;
+                          } else if (activeTab === 'user') {
+                            if (s.is_official) return false;
+                          }
+                        }
+
                         // 🤖 30日経過で自動終了（deadline未設定も含む）
                         const ageMs = new Date() - new Date(s.created_at);
                         const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
@@ -1642,7 +1712,8 @@ function App() {
                         return popularMode === 'votes' ? b.total_votes - a.total_votes : (b.view_count || 0) - (a.view_count || 0);
                       });
 
-                    const ITEMS_PER_PAGE = 21;
+                    // 💎 UX改善: 1ページあたりの表示数を21から15に減らし、スクロール量を軽減
+                    const ITEMS_PER_PAGE = 15;
                     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
                     const currentItems = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -1681,12 +1752,47 @@ function App() {
                                   '--cat-color': (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color
                                 }}
                               >
-                                  <div className="category-icon-thumb" style={{ 
-                                    background: (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color,
-                                    border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`
-                                  }}>
-                                    {(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).icon}
-                                  </div>
+                                  {s.image_url && s.image_url.includes('yt:') ? (() => {
+                                    const ytEntryStr = s.image_url.split(',').map(v => v.trim()).find(v => v.startsWith('yt:'));
+                                    if (ytEntryStr) {
+                                      const videoId = ytEntryStr.substring(3);
+                                      const catStyle = CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"];
+                                      return (
+                                        <div className="video-thumb-wrapper">
+                                          <img 
+                                            src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`} 
+                                            alt="動画サムネイル" 
+                                            className="survey-item-thumb" 
+                                            loading="lazy"
+                                          />
+                                          {/* 💎 サムネイルの下にカテゴリアイコンを配置（被りなし） */}
+                                          <div className="thumb-category-badge" style={{
+                                            color: catStyle.color,
+                                            border: `1.5px solid ${catStyle.color}44`,
+                                            background: `rgba(255, 255, 255, 0.9)`
+                                          }}>
+                                            <span style={{ fontSize: '1.2em' }}>{catStyle.icon}</span>
+                                            <span>{s.category}</span>
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+                                    return (
+                                      <div className="category-icon-thumb" style={{ 
+                                        background: (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color,
+                                        border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`
+                                      }}>
+                                        {(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).icon}
+                                      </div>
+                                    );
+                                  })() : (
+                                    <div className="category-icon-thumb" style={{ 
+                                      background: (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color,
+                                      border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`
+                                    }}>
+                                      {(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).icon}
+                                    </div>
+                                  )}
                                   <div className="survey-item-content">
                                     <div className="survey-item-info">
                                       <span className="survey-item-title" style={{
@@ -1773,6 +1879,15 @@ function App() {
                       .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
                       .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
                       .filter(s => {
+                        // ⚖️ 公式・ユーザー切り替えタブのフィルタ背景（検索中などは無効）
+                        if (!searchQuery && filterCategory === 'すべて' && !filterTag) {
+                          if (activeTab === 'official') {
+                            if (!s.is_official) return false;
+                          } else if (activeTab === 'user') {
+                            if (s.is_official) return false;
+                          }
+                        }
+
                         const ageMs = new Date() - new Date(s.created_at);
                         const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
                         const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
@@ -1796,7 +1911,8 @@ function App() {
                         if (sortMode === 'mine') return user && s.user_id === user.id;
                         return true;
                       });
-                    const totalPages = Math.ceil(filtered.length / 21);
+                    const ITEMS_PER_PAGE = 15;
+                    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
                     return <Pagination current={currentPage} total={totalPages} onPageChange={(p) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />;
                   })()}
                 </div>

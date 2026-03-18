@@ -43,6 +43,8 @@ async function postIranGasSurvey() {
         category: "ニュース・経済",
         tags: ["ガソリン高騰", "米国イラン衝突", "ホルムズ海峡封鎖", "世界情勢"],
         image_url: "yt:sJ4b-rcdeHY",
+        description: "ホルズ海峡の封鎖が現実味を帯び、ガソリン価格への影響が心配されているらび。米国イランの対立が私たちの生活にどう直結するのか、今のうちにみんなで考えておきたいテーマだね。⛽🧱",
+        is_official: true,
         deadline: deadline.toISOString(),
         visibility: 'public'
     }]).select();

@@ -27,8 +27,9 @@ const supabase = createClient(url, key);
 const RSS_SOURCES = [
     { name: 'Yahoo!トピックス', url: 'https://news.yahoo.co.jp/rss/topics/top-picks.xml', priority: 1 },
     { name: 'NHK主要ニュース', url: 'https://www3.nhk.or.jp/rss/news/cat0.xml', priority: 2 },
-    { name: 'まとめくすアンテナ(総合)', url: 'https://feeds.mtmx.jp/feed.xml', priority: 3 },
-    { name: 'まとめくすアンテナ(人気)', url: 'https://feeds.mtmx.jp/news/all/popular/feed.xml', priority: 3 }
+    { name: 'まとめくすアンテナ(人気)', url: 'https://feeds.mtmx.jp/news/all/popular/feed.xml', priority: 3 },
+    { name: '日経新聞(速報)', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', priority: 4, category: "ニュース・経済" },
+    { name: 'ロイター(ワールド)', url: 'https://assets.wor.jp/rss/rdf/reuters/world.rdf', priority: 4, category: "ニュース・経済" }
 ];
 
 async function fetchRSSNews() {
@@ -39,7 +40,7 @@ async function fetchRSSNews() {
         try {
             const response = await axios.get(source.url);
             const xml = response.data;
-            const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
+            const items = xml.match(/<item[^>]*>([\s\S]*?)<\/item>/g);
             if (!items) continue;
 
             const parsed = items.map(itemXml => {
@@ -195,7 +196,8 @@ async function postLatestNewsSurveys() {
             image_url: `yt:${videoId}`,
             deadline: deadline.toISOString(),
             visibility: 'public',
-            description: finalDescription
+            description: finalDescription,
+            is_official: true
         }]).select();
 
         if (surveyError) {

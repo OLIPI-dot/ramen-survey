@@ -24,25 +24,29 @@ const updates = [
         titlePart: "村八分",
         newCategory: "エンタメ",
         newTags: ["YouTuber", "りんの田舎暮らし", "村八分", "裁判"],
-        newVideo: "https://www.youtube.com/watch?v=R9_mS9X8Xuo" // りんさん本人の解説動画
+        newDescription: "高知県土佐市で起きてしまった「地域おこし協力隊員への村八分」騒動。裁判の結果や、地方移住のリアルについてみんなで見守っていこうらび。",
+        newVideo: "yt:R9_mS9X8Xuo" // プレフィックス付きに変更
     },
     {
         titlePart: "ネズミ寿司",
         newCategory: "エンタメ",
         newTags: ["飯島レンジ", "炎上", "規約", "衝撃動画"],
-        newVideo: "https://www.youtube.com/watch?v=P2L-0wY8J7c" // ニュース系あるいは本人の動向
+        newDescription: "話題の過激動画についてのアンケートらび。規約と表現の自由、みんなはどう考えるかな？",
+        newVideo: "yt:P2L-0wY8J7c"
     },
     {
         titlePart: "収益化停止",
         newCategory: "エンタメ",
         newTags: ["あんずチャンネル", "収益化", "YouTube規約", "AI判定"],
-        newVideo: "https://www.youtube.com/watch?v=9_iIDY9-Ems" // あんずさんの報告動画
+        newDescription: "人気クリエイターの収益化停止ニュース。明日は我が身かもしれない配信者の世界について話そうらび。",
+        newVideo: "yt:9_iIDY9-Ems"
     },
     {
         titlePart: "てりたま",
-        newCategory: "グルメ", // てりたまはグルメのまま
+        newCategory: "グルメ",
         newTags: ["マクドナルド", "てりたま", "春の風物詩", "30周年"],
-        newVideo: "https://www.youtube.com/watch?v=kY0vV5Psq7c" // 30周年CM動画
+        newDescription: "マックの定番「てりたま」30周年のニュースらび！🌸🍔",
+        newVideo: "yt:kY0vV5Psq7c"
     }
 ];
 
@@ -66,13 +70,15 @@ async function updateSurveys() {
         const surveyId = surveyData[0].id;
         console.log(`🎯 修正対象: ${surveyData[0].title} (ID: ${surveyId})`);
 
-        // 2. データの更新（カテゴリ、タグ、動画URL）
+        // 2. データの更新（カテゴリ、タグ、動画URL、フラグ、解説文）
         const { error: updateError } = await supabase
             .from('surveys')
             .update({
                 category: u.newCategory,
                 tags: u.newTags,
-                image_url: u.newVideo
+                image_url: u.newVideo,
+                is_official: true,
+                description: u.newDescription
             })
             .eq('id', surveyId);
 
