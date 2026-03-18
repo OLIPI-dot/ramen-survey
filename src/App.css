@@ -2691,3 +2691,69 @@ body {
   height: 100%;
   border: none;
 }
+
+/* 🎊 投票完了時のお祝い＆シェアカード 🎊 */
+.vote-completion-card {
+  background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 24px;
+  padding: 24px;
+  margin: 30px 0;
+  text-align: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 15px 35px rgba(251, 191, 36, 0.2);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.completion-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #92400e;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.completion-msg {
+  color: #b45309;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.big-x-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #000000;
+  color: white;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.big-x-share-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  background: #1d9bf0;
+}
+
+@keyframes glitter {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+.glitter-icon {
+  animation: glitter 1.5s infinite ease-in-out;
+}
