@@ -73,7 +73,8 @@ async function postDailySurvey() {
         category: 'らび',
         visibility: 'public',
         deadline: deadlineUTC,
-        tags: selectedTopic.tags
+        tags: selectedTopic.tags,
+        description: selectedTopic.description || `らびの毎日アンケートだよっ！🐰🥕\n今回のテーマは『${selectedTopic.title}』らび。\n\nみんなの「本音」、らびに教えてねっ！✨🥇🏆`
     };
 
     const res = await fetch(`${url}/rest/v1/surveys`, {
