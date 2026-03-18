@@ -16,7 +16,15 @@
       "source": "/",
       "has": [
         { "type": "query", "key": "s" },
-        { "type": "header", "key": "user-agent", "value": ".*(Twitterbot|facebookexternalhit|Facebot|Slackbot|Discordbot|Googlebot|LinkedInBot|whatsapp).*" }
+        { "type": "header", "key": "user-agent", "value": ".*(Twitter|bot|facebook|Facebot|Slack|Discord|Google|WhatsApp|Link).*" }
+      ],
+      "destination": "/api/og"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        { "type": "query", "key": "s" },
+        { "type": "header", "key": "user-agent", "value": ".*(Twitter|bot|facebook|Facebot|Slack|Discord|Google|WhatsApp|Link).*" }
       ],
       "destination": "/api/og"
     },
