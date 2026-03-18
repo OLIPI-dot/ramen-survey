@@ -25,15 +25,18 @@ const supabase = createClient(url, key);
 
 // ニュースソース設定
 const RSS_SOURCES = [
-    { name: 'Yahoo!トピックス', url: 'https://news.yahoo.co.jp/rss/topics/top-picks.xml', priority: 1 },
-    { name: 'NHK主要ニュース', url: 'https://www3.nhk.or.jp/rss/news/cat0.xml', priority: 2 },
-    { name: 'まとめくすアンテナ(人気)', url: 'https://feeds.mtmx.jp/news/all/popular/feed.xml', priority: 3 },
-    { name: '日経新聞(速報)', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', priority: 4, category: "ニュース・経済" },
-    { name: 'ロイター(ワールド)', url: 'https://assets.wor.jp/rss/rdf/reuters/world.rdf', priority: 4, category: "ニュース・経済" }
+    { name: 'Yahoo!トピックス(総合)', url: 'https://news.yahoo.co.jp/rss/topics/top-picks.xml', priority: 1, category: "ニュース・経済" },
+    { name: 'Yahoo!エンタメ', url: 'https://news.yahoo.co.jp/rss/topics/entertainment.xml', priority: 2, category: "エンタメ" },
+    { name: 'Yahoo!IT', url: 'https://news.yahoo.co.jp/rss/topics/it.xml', priority: 2, category: "IT・テクノロジー" },
+    { name: 'Yahoo!サイエンス', url: 'https://news.yahoo.co.jp/rss/topics/science.xml', priority: 3, category: "IT・テクノロジー" },
+    { name: 'Yahoo!国内', url: 'https://news.yahoo.co.jp/rss/topics/domestic.xml', priority: 3, category: "生活" },
+    { name: 'NHK主要ニュース', url: 'https://www3.nhk.or.jp/rss/news/cat0.xml', priority: 2, category: "ニュース・経済" },
+    { name: 'まとめくすアンテナ(人気)', url: 'https://feeds.mtmx.jp/news/all/popular/feed.xml', priority: 3, category: "トレンド" },
+    { name: '日経新聞(速報)', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', priority: 4, category: "ニュース・経済" }
 ];
 
 async function fetchRSSNews() {
-    console.log('📡 RSSソースから最新ニュースを取得中...');
+    console.log('📡 RSSソースからバランスよくニュースを取得中...');
     let allNews = [];
 
     for (const source of RSS_SOURCES) {
@@ -57,11 +60,12 @@ async function fetchRSSNews() {
                     description: description,
                     source: source.name,
                     priority: source.priority,
-                    category: "ニュース・経済"
+                    category: source.category || "ニュース・経済"
                 };
             }).filter(n => n.title);
 
-            allNews = allNews.concat(parsed);
+            // 各ソースから上位10件まで採用
+            allNews = allNews.concat(parsed.slice(0, 10));
         } catch (e) {
             console.error(`⚠️ ${source.name} の取得失敗:`, e.message);
         }
@@ -70,50 +74,37 @@ async function fetchRSSNews() {
 }
 
 async function fetchChannelNews() {
-    console.log('📡 2chまとめアンテナからランキングを取得中...');
+    console.log('📡 2chまとめアンテナから勢いのある記事を取得中...');
     try {
         const response = await axios.get('https://2ch-c.net/?p=ranking', {
             headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
         });
         const html = response.data;
         
-        // Markdown 形式の抽出を試みる（既存の axios 経由だと HTML が来るので両対応らび！）
-        let matches = html.match(/\[(.*?)\]\((https?:\/\/.*?)\)/g);
+        const htmlMatches = html.match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g);
+        if (!htmlMatches) return [];
         
-        if (!matches || matches.length < 5) {
-            // HTML 形式のパース（本来はこちらがメインらび）
-            const htmlMatches = html.match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g);
-            if (!htmlMatches) return [];
-            
-            return htmlMatches.map(m => {
-                const link = m.match(/href="([^"]+)"/)?.[1] || '';
-                const title = m.replace(/<[^>]*>?/gm, '').trim();
-                if (!link || title.length < 15 || link.includes('2ch-c.net')) return null;
-                return {
-                    title: title,
-                    link: link,
-                    description: `2chまとめで話題の記事らび！✨ "${title}" \n詳細はまとめサイトをチェックしてみてね！`,
-                    source: '2chまとめアンテナ',
-                    priority: 3,
-                    category: "エンタメ"
-                };
-            }).filter(n => n).slice(0, 10);
-        }
-
-        return matches.map(m => {
-            const parts = m.match(/\[(.*?)\]\((.*?)\)/);
-            const title = parts ? parts[1].trim() : '';
-            const link = parts ? parts[2].trim() : '';
+        return htmlMatches.map(m => {
+            const link = m.match(/href="([^"]+)"/)?.[1] || '';
+            const title = m.replace(/<[^>]*>?/gm, '').trim();
             if (!link || title.length < 15 || link.includes('2ch-c.net')) return null;
+            
+            // 2chまとめのタイトルからカテゴリを推測
+            let category = "トレンド";
+            if (title.includes('アニメ') || title.includes('マンガ') || title.includes('声優')) category = "アニメ";
+            if (title.includes('ゲーム') || title.includes('Switch') || title.includes('PS5')) category = "ゲーム";
+            if (title.includes('芸能') || title.includes('アイドル') || title.includes('女優')) category = "エンタメ";
+            if (title.includes('食') || title.includes('料理') || title.includes('店')) category = "グルメ";
+
             return {
                 title: title,
                 link: link,
                 description: `2chまとめで話題の記事らび！✨ "${title}" \n詳細はまとめサイトをチェックしてみてね！`,
                 source: '2chまとめアンテナ',
                 priority: 3,
-                category: "エンタメ"
+                category: category
             };
-        }).filter(n => n).slice(0, 10);
+        }).filter(n => n).slice(0, 15);
     } catch (e) {
         console.error('⚠️ 2chまとめアンテナの取得失敗:', e.message);
         return [];
@@ -131,18 +122,18 @@ async function postLatestNewsSurveys() {
     const rssNews = await fetchRSSNews();
     const chNews = await fetchChannelNews();
     
-    // ニュースと2chまとめを混ぜる
-    let allNews = [...rssNews, ...chNews].sort((a, b) => a.priority - b.priority);
+    // ニュースと2chまとめを混ぜてシャッフル（偏り防止）
+    let allNews = [...rssNews, ...chNews].sort(() => Math.random() - 0.5);
 
     if (allNews.length === 0) {
         console.error('❌ ネタが一つも見つからなかったらび……😰');
         return;
     }
 
-    console.log(`🔍 取得数: RSS(${rssNews.length}) + 2ch(${chNews.length})。重複を避けて投稿しますらび！`);
+    console.log(`🔍 取得数: RSS(${rssNews.length}) + 2ch(${chNews.length})。バランスよく投稿しますらび！`);
 
     let postedCount = 0;
-    const maxPosts = 3;
+    const maxPosts = 8; // 大増量！らび頑張る！🐰🔥
 
     for (const news of allNews) {
         if (postedCount >= maxPosts) break;
@@ -154,11 +145,10 @@ async function postLatestNewsSurveys() {
         // 重複チェック
         const { data: existing } = await supabase.from('surveys').select('id').eq('title', surveyTitle).limit(1);
         if (existing && existing.length > 0) {
-            console.log(`⏩ スキップ: 「${news.title}」は投稿済みらび。`);
             continue;
         }
 
-        console.log(`🚀 「${surveyTitle}」を投稿します！ (${news.source})`);
+        console.log(`🚀 [${news.category}] 「${surveyTitle}」を投稿します！ (${news.source})`);
 
         const deadline = new Date();
         deadline.setDate(deadline.getDate() + 7);
@@ -166,7 +156,7 @@ async function postLatestNewsSurveys() {
         // YouTube 検索
         let videoId = "News_Video_Placeholder";
         try {
-            const searchQuery = encodeURIComponent(`${news.title} ニュース公式`);
+            const searchQuery = encodeURIComponent(`${news.title} 公式`);
             const searchUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
             const searchRes = await axios.get(searchUrl, {
                 headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
@@ -186,7 +176,6 @@ async function postLatestNewsSurveys() {
             }
         } catch (e) { console.warn('⚠️ YT検索エラー:', e.message); }
 
-        // 解説文の作成
         const finalDescription = `${news.description}\n\n【参考元: ${news.source}】\n${news.link}`;
 
         const { data: surveyData, error: surveyError } = await supabase.from('surveys').insert([{
@@ -215,7 +204,7 @@ async function postLatestNewsSurveys() {
         );
 
         const greeting = getLabiGreeting();
-        const comment = `${greeting}✨ 『${news.title}』が話題になってるみたいらび！ (${news.source}) \n\nみんなはどう思うかな？ 詳しい内容は解説文エリアのリンクもチェックしてみてね。らびと一緒に話そうらび！🐰🛡️🥇🏆`;
+        const comment = `${greeting}✨ 『${news.title}』を見つけてきたよ！(${news.source}) \n\nカテゴリは【${news.category}】になってるらび。みんなはどう思うかな？ 詳しい内容は解説文エリアのリンクもチェックしてみてね。らびと一緒に話そうらび！🐰🛡️🥇🏆`;
 
         await supabase.from('comments').insert([{
             survey_id: surveyId,
@@ -224,7 +213,6 @@ async function postLatestNewsSurveys() {
             edit_key: 'labi_bot'
         }]);
 
-        console.log(`✅ ID: ${surveyId} で完了らび！`);
         postedCount++;
     }
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-// Deploy Kick: 2026-03-18 14:35 🚀🐰
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+// Deploy Kick: 2026-03-18 21:24 🚀🐰
 import { createClient } from '@supabase/supabase-js';
 import emailjs from '@emailjs/browser';
 import FooterModals from './components/FooterModals';
@@ -274,6 +274,40 @@ function App() {
   const [surveyYoutube, setSurveyYoutube] = useState(''); // 📺 YouTube動画URL
   const [surveyDescription, setSurveyDescription] = useState(''); // 📝 解説文 / 参考URL
   const [activeTab, setActiveTab] = useState('official'); // ⚖️ 'official' or 'user'
+  // 📊 タブのカウントとリスト表示を完全に同期させるための「ベースフィルタ済みリスト」らび！
+  const filteredBaseSurveys = useMemo(() => {
+    return surveys
+      .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
+      .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
+      .filter(s => {
+        // アーカイブ（期限切れ/30日経過）の判定ロジック
+        const ageMs = new Date() - new Date(s.created_at);
+        const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
+        const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
+
+        // ☀️ 「今日の話題」フィルタ
+        if (sortMode === 'today') {
+          const createdDate = new Date(s.created_at);
+          const today = new Date();
+          return (
+            createdDate.getFullYear() === today.getFullYear() &&
+            createdDate.getMonth() === today.getMonth() &&
+            createdDate.getDate() === today.getDate()
+          ) && !isEnded;
+        }
+
+        // 📁 アーカイブタブかマイアンケート以外では、終了したものは隠す
+        if (isEnded) {
+          if (sortMode === 'ended' || sortMode === 'mine') return true;
+          return false;
+        }
+
+        if (sortMode === 'ended') return false; // ここに来るのは進行中のものだけなので、アーカイブ指定時は除外
+        if (sortMode === 'watching') return watchedIds.includes(s.id);
+        if (sortMode === 'mine') return user && s.user_id === user.id;
+        return true;
+      });
+  }, [surveys, searchQuery, filterCategory, filterTag, sortMode, watchedIds, user]);
 
   // 📺 YouTube URLからIDを抽出する魔法
   const extractYoutubeId = (input) => {
@@ -1630,7 +1664,7 @@ function App() {
                         cursor: 'pointer', transition: 'all 0.2s', position: 'relative'
                       }}
                     >
-                      📢 公式・ニュース
+                      📢 公式・ニュース ({filteredBaseSurveys.filter(s => s.is_official).length})
                       {activeTab === 'official' && <span style={{ position: 'absolute', top: '-4px', right: '-8px', fontSize: '0.7rem', background: '#ec4899', color: '#fff', borderRadius: '10px', padding: '1px 5px' }}>HOT</span>}
                     </button>
                     <button 
@@ -1642,16 +1676,14 @@ function App() {
                         cursor: 'pointer', transition: 'all 0.2s'
                       }}
                     >
-                      👥 みんなの投稿
+                      👥 みんなの投稿 ({filteredBaseSurveys.filter(s => !s.is_official).length})
                     </button>
                   </div>
                 )}
 
                 <div className="survey-list">
                   {isLoading ? <div className="empty-msg">読み込み中...</div> : (() => {
-                    const filtered = surveys
-                      .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
-                      .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
+                    const finalItems = filteredBaseSurveys
                       .filter(s => {
                         // ⚖️ 公式・ユーザー切り替えタブのフィルタ背景（検索中などは無効）
                         if (!searchQuery && filterCategory === 'すべて' && !filterTag) {
@@ -1661,32 +1693,6 @@ function App() {
                             if (s.is_official) return false;
                           }
                         }
-
-                        // 🤖 30日経過で自動終了（deadline未設定も含む）
-                        const ageMs = new Date() - new Date(s.created_at);
-                        const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
-                        const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
-
-                        // 「今日の旬ネタ」フィルタ：今日（JST）投稿されたもの
-                        if (sortMode === 'today') {
-                          const createdDate = new Date(s.created_at);
-                          const today = new Date();
-                          return (
-                            createdDate.getFullYear() === today.getFullYear() &&
-                            createdDate.getMonth() === today.getMonth() &&
-                            createdDate.getDate() === today.getDate()
-                          ) && !isEnded;
-                        }
-
-                        // 終わっているものは「最新」や「人気」の一覧から隠す（アーカイブタブにのみ存在）
-                        if (isEnded) {
-                          if (sortMode === 'ended' || sortMode === 'mine') return true;
-                          return false;
-                        }
-
-                        if (sortMode === 'ended') return false; // ここに来るのはisEnded=falseのみ
-                        if (sortMode === 'watching') return watchedIds.includes(s.id);
-                        if (sortMode === 'mine') return user && s.user_id === user.id;
                         return true;
                       })
                       .sort((a, b) => {
@@ -1710,10 +1716,10 @@ function App() {
                         return popularMode === 'votes' ? b.total_votes - a.total_votes : (b.view_count || 0) - (a.view_count || 0);
                       });
 
-                    // 💎 UX改善: 1ページあたりの表示数を21から15に減らし、スクロール量を軽減
+                    // 💎 UX改善: 1ページあたりの表示数を15に
                     const ITEMS_PER_PAGE = 15;
-                    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-                    const currentItems = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+                    const totalPages = Math.ceil(finalItems.length / ITEMS_PER_PAGE);
+                    const currentItems = finalItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
                     return (
                       <>
