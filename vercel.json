@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/og-api",
+      "destination": "/api/og"
+    },
+    {
       "source": "/",
       "has": [
         { "type": "query", "key": "s" },
