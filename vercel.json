@@ -4,6 +4,14 @@
       "source": "/",
       "has": [
         { "type": "query", "key": "s" },
+        { "type": "query", "key": "magic", "value": "1" }
+      ],
+      "destination": "/api/og"
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "query", "key": "s" },
         { "type": "header", "key": "user-agent", "value": ".*(Twitterbot|facebookexternalhit|Facebot|Slackbot|Discordbot|Googlebot|LinkedInBot|whatsapp).*" }
       ],
       "destination": "/api/og"

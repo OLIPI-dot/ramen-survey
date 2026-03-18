@@ -19,9 +19,10 @@ export default async function handler(req, res) {
       .single();
 
     if (error || !survey) {
-      return res.status(404).send('Survey not found');
+      return res.status(404).send(`Survey not found for ID: ${s}. (Error: ${error?.message})`);
     }
 
+    // ... (imageUrl calculation remains same)
     let imageUrl = 'https://minna-no-vote-square.vercel.app/ogp-image.png';
     if (survey.image_url) {
       if (survey.image_url.includes('yt:')) {
@@ -57,8 +58,17 @@ export default async function handler(req, res) {
 <body>
   <h1>${title}</h1>
   <p>${description}</p>
-  <img src="${imageUrl}" alt="Eye-catch" />
-  <script>window.location.href = "/?s=${s}";</script>
+  <img src="${imageUrl}" alt="Eye-catch" style="max-width: 100%;" />
+  <hr />
+  <p>魔法発動中...🪄 (Survey ID: ${s})</p>
+  <script>
+    // magic=1 の時はデバッグのためにリダイレクトしない
+    if (!window.location.search.includes('magic=1')) {
+      window.location.href = "/?s=${s}";
+    } else {
+      console.log("Debug mode: Redirection skipped.");
+    }
+  </script>
 </body>
 </html>`;
 
@@ -66,6 +76,6 @@ export default async function handler(req, res) {
     res.status(200).send(html);
 
   } catch (err) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send(`Internal Server Error: ${err.message}. (Supabase URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey})`);
   }
 }
