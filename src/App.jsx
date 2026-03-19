@@ -592,19 +592,13 @@ function App() {
 
   const renderCommentContent = (content) => {
     if (!content) return null;
-    // URL、アンカー、および太字(**text**)を検出
-    const parts = content.split(/(\*\*[\s\S]*?\*\*|https?:\/\/[^\s]+|>>\d+)/g);
+    // 第2弾：より広範かつ確実なURL検出正規表現
+    const parts = content.split(/(https?:\/\/[^\s]+|>>\d+)/g);
     return parts.map((part, i) => {
       if (!part) return null;
-      // 太字の判定
-      if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-        return <strong key={i} style={{ color: '#1e293b' }}>{part.slice(2, -2)}</strong>;
-      }
-      // アンカーの判定
       if (part.startsWith('>>') && /^>>\d+$/.test(part)) {
         return <span key={i} className="comment-anchor-link">{part}</span>;
       }
-      // URLの判定
       if (/^https?:\/\/\S+$/.test(part)) {
         const cleanUrl = part.trim();
         return (
@@ -616,7 +610,6 @@ function App() {
       return part;
     });
   };
-
 
   // 🛡️ レートリミット（連投制限）チェック
   const checkRateLimit = () => {
