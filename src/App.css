@@ -2756,4 +2756,43 @@ body {
 
 .glitter-icon {
   animation: glitter 1.5s infinite ease-in-out;
-}
+}
+/* 📺 多機能動画プレイヤー用スタイルらび！ */
+.video-multi-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.video-multi-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.survey-item-thumb {
+  width: 100px !important;
+  height: 100px !important;
+  flex: 0 0 100px !important;
+  border-radius: 16px;
+  object-fit: cover;
+  margin-right: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  opacity: 1 !important; /* 即時表示らび！ */
+}
+
+@media (min-width: 1024px) {
+  .survey-item-thumb {
+    width: 200px !important;
+    height: 200px !important;
+    flex: 0 0 200px !important;
+  }
+}

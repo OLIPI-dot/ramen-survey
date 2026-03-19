@@ -592,10 +592,13 @@ function App() {
 
   const renderCommentContent = (content) => {
     if (!content) return null;
-    // 第2弾：より広範かつ確実なURL検出正規表現
-    const parts = content.split(/(https?:\/\/[^\s]+|>>\d+)/g);
+    // 第2弾：太字(**) + URL検出らび！
+    const parts = content.split(/(\*\*.*?\*\*|https?:\/\/[^\s]+|>>\d+)/g);
     return parts.map((part, i) => {
       if (!part) return null;
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
       if (part.startsWith('>>') && /^>>\d+$/.test(part)) {
         return <span key={i} className="comment-anchor-link">{part}</span>;
       }
