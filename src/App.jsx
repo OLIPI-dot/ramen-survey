@@ -592,19 +592,20 @@ function App() {
 
   const renderCommentContent = (content) => {
     if (!content) return null;
-    // URL, アンカー(>>123), または太字(**text**)を検出してリンク化らび！
-    const parts = content.split(/(\*\*[\s\S]*?\*\*|https?:\/\/[^\s]+|>>\d+)/g);
+    // 第2弾：より広範かつ確実なURL検出正規表現
+    const parts = content.split(/(https?:\/\/[^\s]+|>>\d+)/g);
     return parts.map((part, i) => {
       if (!part) return null;
-      // 太字の判定
-      if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-        return <strong key={i} style={{ color: '#1e293b', fontWeight: 'bold' }}>{part.slice(2, -2)}</strong>;
+      if (part.startsWith('>>') && /^>>\d+$/.test(part)) {
+        return <span key={i} className="comment-anchor-link">{part}</span>;
       }
-      if (part.match(/^https?:\/\/[^\s]+$/)) {
-        return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="comment-link">{part}</a>;
-      }
-      if (part.match(/^>>\d+$/)) {
-        return <span key={i} className="comment-anchor">{part}</span>;
+      if (/^https?:\/\/\S+$/.test(part)) {
+        const cleanUrl = part.trim();
+        return (
+          <a key={i} href={cleanUrl} target="_blank" rel="noopener noreferrer" className="comment-url-link">
+            {cleanUrl}
+          </a>
+        );
       }
       return part;
     });
@@ -838,7 +839,7 @@ function App() {
       : 'みんなのアンケート広場は、誰でもかんたんに匿名でアンケートを作成・投票できる場所です。日常の疑問や本音を共有して、みんなの意見を楽しく集約しましょう！';
 
     const currentUrl = currentSurvey 
-      ? `https://minna-no-vote-square.vercel.app/s/${currentSurvey.id}` 
+      ? `https://minna-no-vote-square.vercel.app/?s=${currentSurvey.id}` 
       : (view === 'list' ? 'https://minna-no-vote-square.vercel.app/' : 'https://minna-no-vote-square.vercel.app/create');
 
     // 動画サムネイルがあればOGP画像にする魔法 📸
@@ -917,7 +918,7 @@ function App() {
         "itemListElement": surveys.slice(0, 10).map((sv, index) => ({
           "@type": "ListItem",
           "position": index + 1,
-          "url": `https://minna-no-vote-square.vercel.app/s/${sv.id}`,
+          "url": `https://minna-no-vote-square.vercel.app/?s=${sv.id}`,
           "name": sv.title
         }))
       };
@@ -1270,33 +1271,19 @@ function App() {
     if (!window.confirm('本当に削除しますか？この操作は元に戻せません。')) return;
 
     setIsActionLoading(true);
-    try {
-      console.log(`Starting deletion for survey ID: ${surveyId}`);
-      // 関連データを順番に削除（コメント -> 選択肢 -> アンケート本体）
-      const { error: cErr } = await supabase.from('comments').delete().eq('survey_id', surveyId);
-      if (cErr) throw cErr;
-      
-      const { error: oErr } = await supabase.from('options').delete().eq('survey_id', surveyId);
-      if (oErr) throw oErr;
-      
-      const { data, error } = await supabase.from('surveys').delete().eq('id', surveyId).select();
-      if (error) throw error;
-      
-      console.log('Delete result data:', data);
-      setIsActionLoading(false);
+    // 関連データを順番に削除（コメント -> 選択肢 -> アンケート本体）
+    await supabase.from('comments').delete().eq('survey_id', surveyId);
+    await supabase.from('options').delete().eq('survey_id', surveyId);
+    const { error } = await supabase.from('surveys').delete().eq('id', surveyId);
+    setIsActionLoading(false);
 
-      if (!data || data.length === 0) {
-        alert('😿 アンケートを削除できませんでした。権限がないか、すでに削除されている可能性があります。');
-        return;
-      }
-
+    if (error) {
+      console.error("Survey delete error:", error);
+      alert('😿 アンケートの削除に失敗しました。');
+    } else {
       setSurveys(prev => prev.filter(s => s.id !== surveyId));
       navigateTo('list');
       alert('🗑️ アンケートを完全に削除しました！');
-    } catch (err) {
-      console.error("Survey delete error full:", err);
-      setIsActionLoading(false);
-      alert(`😿 削除に失敗しました: ${err.message || '不明なエラー'}`);
     }
   };
 
@@ -1794,11 +1781,7 @@ function App() {
                                       const nico = entries.find(v => v.startsWith('nico:'));
                                       
                                       if (yt) thumbSrc = `https://img.youtube.com/vi/${yt.substring(3)}/hqdefault.jpg`;
-                                      else if (nico) {
-                                        // 📺 ニコニコ動画のアイキャッチ（サムネ取得が不安定なため、ユーザー提供の公式系ロゴを使用）
-                                        // おりぴさんリクエスト：URLでニコニコだとわかったらアイキャッチにする
-                                        thumbSrc = `/assets/images/nico_fallback.jpg`;
-                                      }
+                                      else if (nico) thumbSrc = `https://snapshot.cdn.nicovideo.jp/snapshots/i/${nico.substring(5)}`;
                                       else if (entries[0] && !entries[0].includes(':')) thumbSrc = entries[0];
                                     }
 
@@ -2053,78 +2036,142 @@ function App() {
 
             {view === 'details' && currentSurvey && (
               <div className="score-card">
-                <div className="survey-detail-header-wrap">
-                  {/* YouTube/NicoNico または 通常画像の表示 */}
-                  {currentSurvey.image_url && (
-                    <div className="survey-hero-view">
-                      {(() => {
-                        const entries = currentSurvey.image_url.split(',').map(v => v.trim()).filter(Boolean);
-                        const yt = entries.find(v => v.startsWith('yt:'));
-                        const nico = entries.find(v => v.startsWith('nico:'));
-                        
-                        if (yt) {
-                          const ytId = yt.substring(3);
-                          return (
-                            <div className="video-embed-container">
-                              <iframe src={`https://www.youtube.com/embed/${ytId}?rel=0`} frameBorder="0" allowFullScreen title="YouTube Video"></iframe>
-                            </div>
-                          );
-                        } else if (nico) {
-                          const nicoId = nico.substring(5);
-                          return (
-                            <div className="video-embed-container">
-                              <iframe src={`https://embed.nicovideo.jp/watch/${nicoId}`} frameBorder="0" allowFullScreen title="NicoNico Video"></iframe>
-                            </div>
-                          );
-                        } else if (entries[0] && !entries[0].includes(':')) {
-                          return <img src={entries[0]} alt="survey highlight" className="survey-hero-image" />;
-                        }
-                        return null;
-                      })()}
+                {/* ヒーロー画像を削除 */}
+                <div className="detail-header">
+                  <h1 className="survey-title">
+                    {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') 
+                      ? currentSurvey.title.split('||')[0].trim() 
+                      : currentSurvey.title}
+                  </h1>
+                  {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') && (
+                    <div className="survey-description-box" style={{
+                      fontSize: '1rem',
+                      color: '#334155',
+                      lineHeight: '1.7',
+                      background: '#f1f5f9',
+                      padding: '20px',
+                      borderRadius: '16px',
+                      marginBottom: '20px',
+                      borderLeft: '6px solid #7c3aed'
+                    }}>
+                      {currentSurvey.title.split('||')[1].trim()}
                     </div>
                   )}
 
-                  <div className="survey-title-section">
-                    <span className="cat-badge" style={{ backgroundColor: (CATEGORY_ICON_STYLE[currentSurvey.category] || CATEGORY_ICON_STYLE["その他"]).color }}>
-                      {(CATEGORY_ICON_STYLE[currentSurvey.category] || CATEGORY_ICON_STYLE["その他"]).icon} {currentSurvey.category}
-                    </span>
-                    <h2 className="survey-title-main">{currentSurvey.title}</h2>
-                  </div>
 
-                  <SurveyDescription 
-                    description={currentSurvey.description} 
-                    renderCommentContent={renderCommentContent} 
-                  />
-                </div>
+                   {/* 📺 動画プレイヤーの埋め込み (YouTube / ニコニコ) */}
+                  {currentSurvey.image_url && (currentSurvey.image_url.includes('yt:') || currentSurvey.image_url.includes('nico:')) ? (() => {
+                    // 各動画（yt:ID または nico:ID）をカンマで分割して個別に判定
+                    const videoEntries = currentSurvey.image_url.split(',').map(s => s.trim()).filter(Boolean);
+                    
+                    if (videoEntries.length === 0) return null;
 
-                <div className="detail-meta-bar">
-                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
-                  <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
-                  <span>👍 {currentSurvey.likes_count || 0} いいね</span>
-                  {currentSurvey.category && <span>🏷️ {currentSurvey.category}</span>}
-                </div>
-                {currentSurvey.deadline && (
-                  <div className="deadline-info-block">
-                    <div className="absolute-deadline">締切：{new Date(currentSurvey.deadline).getFullYear()}年{formatWithDay(currentSurvey.deadline)}</div>
-                    {!isTimeUp ? (
-                      <CountdownTimer deadline={currentSurvey.deadline} onTimeUp={() => setIsTimeUp(true)} />
-                    ) : (
-                      <div className="countdown-display ended">
-                        投票受付終了
-                        <div style={{ fontSize: '0.8rem', marginTop: '6px', fontWeight: 'normal', opacity: 0.9, lineHeight: '1.4' }}>
-                          🗑️ 自動削除予定日：<br />
-                          <span style={{ color: '#fb7185', fontWeight: 'bold' }}>
-                            {(() => {
-                              const d = new Date(currentSurvey.deadline);
-                              d.setDate(d.getDate() + 7);
-                              return `${d.getFullYear()}/${formatWithDay(d.toISOString())}`;
-                            })()}
-                          </span>
-                        </div>
+                    return (
+                      <div className="video-multi-container" style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', margin: '30px auto', width: '100%', maxWidth: '900px', textAlign: 'center',
+                        minHeight: '200px'
+                      }}>
+                        {videoEntries.map((entry, idx) => {
+                          const isNico = entry.startsWith('nico:');
+                          const isYT = entry.startsWith('yt:');
+                          if (!isNico && !isYT) return null;
+
+                          // プレフィックスを飛ばした後の実際のIDを取得
+                          const videoId = isNico ? entry.substring(5) : entry.substring(3);
+                          
+                          return (
+                            <div key={idx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div className="video-multi-item" style={{
+                                position: 'relative', width: '100%', aspectRatio: '16/9',
+                                borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
+                                background: '#000', margin: '0 auto', border: '1px solid rgba(255,255,255,0.1)'
+                              }}>
+                                {isNico ? (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://embed.nicovideo.jp/watch/${videoId}`}
+                                    title={`Nico Nico video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allowFullScreen
+                                  ></iframe>
+                                ) : (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                                    title={`YouTube video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                  ></iframe>
+                                )}
+                              </div>
+                              <div style={{ marginTop: '15px' }}>
+                                <button
+                                  onClick={() => window.open(isNico ? `https://www.nicovideo.jp/watch/${videoId}` : `https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer')}
+                                  className="video-direct-link-btn"
+                                  style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '10px',
+                                    padding: '10px 24px', background: '#ffffff', color: isNico ? '#333' : '#ef4444',
+                                    borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem',
+                                    fontWeight: '900', border: `2px solid ${isNico ? '#e2e8f0' : '#fee2e2'}`, transition: 'all 0.2s',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                                  }}
+                                  onMouseOver={(e) => { 
+                                    e.currentTarget.style.background = isNico ? '#333' : '#ef4444'; 
+                                    e.currentTarget.style.color = '#ffffff';
+                                    e.currentTarget.style.boxShadow = `0 6px 15px rgba(${isNico ? '51,51,51' : '239,68,68'}, 0.3)`;
+                                  }}
+                                  onMouseOut={(e) => { 
+                                    e.currentTarget.style.background = '#ffffff'; 
+                                    e.currentTarget.style.color = isNico ? '#333' : '#ef4444';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+                                  }}
+                                >
+                                  <span style={{ fontSize: '1.2rem' }}>📺</span> {isNico ? 'ニコニコ動画' : 'YouTube'}で直接見る (再生できない場合)
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
+                    );
+                  })() : null}
+
+                  <div className="detail-meta-bar">
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
+                    <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
+                    <span>👍 {currentSurvey.likes_count || 0} いいね</span>
+                    {currentSurvey.category && <span>🏷️ {currentSurvey.category}</span>}
                   </div>
-                )}
+                  {currentSurvey.deadline && (
+                    <div className="deadline-info-block">
+                      <div className="absolute-deadline">締切：{new Date(currentSurvey.deadline).getFullYear()}年{formatWithDay(currentSurvey.deadline)}</div>
+                      {!isTimeUp ? (
+                        <CountdownTimer deadline={currentSurvey.deadline} onTimeUp={() => setIsTimeUp(true)} />
+                      ) : (
+                        <div className="countdown-display ended">
+                          投票受付終了
+                          <div style={{ fontSize: '0.8rem', marginTop: '6px', fontWeight: 'normal', opacity: 0.9, lineHeight: '1.4' }}>
+                            🗑️ 自動削除予定日：<br />
+                            <span style={{ color: '#fb7185', fontWeight: 'bold' }}>
+                              {(() => {
+                                const d = new Date(currentSurvey.deadline);
+                                d.setDate(d.getDate() + 7);
+                                return `${d.getFullYear()}/${formatWithDay(d.toISOString())}`;
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 🆕 description を別コンポーネントで表示らび！ */}
+                <SurveyDescription 
+                  description={currentSurvey.description} 
+                  renderCommentContent={renderCommentContent} 
+                />
 
                 <div className="options-container">
                   {options.map((opt, index) => {

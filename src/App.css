@@ -656,15 +656,18 @@ body {
   width: 100px !important;
   height: 100px !important;
   flex: 0 0 100px !important;
+  /* 👈 スマホ用でも少し大きめに調整して見やすく */
   border-radius: 16px;
   object-fit: cover;
   margin-right: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  opacity: 1 !important;
-  transition: transform 0.3s ease;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
 }
 
-
+.survey-item-thumb.ready {
+  opacity: 1;
+}
 
 .image-placeholder-base {
   background: white;
@@ -2753,38 +2756,4 @@ body {
 
 .glitter-icon {
   animation: glitter 1.5s infinite ease-in-out;
-}
-
-.survey-hero-view {
-  width: 100%;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.survey-hero-image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.video-embed-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%;
-  height: 0;
-  background: #000;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.video-embed-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
+}
