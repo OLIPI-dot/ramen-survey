@@ -31,6 +31,9 @@ const RSS_SOURCES = [
     { name: 'Yahoo!サイエンス', url: 'https://news.yahoo.co.jp/rss/topics/science.xml', priority: 3, category: "IT・テクノロジー" },
     { name: 'Yahoo!国内', url: 'https://news.yahoo.co.jp/rss/topics/domestic.xml', priority: 3, category: "生活" },
     { name: 'NHK主要ニュース', url: 'https://www3.nhk.or.jp/rss/news/cat0.xml', priority: 2, category: "ニュース・経済" },
+    { name: 'Modelpress', url: 'https://mdpr.jp/rss/modelpress.xml', priority: 3, category: "エンタメ" },
+    { name: 'LogTube(YouTuber)', url: 'https://logtube.jp/feed/', priority: 3, category: "エンタメ" },
+    { name: 'PANORA(VTuber)', url: 'https://panora.tokyo/feed/', priority: 3, category: "エンタメ" },
     { name: 'まとめくすアンテナ(人気)', url: 'https://feeds.mtmx.jp/news/all/popular/feed.xml', priority: 3, category: "トレンド" },
     { name: '日経新聞(速報)', url: 'https://assets.wor.jp/rss/rdf/nikkei/news.rdf', priority: 4, category: "ニュース・経済" }
 ];
