@@ -2164,11 +2164,7 @@ function App() {
                   )}
                 </div>
 
-                {/* 🆕 description を別コンポーネントで表示らび！ */}
-                <SurveyDescription 
-                  description={currentSurvey.description} 
-                  renderCommentContent={renderCommentContent} 
-                />
+
 
                 <div className="options-container">
                   {options.map((opt, index) => {
