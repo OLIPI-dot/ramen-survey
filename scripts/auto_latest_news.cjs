@@ -133,7 +133,7 @@ async function postLatestNewsSurveys() {
     console.log(`🔍 取得数: RSS(${rssNews.length}) + 2ch(${chNews.length})。バランスよく投稿しますらび！`);
 
     let postedCount = 0;
-    const maxPosts = 16; // 超増量！らびもっっっと頑張る！🐰🔥🔥🔥
+    const maxPosts = 5; // おりぴさんと相談して「1時間おき・5件ずつ」がベスト！🐰🥇✨
 
     for (const news of allNews) {
         if (postedCount >= maxPosts) break;
