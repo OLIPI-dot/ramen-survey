@@ -1782,9 +1782,9 @@ function App() {
                                       
                                       if (yt) thumbSrc = `https://img.youtube.com/vi/${yt.substring(3)}/hqdefault.jpg`;
                                       else if (nico) {
-                                        // 📺 ニコニコ動画のアイキャッチ（サムネ取得が不安定なため、公式ロゴをアイキャッチとして使用）
+                                        // 📺 ニコニコ動画のアイキャッチ（サムネ取得が不安定なため、ユーザー提供の公式系ロゴを使用）
                                         // おりぴさんリクエスト：URLでニコニコだとわかったらアイキャッチにする
-                                        thumbSrc = `https://upload.wikimedia.org/wikipedia/commons/7/7c/Niconico_logo.svg`;
+                                        thumbSrc = `/assets/images/nico_fallback.jpg`;
                                       }
                                       else if (entries[0] && !entries[0].includes(':')) thumbSrc = entries[0];
                                     }
