@@ -115,10 +115,25 @@ async function fetchChannelNews() {
 }
 
 function getLabiGreeting() {
-    const hour = (new Date(new Date().getTime() + 9 * 60 * 60 * 1000)).getUTCHours();
-    if (hour >= 5 && hour < 11) return "おはようらびっ！🌅 朝の注目トピックスを届けに来たよ。";
-    if (hour >= 11 && hour < 17) return "こんにちはらび！🕛 お昼休みにぴったりの話題を厳選したよ。";
-    return "こんばんはらびっ！🌃 今日の締めくくりに、話題のニュースを振り返ろうらび。";
+    return "やっほー！🐰✨";
+}
+
+function getLabiImpression(category, title) {
+    const impressions = {
+        "エンタメ": ["最近のトレンドは目が離せないらび！✨", "芸能界のニュース、ワクワクしちゃうねっ！🌈", "これ、らびも気になってたんだ！🎬"],
+        "グルメ": ["おいしそうな話題……人参も負けてられないらび！🥕🍰", "これ食べたら元気になれそうだねっ！😋", "グルメ情報はいつも楽しみらび！🍔"],
+        "スポーツ": ["スポーツの熱気、らびにも伝わってきたよ！⚽🔥", "一生懸命な姿って、見ているだけで感動しちゃうねっ！🏆", "みんなで応援しようらび！📣"],
+        "IT・テクノロジー": ["最新技術ってすごーい！未来が楽しみらび！💻✨", "便利な世の中になっていくねっ！🚀", "これからの進化に期待らび！🤖"],
+        "アニメ": ["アニメ界の盛り上がり、らびも大好きらび！📺✨", "声優さんや制作さんの情熱がすごいねっ！🔥", "次の話が楽しみすぎるらび……！🌟"],
+        "ゲーム": ["ゲームの話題はいつも胸が熱くなるねっ！🎮✨", "みんなで遊んだら楽しそうらび！🕹️", "新作情報、らびもチェックしなきゃ！🌟"],
+        "生活": ["毎日の生活に役立ちそうな情報だねっ！🏠✨", "これを知っておくと便利そうらび！💡", "平和な日常が一番らびね〜🍀"],
+        "トレンド": ["今まさに話題のトピックスだねっ！🔥✨", "みんなの関心が高そうなお話らび！👀", "これが今キテるんだねっ！🌈"],
+        "ニュース・経済": ["世の中の動きをしっかりチェックらび！📉🗞️", "これからの動きが気になる重大ニュースだね……！🤔", "みんなにとって大切な情報かもしれないらび！🛡️"]
+    };
+
+    const choices = impressions[category] || ["これ、すっごく気になる話題らび！👀", "みんなはどう思ってるかな？ワクワクするよ！✨", "らびと一緒に最新情報をチェックしようらび！🔍"];
+    // タイトルからさらにキーワードがあれば追加してもいいけど、まずはランダムで！
+    return choices[Math.floor(Math.random() * choices.length)];
 }
 
 async function postLatestNewsSurveys() {
@@ -179,7 +194,17 @@ async function postLatestNewsSurveys() {
             }
         } catch (e) { console.warn('⚠️ YT検索エラー:', e.message); }
 
-        const finalDescription = `${news.description}\n\n【参考元: ${news.source}】\n${news.link}`;
+        // 解説文をリッチにする魔法 🪄
+        const points = {
+            "エンタメ": ["最新のトレンド情報らび！", "みんなの反応が気になるねっ！", "話題沸騰中のエピソードらび！"],
+            "グルメ": ["おいしそうな情報にらびもお腹が空いちゃうっ！🥕", "これは要チェックなグルメスポットらびね！", "食欲をそそる素敵な話題らび！"],
+            "スポーツ": ["熱い戦いから目が離せないらび！⚽", "感動の瞬間をみんなで共有しようらび！", "次なる展開が楽しみなスポーツニュースらび！"],
+            "IT・テクノロジー": ["最先端のテクノロジーにワクワクするらび！💻", "私たちの生活を変えるかもしれない大注目ニュースらび！", "驚きの最新情報を見逃さないでらび！"],
+            "ニュース・経済": ["世の中の動きをしっかり把握しようらび！", "これからどうなるか大注目のトピックスらびね。", "みんなで考えるべき大切なニュースらび。"]
+        };
+        const rabiPoint = (points[news.category] || ["らびのおすすめ注目トピックスらび！✨", "今知っておきたい話題をお届けするよっ！"])[Math.floor(Math.random() * 2)];
+
+        const finalDescription = `📰 ニュースの概要\n${news.description || "（詳細はリンク先をチェックらび！）"}\n\n✨ らびの注目ポイント！\n・${rabiPoint}\n・SNSやニュースサイトでも話題沸騰中らびっ！🔥\n\n🔗 詳しく見る（外部サイト）\n【参考元: ${news.source}】\n${news.link}`;
 
         const { data: surveyData, error: surveyError } = await supabase.from('surveys').insert([{
             title: surveyTitle,
@@ -207,7 +232,8 @@ async function postLatestNewsSurveys() {
         );
 
         const greeting = getLabiGreeting();
-        const comment = `${greeting}✨ 『${news.title}』を見つけてきたよ！(${news.source}) \n\nカテゴリは【${news.category}】になってるらび。みんなはどう思うかな？ 詳しい内容は解説文エリアのリンクもチェックしてみてね。らびと一緒に話そうらび！🐰🛡️🥇🏆`;
+        const impression = getLabiImpression(news.category, news.title);
+        const comment = `${greeting} 『${news.title}』(${news.source}) \n\n${impression} みんなはどう思うかな？ 詳しい内容は解説文エリアのリンクもチェックしてみてね。らびと一緒に話そうらび！🐰🛡️🥇🏆`;
 
         await supabase.from('comments').insert([{
             survey_id: surveyId,

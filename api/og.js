@@ -49,6 +49,7 @@ export default async function handler(req, res) {
   <meta property="og:type" content="article" />
   <meta property="og:url" content="${siteUrl}" />
   <meta property="og:image" content="${imageUrl}" />
+  <link rel="canonical" href="https://minna-no-vote-square.vercel.app/s/${s}" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${title}" />
   <meta name="twitter:description" content="${description}" />

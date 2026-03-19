@@ -76,7 +76,7 @@ async function generateSitemap() {
     surveys.forEach(sv => {
         const lastmod = sv.created_at ? sv.created_at.split('T')[0] : now;
         xml += `  <url>
-    <loc>${SITE_URL}/?s=${sv.id}</loc>
+    <loc>${SITE_URL}/s/${sv.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>

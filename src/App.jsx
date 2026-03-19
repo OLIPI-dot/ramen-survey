@@ -839,7 +839,7 @@ function App() {
       : 'みんなのアンケート広場は、誰でもかんたんに匿名でアンケートを作成・投票できる場所です。日常の疑問や本音を共有して、みんなの意見を楽しく集約しましょう！';
 
     const currentUrl = currentSurvey 
-      ? `https://minna-no-vote-square.vercel.app/?s=${currentSurvey.id}` 
+      ? `https://minna-no-vote-square.vercel.app/s/${currentSurvey.id}` 
       : (view === 'list' ? 'https://minna-no-vote-square.vercel.app/' : 'https://minna-no-vote-square.vercel.app/create');
 
     // 動画サムネイルがあればOGP画像にする魔法 📸
@@ -918,7 +918,7 @@ function App() {
         "itemListElement": surveys.slice(0, 10).map((sv, index) => ({
           "@type": "ListItem",
           "position": index + 1,
-          "url": `https://minna-no-vote-square.vercel.app/?s=${sv.id}`,
+          "url": `https://minna-no-vote-square.vercel.app/s/${sv.id}`,
           "name": sv.title
         }))
       };
