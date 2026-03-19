@@ -2046,20 +2046,13 @@ function App() {
                       ? currentSurvey.title.split('||')[0].trim() 
                       : currentSurvey.title}
                   </h1>
-                  {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') && (
-                    <div className="survey-description-box" style={{
-                      fontSize: '1rem',
-                      color: '#334155',
-                      lineHeight: '1.7',
-                      background: '#f1f5f9',
-                      padding: '20px',
-                      borderRadius: '16px',
-                      marginBottom: '20px',
-                      borderLeft: '6px solid #7c3aed'
-                    }}>
-                      {currentSurvey.title.split('||')[1].trim()}
-                    </div>
-                  )}
+                  
+                  {/* 📝 アンケートの解説/詳細を表示らび！ */}
+                  <SurveyDescription 
+                    description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') 
+                      ? currentSurvey.title.split('||')[1].trim() 
+                      : currentSurvey.description} 
+                  />
 
 
                    {/* 📺 動画プレイヤーの埋め込み (YouTube / ニコニコ) */}
