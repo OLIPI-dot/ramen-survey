@@ -1790,7 +1790,7 @@ function App() {
 
                                     if (thumbSrc) {
                                       return (
-                                        <div className="video-thumb-wrapper" style={{ position: 'relative', background: '#f8fafc' }}>
+                                        <div className="video-thumb-wrapper" style={{ position: 'relative' }}>
                                           {/* 🟦 背面：プレースホルダー（読み込み中のみ見える） */}
                                           <div className="category-icon-thumb placeholder-base" style={{ 
                                             position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
@@ -2049,9 +2049,10 @@ function App() {
                   
                   {/* 📝 アンケートの解説/詳細を表示らび！ */}
                   <SurveyDescription 
-                    description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') 
+                    description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title?.includes('||') 
                       ? currentSurvey.title.split('||')[1].trim() 
                       : currentSurvey.description} 
+                    renderCommentContent={renderCommentContent}
                   />
 
 
