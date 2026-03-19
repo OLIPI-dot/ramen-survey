@@ -2047,13 +2047,7 @@ function App() {
                       : currentSurvey.title}
                   </h1>
                   
-                  {/* 📝 アンケートの解説/詳細を表示らび！ */}
-                  <SurveyDescription 
-                    description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title?.includes('||') 
-                      ? currentSurvey.title.split('||')[1].trim() 
-                      : currentSurvey.description} 
-                    renderCommentContent={renderCommentContent}
-                  />
+
 
 
                    {/* 📺 動画プレイヤーの埋め込み (YouTube / ニコニコ) */}
@@ -2165,6 +2159,13 @@ function App() {
                 </div>
 
 
+                {/* 🆕 description を下部コンポーネントで表示らび！ */}
+                <SurveyDescription 
+                  description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title?.includes('||') 
+                    ? currentSurvey.title.split('||')[1].trim() 
+                    : currentSurvey.description} 
+                  renderCommentContent={renderCommentContent} 
+                />
 
                 <div className="options-container">
                   {options.map((opt, index) => {
