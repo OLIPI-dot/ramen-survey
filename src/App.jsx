@@ -285,10 +285,15 @@ function App() {
         const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
         const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
 
-        // ☀️ 「今日の話題」フィルタ（24時間以内に変更らび！）
+        // ☀️ 「今日の話題」フィルタ
         if (sortMode === 'today') {
-          const ageMs = new Date() - new Date(s.created_at);
-          return ageMs < 24 * 60 * 60 * 1000 && !isEnded;
+          const createdDate = new Date(s.created_at);
+          const today = new Date();
+          return (
+            createdDate.getFullYear() === today.getFullYear() &&
+            createdDate.getMonth() === today.getMonth() &&
+            createdDate.getDate() === today.getDate()
+          ) && !isEnded;
         }
 
         // 📁 アーカイブタブかマイアンケート以外では、終了したものは隠す
