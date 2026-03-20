@@ -3,9 +3,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import emailjs from '@emailjs/browser';
 import FooterModals from './components/FooterModals';
-import SurveyListView from './components/SurveyListView';
-import SurveyDetailView from './components/SurveyDetailView';
 import './App.css';
+import SurveyDescription from './components/SurveyDescription';
 
 // Supabaseの初期設定
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -36,36 +35,41 @@ const CATEGORY_IMAGES = {};
 // 🐰 らびの降臨メッセージ集
 const LABI_RESPONSES = {
   default: [
-    "やっほー！呼んだかな？らびだよ！🐰✨ いつでも広場を見守ってるよ！",
-    "やっほー！わーい！コメントありがとう！🥕 嬉しいなぁ！",
-    "やっほー！その意見、とっても素敵だね！✨ さすが広場のみんな！",
-    "やっほー！らびもそう思ってたんだ！🐰🥕 気が合うね！",
-    "やっほー！広場が賑やかで楽しいな〜！🐾 今日も良い一日になりそう！",
-    "やっほー！ひょっこり降臨！🐰 らびだよ〜！"
+    "呼んだかな？らびだよ！🐰✨ いつでも広場を見守ってるよ！",
+    "わーい！コメントありがとう！🥕 嬉しいなぁ！",
+    "その意見、とっても素敵だね！✨ さすが広場のみんな！",
+    "らびもそう思ってたんだ！🐰🥕 気が合うね！",
+    "広場が賑やかで楽しいな〜！🐾 今日も良い一日になりそう！",
+    "ひょっこり降臨！🐰 らびだよ〜！"
   ],
   keywords: [
-    "やっほー！わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
-    "やっほー！ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
-    "やっほー！🥕 はらびの元気の源なんだ！広場のみんなにもお置き分けしたいな〜✨",
-    "やっほー！らびは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
+    "わああ！大好きなニンジンだー！🥕🥕🥕 むしゃむしゃ！😋 ありがとう！",
+    "ニンジンっていう言葉を聞くと、どこからでも飛んでくるよ！🐰💨💨",
+    "🥕 はらびの元気の源なんだ！広場のみんなにもお裾分けしたいな〜✨",
+    "らびは幸せ者だなぁ…！🥕 最高のプレゼントをありがとう！"
   ],
   admin: [
-    "やっほー！管理者さん、いつも素敵な広場の運営をありがとう！応援してるらび！🐰✨",
-    "やっほー！広場がもっと良くなるように、らびもお手伝い頑張るね！🥕🍀",
-    "やっほー！いつも見守ってくれてありがとう！広場の平和はらびが守るよ！🛡️🐰",
-    "やっほー！お疲れ様！🐰 たまには人参茶でも飲んでゆっくりしてね〜🍵"
+    "管理者さん、いつも素敵な広場の運営をありがとう！応援してるらび！🐰✨",
+    "広場がもっと良くなるように、らびもお手伝い頑張るね！🥕🍀",
+    "いつも見守ってくれてありがとう！広場の平和はらびが守るよ！🛡️🐰",
+    "お疲れ様！🐰 たまには人参茶でも飲んでゆっくりしてね〜🍵"
   ]
 };
 
 const CATEGORY_ICON_STYLE = {
-  "すべて": { icon: "📂", color: "#64748b" },
-  "ニュース": { icon: "⚡", color: "#0ea5e9" },
-  "レビュー": { icon: "⭐", color: "#f59e0b" },
-  "コラム": { icon: "🖋️", color: "#6366f1" },
-  "ネタ": { icon: "😂", color: "#f97316" },
-  "らび": { icon: "🐰", color: "#ec4899" },
-  "その他": { icon: "❓", color: "#94a3b8" },
-  "マイアンケート": { icon: "👤", color: "#94a3b8" }
+  "エンタメ": { icon: "🎬", color: "#f43f5e" },
+  "グルメ": { icon: "🍔", color: "#f59e0b" },
+  "スポーツ": { icon: "⚽", color: "#2563eb" },
+  "トレンド": { icon: "🔥", color: "#ec4899" },
+  "IT・テクノロジー": { icon: "💻", color: "#8b5cf6" },
+  "生活": { icon: "🏠", color: "#10b981" },
+  "ニュース・経済": { icon: "📈", color: "#0ea5e9" }, // 📈 ニュース・経済（スカイブルー系）
+  "音楽": { icon: "🎵", color: "#8b5cf6" }, // 🎵 音楽（バイオレット系）
+  "ゲーム": { icon: "🎮", color: "#14b8a6" },
+  "アニメ": { icon: "📺", color: "#6366f1" }, // 📺 アニメ用アイコン（インディゴ系に変更してITと差別化）
+  "自然": { icon: "🌿", color: "#22c55e" }, // 🌿 自然（グリーン系）
+  "らび": { icon: "🐰", color: "#ec4899" }, // らび専用アイコン（ピンク系）
+  "その他": { icon: "❓", color: "#64748b" },
 };
 
 const formatWithDay = (dateStr) => {
@@ -109,24 +113,6 @@ const CountdownTimer = ({ deadline, onTimeUp }) => {
   return <div className="countdown-display">{timeLeft}</div>;
 };
 
-// 🔢 数字がヌルヌル増える演出（アニメーションカウンタ）
-const AnimatedCounter = ({ value }) => {
-  const [displayValue, setDisplayValue] = useState(value);
-  useEffect(() => {
-    let start = displayValue;
-    let end = value;
-    if (start === end) return;
-    let timer = setInterval(() => {
-      if (start < end) start++;
-      else if (start > end) start--;
-      setDisplayValue(start);
-      if (start === end) clearInterval(timer);
-    }, 50); // 50msごとにカウントアップ
-    return () => clearInterval(timer);
-  }, [value]);
-  return <span className="count-animate">{displayValue}</span>;
-};
-
 const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   // 🥕 おりぴさんの特別な紹介ID！
   const ASSOCIATE_ID = 'olipivote-22';
@@ -146,8 +132,8 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
     { title: '味の素 冷凍ギョーザ 1kg', url: 'https://amzn.to/4b9MxiU', image: 'https://m.media-amazon.com/images/I/81bIZEBVGqL._AC_SX1000_.jpg', icon: '🥟', category: 'おりぴ食品' },
     { title: 'UGREEN USB-C ケーブル 2M', url: 'https://amzn.to/40ekjhW', image: 'https://m.media-amazon.com/images/I/61DgZxJhEZL._AC_SY879_.jpg', icon: '🔌', category: 'おりぴPC' },
     { title: 'LISEN USB-C ケーブル 2M', url: 'https://amzn.to/4aQsQO4', image: 'https://m.media-amazon.com/images/I/81eeRU5gwtL._AC_SX679_.jpg', icon: '🔌', category: 'おりぴPC' },
-    { title: 'Shark 自動ゴミ収集掃除機', url: 'https://amzn.to/4bgVp6q', image: 'https://m.media-amazon.com/images/I/51F7qXg9W+L._AC_SX679_.jpg', icon: '', category: 'おりぴ家電' },
-    { title: 'SONY 65インチ 4Kブラビア', url: 'https://amzn.to/3N15HiU', image: 'https://m.media-amazon.com/images/I/61N0XNFinyL._AC_SY879_.jpg', icon: '', category: 'おりぴ家電' },
+    { title: 'Shark 自動ゴミ収集掃除機', url: 'https://amzn.to/4bgVp6q', image: 'https://m.media-amazon.com/images/I/51F7qXg9W+L._AC_SX679_.jpg', icon: '�', category: 'おりぴ家電' },
+    { title: 'SONY 65インチ 4Kブラビア', url: 'https://amzn.to/3N15HiU', image: 'https://m.media-amazon.com/images/I/61N0XNFinyL._AC_SY879_.jpg', icon: '�', category: 'おりぴ家電' },
     { title: 'by Amazon エナジードリンク', url: 'https://amzn.to/4rVsb47', image: 'https://m.media-amazon.com/images/I/81YLVVDtZRL._AC_SX679_.jpg', icon: '⚡', category: 'おりぴ飲物' }
   ];
 
@@ -211,52 +197,37 @@ const AdSenseBox = ({ slot, format = 'auto', affiliateType = null }) => {
   );
 };
 
-const SiteConceptSection = ({ user, totalVotes = 0 }) => (
+const SiteConceptSection = () => (
   <div className="site-concept-card" style={{
-    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-    borderRadius: '28px',
-    padding: '36px',
+    background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
+    borderRadius: '24px',
+    padding: '30px',
     marginBottom: '32px',
-    border: 'none',
-    boxShadow: '0 20px 50px rgba(99, 102, 241, 0.2)',
-    textAlign: 'center',
-    color: '#fff',
-    position: 'relative',
-    overflow: 'hidden'
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+    textAlign: 'left'
   }}>
-    <div style={{ position: 'relative', zIndex: 1 }}>
-      <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '16px', textShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-        3秒で本音が言える、<br />みんなの意見がすぐ分かる！ 🚀
-      </h2>
-      <p style={{ fontSize: '1.1rem', opacity: 0.95, marginBottom: '28px', lineHeight: '1.6' }}>
-        気になる話題に1タップで投票。匿名だから安心。<br />
-        {totalVotes > 0 && <span style={{ fontWeight: 'bold', borderBottom: '2px solid #fff' }}>現在 <AnimatedCounter value={totalVotes} /> 件の投票が集まっています！🔥</span>}
-      </p>
-      
-      {!user && (
-        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '20px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '12px' }}>✨ ログインして今すぐ参加らび！</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
-            <li>✅ 投票後すぐ結果が見れる</li>
-            <li>✅ 自分の意見をコメントできる</li>
-            <li>✅ 面白いアンケートを作れる</li>
-          </ul>
-          <button onClick={() => window.loginWithGoogle()} className="premium-login-btn" style={{
-            background: '#fff', color: '#6366f1', padding: '12px 32px', borderRadius: '30px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', cursor: 'pointer'
-          }}>
-            Googleでログインして参加 🐰💎
-          </button>
-        </div>
-      )}
-      
-      {user && (
-        <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-          💡 気になる話題を見つけたら、どんどん投票してみようらびっ！
-        </div>
-      )}
+    <h2 style={{ color: '#6366f1', fontSize: '1.5rem', marginTop: 0, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <span>🌟</span> みんなのアンケート広場へようこそ
+    </h2>
+    <p style={{ fontSize: '1rem', color: '#475569', lineHeight: '1.8', marginBottom: '20px' }}>
+      「みんなのアンケート広場」は、誰もが気軽に本音をシェアできる、日本最大級の匿名アンケートコミュニティを目指しています。
+      日常のささいな疑問から、今世の中で話題のトレンドまで、多様な価値観に触れ、新しい発見を楽しむための場所です。
+    </p>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+      <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+        <h3 style={{ fontSize: '1rem', color: '#1e293b', marginTop: 0, marginBottom: '8px' }}>🛡️ 匿名で安心</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>会員登録不要。周囲の目を気にせず、あなたの本当の気持ちを1タップで伝えられます。</p>
+      </div>
+      <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+        <h3 style={{ fontSize: '1rem', color: '#1e293b', marginTop: 0, marginBottom: '8px' }}>🌍 多彩なジャンル</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>エンタメ、生活、IT、グルメなど、13以上のカテゴリで毎日新しいアンケートが登場します。</p>
+      </div>
+      <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+        <h3 style={{ fontSize: '1rem', color: '#1e293b', marginTop: 0, marginBottom: '8px' }}>🥕 らびと一緒に</h3>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>AIキャラクター「らび」が、あなたの投稿を見守り、時には優しくコメントしてくれるかも！</p>
+      </div>
     </div>
-    {/* 装飾用の光の輪 */}
-    <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
   </div>
 );
 
@@ -281,7 +252,7 @@ function App() {
   const [popularSurveys, setPopularSurveys] = useState([]);
   const [endingSoonSurveys, setEndingSoonSurveys] = useState([]);
   const [showAllEndingSoon, setShowAllEndingSoon] = useState(false);
-  const [totalVotes, setTotalVotes] = useState(0); // 📊 サイト全体の総投票数
+  const [isTotalVotes, setIsTotalVotes] = useState(0);
   const [surveyTitle, setSurveyTitle] = useState('');
   const [surveyImage, setSurveyImage] = useState('');
   const [surveyCategory, setSurveyCategory] = useState('');
@@ -303,7 +274,40 @@ function App() {
   const [surveyYoutube, setSurveyYoutube] = useState(''); // 📺 YouTube動画URL
   const [surveyDescription, setSurveyDescription] = useState(''); // 📝 解説文 / 参考URL
   const [activeTab, setActiveTab] = useState('official'); // ⚖️ 'official' or 'user'
-  // 🐰 (重複宣言を削除しました - line 1611付近に統合)
+  // 📊 タブのカウントとリスト表示を完全に同期させるための「ベースフィルタ済みリスト」らび！
+  const filteredBaseSurveys = useMemo(() => {
+    return surveys
+      .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
+      .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
+      .filter(s => {
+        // アーカイブ（期限切れ/30日経過）の判定ロジック
+        const ageMs = new Date() - new Date(s.created_at);
+        const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
+        const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
+
+        // ☀️ 「今日の話題」フィルタ
+        if (sortMode === 'today') {
+          const createdDate = new Date(s.created_at);
+          const today = new Date();
+          return (
+            createdDate.getFullYear() === today.getFullYear() &&
+            createdDate.getMonth() === today.getMonth() &&
+            createdDate.getDate() === today.getDate()
+          ) && !isEnded;
+        }
+
+        // 📁 アーカイブタブかマイアンケート以外では、終了したものは隠す
+        if (isEnded) {
+          if (sortMode === 'ended' || sortMode === 'mine') return true;
+          return false;
+        }
+
+        if (sortMode === 'ended') return false; // ここに来るのは進行中のものだけなので、アーカイブ指定時は除外
+        if (sortMode === 'watching') return watchedIds.includes(s.id);
+        if (sortMode === 'mine') return user && s.user_id === user.id;
+        return true;
+      });
+  }, [surveys, searchQuery, filterCategory, filterTag, sortMode, watchedIds, user]);
 
   // 📺 YouTube URLからIDを抽出する魔法
   const extractYoutubeId = (input) => {
@@ -414,31 +418,6 @@ function App() {
     return () => { channel.unsubscribe(); };
   }, []);
 
-  // 📊 サイト全体の総投票数を取得・同期する魔法
-  useEffect(() => {
-    const fetchTotalVotes = async () => {
-      // optionsテーブルのvotesカラムを全合算する（小規模ならこれでOK）
-      const { data, error } = await supabase.from('options').select('votes');
-      if (!error && data) {
-        const total = data.reduce((sum, opt) => sum + (opt.votes || 0), 0);
-        setTotalVotes(total);
-      }
-    };
-
-    fetchTotalVotes();
-
-    // 投票があったらリアルタイムで合算し直す
-    const channel = supabase.channel('total-votes-sync')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'options' }, (payload) => {
-        // payload.new.votes と payload.old.votes の差分で計算してもいいが、
-        // 確実性のために合算し直す（秒間数百件でなければ問題なし）
-        fetchTotalVotes();
-      })
-      .subscribe();
-
-    return () => { channel.unsubscribe(); };
-  }, []);
-
   // 🐰 らびのトレンドアンケート自動生成魔法 (絶対重複させない版)
   useEffect(() => {
     const magic = async () => {
@@ -523,7 +502,7 @@ function App() {
         const { data: optData } = await supabase.from('options').select('*').eq('survey_id', currentSurvey.id).order('id', { ascending: true });
         if (optData) {
           setOptions(optData);
-          // setTotalVotes(optData.reduce((sum, item) => sum + item.votes, 0)); // This is for current survey, not global
+          setIsTotalVotes(optData.reduce((sum, item) => sum + item.votes, 0));
         }
         setVotedOption(localStorage.getItem(`voted_survey_${currentSurvey.id}`));
 
@@ -613,10 +592,13 @@ function App() {
 
   const renderCommentContent = (content) => {
     if (!content) return null;
-    // 第2弾：より広範かつ確実なURL検出正規表現
-    const parts = content.split(/(https?:\/\/[^\s]+|>>\d+)/g);
+    // 第2弾：太字(**) + URL検出らび！
+    const parts = content.split(/(\*\*.*?\*\*|https?:\/\/[^\s]+|>>\d+)/g);
     return parts.map((part, i) => {
       if (!part) return null;
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
       if (part.startsWith('>>') && /^>>\d+$/.test(part)) {
         return <span key={i} className="comment-anchor-link">{part}</span>;
       }
@@ -983,8 +965,6 @@ function App() {
   const loadFromUrl = async () => {
     const params = new URLSearchParams(window.location.search);
     let surveyId = params.get('s');
-    let categoryFilter = params.get('c');
-    let tagFilter = params.get('t');
     
     // 🔗 パスベースのURL (/s/ID) にも対応らび！
     if (!surveyId && window.location.pathname.startsWith('/s/')) {
@@ -995,8 +975,6 @@ function App() {
     if (!surveyId || surveyId === 'null' || surveyId === 'undefined') {
       setView('list');
       setCurrentSurvey(null);
-      if (categoryFilter) setFilterCategory(categoryFilter);
-      if (tagFilter) setFilterTag(tagFilter);
       return;
     }
 
@@ -1005,16 +983,12 @@ function App() {
     if (!sv) {
       setView('list');
       setCurrentSurvey(null);
-      if (categoryFilter) setFilterCategory(categoryFilter);
-      if (tagFilter) setFilterTag(tagFilter);
       return;
     }
 
     if (sv.visibility === 'private' && (!user || user.id !== sv.user_id)) {
       alert('非公開のアンケートです🔒');
       setView('list');
-      if (categoryFilter) setFilterCategory(categoryFilter);
-      if (tagFilter) setFilterTag(tagFilter);
       return;
     }
 
@@ -1054,15 +1028,13 @@ function App() {
       // 🏘️ 広場に戻る時はURLをルート（/）にリセットするらび！
       window.history.pushState({ view: 'list' }, '', '/');
       setCurrentSurvey(null);
-      setFilterCategory('すべて'); // リストに戻る際にカテゴリフィルタをリセット
-      setFilterTag(''); // リストに戻る際にタグフィルタをリセット
     }
     setView(nextView);
     window.scrollTo(0, 0);
   };
 
-  const fetchSurveys = async (currentUser, silent = false) => {
-    if (!silent) setIsLoading(true);
+  const fetchSurveys = async (currentUser) => {
+    setIsLoading(true);
     // アンケート本体（解説文も念のため含めておくらび！）
     const { data: sData } = await supabase.from('surveys').select('*, is_official').eq('visibility', 'public');
 
@@ -1142,16 +1114,16 @@ function App() {
     } else {
       setSurveys([]);
     }
-    if (!silent) setIsLoading(false);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchSurveys(user);
     refreshSidebar();
     const ch = supabase.channel('global-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => { fetchSurveys(user, true); refreshSidebar(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => { fetchSurveys(user, true,); refreshSidebar(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchSurveys(user, true); refreshSidebar(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'surveys' }, () => { fetchSurveys(user); refreshSidebar(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'options' }, () => { fetchSurveys(user); refreshSidebar(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { fetchSurveys(user); refreshSidebar(); })
       .subscribe();
     return () => supabase.removeChannel(ch);
   }, [user]);
@@ -1271,32 +1243,26 @@ function App() {
     fetchSurveys(user);
   };
 
-  const handleVote = (optionId) => {
-    // 引数がオブジェクト（opt）で渡される場合とIDで渡される場合の両方に対応
-    const targetId = typeof optionId === 'object' ? optionId.id : optionId;
-    const option = options.find(o => o.id === targetId);
-    if (!option || isTimeUp || votedOption) return;
+  const handleVote = (option) => {
+    if (isTimeUp || votedOption) return;
     
-    // 🆙 投票数をDBへ反映
+    // 🆙 投票数をDBへ反映（非同期で待ち合わせないらび！）
     supabase.from('options').update({ votes: (option.votes || 0) + 1 }).eq('id', option.id);
 
-    // 🏆 チャッピー流：あなたは〇人目演出！
-    const currentTotal = (currentSurvey.total_votes || 0) + 1;
-    setTimeout(() => {
-      alert(`✨ 投票完了らびっ！ ✨\n\nあなたは、このアンケートの\n【 ${currentTotal} 人目 】の投票者だよ！🐰🥕💎\n\n広場に参加してくれてありがとうらびっ！`);
-    }, 500);
-
-    // 💎 UX改善: 瞬時にUIを更新する
+    // 💎 UX改善: 瞬時にUIを更新するらび！
     localStorage.setItem(`voted_survey_${currentSurvey.id}`, String(option.id));
     setVotedOption(String(option.id));
 
-    const updatedOptions = options.map(o => o.id === option.id ? { ...o, votes: (o.votes || 0) + 1 } : o);
+    // 2. 現在表示中のアンケートの選択肢と合計票数を更新
+    const updatedOptions = (currentSurvey.options || []).map(o => o.id === option.id ? { ...o, votes: (o.votes || 0) + 1 } : o);
     const updatedSurvey = {
       ...currentSurvey,
-      total_votes: currentTotal,
+      total_votes: (currentSurvey.total_votes || 0) + 1,
       options: updatedOptions
     };
     setCurrentSurvey(updatedSurvey);
+
+    // 3. 全体リストの中のデータもつじつまを合わせる
     setSurveys(prev => prev.map(s => s.id === currentSurvey.id ? updatedSurvey : s));
   };
 
@@ -1376,7 +1342,7 @@ function App() {
     setCurrentSurvey(merged);
     setSurveys(prev => prev.map(s => String(s.id) === String(currentSurvey.id) ? { ...s, ...merged } : s));
     alert(`公開設定を「${newVisibility}」に変更しました！`);
-    // fetchSurveys(user); // 🏎️ リロードを防ぐためにコメントアウトまたは削除
+    fetchSurveys(user);
   };
 
   // 🏷️ カテゴリを変更する（オーナーまたは管理者）
@@ -1399,7 +1365,7 @@ function App() {
     setSurveys(prev => prev.map(s => String(s.id) === String(currentSurvey.id) ? { ...s, ...merged } : s));
     setIsEditingCategory(false);
     alert(`🏷️ カテゴリを「${newCategory}」に変更しましたらびっ！`);
-    fetchSurveys(user, true); // 🏎️ サイレントに最新化
+    fetchSurveys(user);
   };
 
   // 🏷️ タグを更新する（オーナーまたは管理者）
@@ -1423,7 +1389,7 @@ function App() {
     setSurveys(prev => prev.map(s => String(s.id) === String(currentSurvey.id) ? { ...s, ...merged } : s));
     setIsEditingTags(false);
     alert('🏷️ タグを更新しましたらびっ！');
-    fetchSurveys(user, true); // 🏎️ サイレントに最新化
+    fetchSurveys(user);
   };
 
   // 📩 お問い合わせをDBに保存する
@@ -1489,7 +1455,7 @@ function App() {
       ? currentSurvey.title.slice(0, 20) + '…'
       : currentSurvey.title;
     const lines = options.map((opt, index) => {
-      const perc = currentSurvey.total_votes > 0 ? Math.round((opt.votes / currentSurvey.total_votes) * 100) : 0;
+      const perc = isTotalVotes > 0 ? Math.round((opt.votes / isTotalVotes) * 100) : 0;
       const name = opt.name.length > 8 ? opt.name.slice(0, 8) + '…' : opt.name;
       return `${index + 1}. ${name} ${bar(perc)} ${perc}%`;
     });
@@ -1508,7 +1474,7 @@ function App() {
         '',
         ...lines,
         '',
-        `計${currentSurvey.total_votes}票 👉 ${shareUrl}`,
+        `計${isTotalVotes}票 👉 ${shareUrl}`,
         `#アンケート広場`,
       ].join('\n');
       navigator.clipboard.writeText(copyText).then(() => alert('コピーしました！'));
@@ -1516,9 +1482,9 @@ function App() {
       // 📝 X用のテキストをリッチに！らび頑張る！🐰✨
       let xText = `📊「${title}」\n`;
       if (isWinner) {
-        xText += `🏆 現在1位: ${topOption.name} (${Math.round(topOption.votes / currentSurvey.total_votes * 100)}%)\n`;
+        xText += `🏆 現在1位: ${topOption.name} (${Math.round(topOption.votes / isTotalVotes * 100)}%)\n`;
       }
-      xText += `🔥 現在の合計: ${currentSurvey.total_votes}票！みんなはどう思う？らびっ！`;
+      xText += `🔥 現在の合計: ${isTotalVotes}票！みんなはどう思う？らびっ！`;
       
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(shareUrl)}&hashtags=アンケート広場`,
@@ -1565,59 +1531,6 @@ function App() {
       setIsActionLoading(false);
     }
   };
-
-  // 📋 フィルタリング済みアンケートリスト
-  const filteredBaseSurveys = useMemo(() => {
-    let base = [...surveys];
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      base = base.filter(s =>
-        s.title?.toLowerCase().includes(q) ||
-        s.description?.toLowerCase().includes(q) ||
-        s.tags?.some(t => t.toLowerCase().includes(q))
-      );
-    }
-    if (filterCategory && filterCategory !== 'すべて') {
-      base = base.filter(s => s.category === filterCategory);
-    }
-    if (filterTag) {
-      base = base.filter(s => s.tags?.includes(filterTag));
-    }
-    base = base.filter(s => {
-      if (s.visibility === 'private') {
-        if (!user) return false;
-        if (user.id !== s.user_id && !isAdmin) return false;
-      }
-      return true;
-    });
-
-    // 期日・期限切れやタブ別フィルタリングの適用
-    base = base.filter(s => {
-      // 30日経過等のアーカイブ対応
-      const ageMs = new Date() - new Date(s.created_at);
-      const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
-      const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
-
-      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-      if (sortMode === 'today') {
-        const isRecent = new Date(s.created_at).getTime() >= todayStart.getTime() - 86400000 * 2;
-        return !isEnded && isRecent;
-      } else if (sortMode === 'ended') {
-        return isEnded;
-      } else if (sortMode === 'watching') {
-        return watchedIds.includes(s.id);
-      } else if (sortMode === 'mine') {
-        return user && s.user_id === user.id;
-      }
-
-      // その他（新着など）では終了したものを非表示
-      if (isEnded) return false;
-
-      return true;
-    });
-
-    return base;
-  }, [surveys, searchQuery, filterCategory, filterTag, sortMode, watchedIds, user, isAdmin]);
 
   const Sidebar = () => (
     <div className="live-feed-sidebar">
@@ -1679,7 +1592,7 @@ function App() {
               <div className="popular-item-info">
                 <strong style={{ display: 'block', marginBottom: '4px' }}>{s.title}</strong>
                 <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap' }}>
-                  <span>🗳️ <AnimatedCounter value={s.total_votes || 0} /> 票</span>
+                  <span>🗳️ {s.total_votes || 0} 票</span>
                   <span>👁️ {s.view_count || 0}</span>
                   <span>👍 {s.likes_count || 0}</span>
                   <span>💬 {s.comment_count || 0}</span>
@@ -1698,67 +1611,392 @@ function App() {
       <div className="main-wrap">
         <div className="layout-grid-3">
           <div className="nav-sidebar-left">
-            {view !== 'list' && (
-              <button className="side-back-btn" onClick={() => navigateTo('list')}>⇠ 広場へ戻る</button>
-            )}
+            {view !== 'list' && <button className="side-back-btn" onClick={() => navigateTo('list')}>⇠ 広場へ戻る</button>}
           </div>
 
           <div className="survey-card">
             {view === 'list' && (
-              <SurveyListView
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                sortMode={sortMode}
-                setSortMode={setSortMode}
-                popularMode={popularMode}
-                setPopularMode={setPopularMode}
-                filterCategory={filterCategory}
-                setFilterCategory={setFilterCategory}
-                filterTag={filterTag}
-                setFilterTag={setFilterTag}
-                setView={setView}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                filteredBaseSurveys={filteredBaseSurveys}
-                surveys={surveys}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                navigateTo={navigateTo}
-                watchedIds={watchedIds}
-                toggleWatch={toggleWatch}
-                CATEGORY_ICON_STYLE={CATEGORY_ICON_STYLE}
-                SCORE_VOTE_WEIGHT={SCORE_VOTE_WEIGHT}
-                formatWithDay={formatWithDay}
-                Pagination={Pagination}
-                SiteConceptSection={SiteConceptSection}
-                AdSenseBox={AdSenseBox}
-                user={user}
-                isAdmin={isAdmin}
-                isLoading={isLoading}
-                totalVotes={totalVotes}
-                surveyTitle={surveyTitle} setSurveyTitle={setSurveyTitle}
-                surveyDescription={surveyDescription} setSurveyDescription={setSurveyDescription}
-                surveyYoutube={surveyYoutube} setSurveyYoutube={setSurveyYoutube}
-                surveyCategory={surveyCategory} setSurveyCategory={setSurveyCategory}
-                setupOptions={setupOptions} setSetupOptions={setSetupOptions}
-                tempOption={tempOption} setTempOption={setTempOption}
-                surveyVisibility={surveyVisibility} setSurveyVisibility={setSurveyVisibility}
-                deadline={deadline} setDeadline={setDeadline}
-                surveyTags={surveyTags} setSurveyTags={setSurveyTags}
-                tempTag={tempTag} setTempTag={setTempTag}
-                handleStartSurvey={handleStartSurvey}
-                supabase={supabase}
-              />
+              <>
+                <div className="auth-header">
+                  {user ? (
+                    <div className="user-info">
+                      {user.user_metadata?.avatar_url && <img src={user.user_metadata.avatar_url} className="user-avatar" />}
+                      <span className="user-name">{user.user_metadata?.full_name || user.email.split('@')[0]}さん</span>
+                      <button className="logout-button" onClick={() => supabase.auth.signOut()}>ログアウト</button>
+                    </div>
+                  ) : (
+                    <button 
+                      className="google-login-btn" 
+                      onClick={() => supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })}
+                    >
+                      <div className="google-icon-wrapper">
+                        <svg viewBox="0 0 24 24">
+                          <path
+                            fill="#EA4335"
+                            d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"
+                          />
+                          <path
+                            fill="#34A853"
+                            d="M16.04 18.013c-1.09.693-2.43 1.077-4.04 1.077-3.327 0-6.14-2.223-7.141-5.226L.833 17.03c1.98 3.86 5.989 6.511 10.655 6.511 2.872 0 5.48-.95 7.554-2.54l-3.003-2.988z"
+                          />
+                          <path
+                            fill="#4285F4"
+                            d="M22.027 12.188c0-.627-.052-1.245-.152-1.841H12v3.481h5.624c-.244 1.314-1 2.428-2.112 3.179l3.003 2.988c1.758-1.623 2.774-4.009 2.774-6.807z"
+                          />
+                          <path
+                            fill="#FBBC05"
+                            d="M5.266 14.235A7.065 7.065 0 0 1 4.909 12c0-.795.131-1.559.357-2.235L1.24 6.65c-.792 1.636-1.24 3.46-1.24 5.35 0 1.89.448 3.714 1.24 5.35l4.026-3.115z"
+                          />
+                        </svg>
+                      </div>
+                      <span>Googleでログイン</span>
+                    </button>
+                  )}
+                </div>
+                <button className="create-new-button" onClick={() => user ? setView('create') : alert("🌟 広場をもっと楽しもう！\n\nアンケートを作るには、ログインが必要だよ。上の「Googleでログイン」から、らびと一緒に始めよう！🐰🥕")}>＋ 新しいアンケートを作る</button>
+                {!user && <SiteConceptSection />}
+                <div className="search-container">
+                  <input type="text" placeholder="🔍 アンケートを検索する..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="search-input" />
+                </div>
+                <div className="tab-switcher">
+                  <button className={sortMode === 'today' ? 'active' : ''} onClick={() => setSortMode('today')}>☀️ 今日の話題</button>
+                  <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>🆕 新着順</button>
+                  <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+                  <button className={sortMode === 'watching' ? 'active' : ''} onClick={() => setSortMode('watching')}>⭐ ウォッチ中</button>
+                  <button className={sortMode === 'ended' ? 'active' : ''} onClick={() => setSortMode('ended')}>📁 アーカイブ</button>
+                  <button className={sortMode === 'mine' ? 'active' : ''} onClick={() => { if (!user) return alert("👤 マイアンケートはログインしていないと使えません🙇‍♀️\n上の「Googleでログイン」ボタンからログインしてね！"); setSortMode('mine'); }}>👤 マイアンケート</button>
+                </div>
+                {sortMode === 'popular' && (
+                  <div className="popular-sub-tabs">
+                    <button className={popularMode === 'trending' ? 'active' : ''} onClick={() => setPopularMode('trending')}>🔥 盛り上がり</button>
+                    <button className={popularMode === 'score' ? 'active' : ''} onClick={() => setPopularMode('score')}>⚡ 総合</button>
+                    <button className={popularMode === 'votes' ? 'active' : ''} onClick={() => setPopularMode('votes')}>🗳️ 投票人気</button>
+                    <button className={popularMode === 'views' ? 'active' : ''} onClick={() => setPopularMode('views')}>👁️ 閲覧人気</button>
+                  </div>
+                )}
+                <div className="category-filter-bar">
+                  {['すべて', 'ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'].map(cat => (
+                    <button key={cat} className={`filter-cat-btn ${filterCategory === cat ? 'active' : ''}`} onClick={() => setFilterCategory(cat)}>{cat}</button>
+                  ))}
+                </div>
+                {/* 📈 マイ統計パネル（マイアンケートタブのみ） */}
+                {sortMode === 'mine' && user && (() => {
+                  const mine = surveys.filter(s => s.user_id === user.id);
+                  const totalVotes = mine.reduce((sum, s) => sum + (s.total_votes || 0), 0);
+                  const totalViews = mine.reduce((sum, s) => sum + (s.view_count || 0), 0);
+                  const avgRate = mine.length > 0
+                    ? Math.round(mine.reduce((sum, s) => sum + (s.view_count > 0 ? (s.total_votes || 0) / s.view_count : 0), 0) / mine.length * 100)
+                    : 0;
+                  const top = mine.sort((a, b) => (b.total_votes || 0) - (a.total_votes || 0))[0];
+                  return (
+                    <div className="my-stats-panel">
+                      <div className="my-stats-title">📈 マイ統計</div>
+                      <div className="my-stats-grid">
+                        <div className="my-stat-card"><div className="stat-num">{mine.length}</div><div className="stat-label">作成数</div></div>
+                        <div className="my-stat-card"><div className="stat-num">{totalVotes}</div><div className="stat-label">合計票</div></div>
+                        <div className="my-stat-card"><div className="stat-num">{totalViews}</div><div className="stat-label">合計閲覧</div></div>
+                        <div className="my-stat-card"><div className="stat-num">{avgRate}%</div><div className="stat-label">平均投票率</div></div>
+                      </div>
+                      {top && <div className="my-stat-top">🏆 人気No.1：<strong>{top.title}</strong>（{top.total_votes || 0}票）</div>}
+                    </div>
+                  );
+                })()}
+
+                {/* ⚖️ 公式・ユーザー切り替えタブ */}
+                {view === 'list' && !searchQuery /* filterCategory === 'すべて' */ && !filterTag && (
+                  <div className="official-tab-navigation" style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '2px solid #f1f5f9', paddingBottom: '4px' }}>
+                    <button 
+                      onClick={() => setActiveTab('official')} 
+                      className={`tab-btn ${activeTab === 'official' ? 'active' : ''}`}
+                      style={{ 
+                        padding: '8px 4px', fontSize: '1.1rem', fontWeight: 'bold', color: activeTab === 'official' ? '#8b5cf6' : '#94a3b8', 
+                        background: 'none', border: 'none', borderBottom: activeTab === 'official' ? '3px solid #8b5cf6' : '3px solid transparent',
+                        cursor: 'pointer', transition: 'all 0.2s', position: 'relative'
+                      }}
+                    >
+                      📢 公式・ニュース ({filteredBaseSurveys.filter(s => s.is_official).length})
+                      {activeTab === 'official' && <span style={{ position: 'absolute', top: '-4px', right: '-8px', fontSize: '0.7rem', background: '#ec4899', color: '#fff', borderRadius: '10px', padding: '1px 5px' }}>HOT</span>}
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('user')} 
+                      className={`tab-btn ${activeTab === 'user' ? 'active' : ''}`}
+                      style={{ 
+                        padding: '8px 4px', fontSize: '1.1rem', fontWeight: 'bold', color: activeTab === 'user' ? '#8b5cf6' : '#94a3b8', 
+                        background: 'none', border: 'none', borderBottom: activeTab === 'user' ? '3px solid #8b5cf6' : '3px solid transparent',
+                        cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      👥 みんなの投稿 ({filteredBaseSurveys.filter(s => !s.is_official).length})
+                    </button>
+                  </div>
+                )}
+
+                <div className="survey-list">
+                  {isLoading ? <div className="empty-msg">読み込み中...</div> : (() => {
+                    const finalItems = filteredBaseSurveys
+                      .filter(s => {
+                        // ⚖️ 公式・ユーザー切り替えタブのフィルタ（検索中などは無効）
+                        if (!searchQuery /* && filterCategory === 'すべて' */ && !filterTag) {
+                          if (activeTab === 'official') {
+                            if (!s.is_official) return false;
+                          } else if (activeTab === 'user') {
+                            if (s.is_official) return false;
+                          }
+                        }
+                        return true;
+                      })
+                      .sort((a, b) => {
+                        // 📌 「お知らせ」タグがあるものを最優先で上に持ってくるロジック
+                        const isAnnounceA = a.tags?.includes('お知らせ');
+                        const isAnnounceB = b.tags?.includes('お知らせ');
+                        if (isAnnounceA && !isAnnounceB) return -1;
+                        if (!isAnnounceA && isAnnounceB) return 1;
+
+                        if (sortMode !== 'popular') return new Date(b.created_at) - new Date(a.created_at);
+                        if (popularMode === 'trending') {
+                          const ageA = Math.max(0.5, (new Date() - new Date(a.created_at)) / 3600000);
+                          const ageB = Math.max(0.5, (new Date() - new Date(b.created_at)) / 3600000);
+                          return (((b.total_votes || 0) * 10 + (b.view_count || 0)) / Math.pow(ageB + 2, 1.2)) - (((a.total_votes || 0) * 10 + (a.view_count || 0)) / Math.pow(ageA + 2, 1.2));
+                        }
+                        if (popularMode === 'score') {
+                          const scoreA = (a.total_votes || 0) * SCORE_VOTE_WEIGHT + (a.view_count || 0);
+                          const scoreB = (b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0);
+                          return scoreB - scoreA;
+                        }
+                        return popularMode === 'votes' ? b.total_votes - a.total_votes : (b.view_count || 0) - (a.view_count || 0);
+                      });
+
+                    // 💎 UX改善: 1ページあたりの表示数を15に
+                    const ITEMS_PER_PAGE = 15;
+                    const totalPages = Math.ceil(finalItems.length / ITEMS_PER_PAGE);
+                    const currentItems = finalItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+                    return (
+                      <>
+                        {currentItems.map((s, idx) => {
+                          const realIdx = (currentPage - 1) * ITEMS_PER_PAGE + idx;
+                          const isEnded = s.deadline && new Date(s.deadline) < new Date();
+                          const showBadge = sortMode === 'popular' && realIdx < 3;
+                          let badgeLabel = '';
+                          if (showBadge) {
+                            if (popularMode === 'trending') {
+                              badgeLabel = `🔥 ${Math.round(((s.total_votes || 0) * 10 + (s.view_count || 0)) / (Math.pow(Math.max(0.5, (new Date() - new Date(s.created_at)) / 3600000) + 2, 1.2)))}`;
+                            } else if (popularMode === 'views') {
+                              badgeLabel = `👁️ ${s.view_count || 0} View`;
+                            } else if (popularMode === 'score') {
+                              badgeLabel = `⚡ ${(s.total_votes || 0) * SCORE_VOTE_WEIGHT + (s.view_count || 0)} pt`;
+                            } else {
+                              badgeLabel = `🗳️ ${s.total_votes || 0} 票`;
+                            }
+                          }
+                          return (
+                            <React.Fragment key={s.id}>
+                              <div 
+                                className={`survey-item-card ${s.tags?.includes('お知らせ') ? 'announcement-card' : ''}`} 
+                                onClick={() => navigateTo('details', s)}
+                                style={s.tags?.includes('お知らせ') ? {
+                                  background: 'linear-gradient(135deg, #fffbeb, #fff7ed)',
+                                  border: '2px solid #fbbf24',
+                                  boxShadow: '0 8px 15px -3px rgba(251, 191, 36, 0.15)',
+                                  position: 'relative',
+                                  '--cat-color': '#fbbf24'
+                                } : {
+                                  background: 'white',
+                                  border: `2px solid ${(CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color}44`,
+                                  '--cat-color': (CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"]).color
+                                }}
+                              >
+                                  {(() => {
+                                    const catStyle = CATEGORY_ICON_STYLE[s.category] || CATEGORY_ICON_STYLE[s.category?.trim()] || CATEGORY_ICON_STYLE["その他"];
+                                    
+                                    // 📸 サムネイルURLの解析らび！
+                                    let thumbSrc = null;
+                                    if (s.image_url) {
+                                      const entries = s.image_url.split(',').map(v => v.trim()).filter(Boolean);
+                                      const yt = entries.find(v => v.startsWith('yt:'));
+                                      const nico = entries.find(v => v.startsWith('nico:'));
+                                      
+                                      if (yt) thumbSrc = `https://img.youtube.com/vi/${yt.substring(3)}/hqdefault.jpg`;
+                                      else if (nico) thumbSrc = `https://snapshot.cdn.nicovideo.jp/snapshots/i/${nico.substring(5)}`;
+                                      else if (entries[0] && !entries[0].includes(':')) thumbSrc = entries[0];
+                                    }
+
+                                    if (thumbSrc) {
+                                      return (
+                                        <div className="video-thumb-wrapper" style={{ position: 'relative' }}>
+                                          {/* 🟦 背面：プレースホルダー（読み込み中のみ見える） */}
+                                          <div className="category-icon-thumb placeholder-base" style={{ 
+                                            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                                            background: catStyle.color, opacity: 0.1, zIndex: 0,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem'
+                                          }}>
+                                            {catStyle.icon}
+                                          </div>
+                                          {/* 🖼️ 前面：実際の画像（フェードイン） */}
+                                          <img 
+                                            src={thumbSrc} 
+                                            alt="サムネイル" 
+                                            className="survey-item-thumb" 
+                                            loading="lazy"
+                                            onLoad={(e) => e.target.classList.add('ready')}
+                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                            style={{ position: 'relative', zIndex: 1 }}
+                                          />
+                                          <div className="thumb-category-badge" style={{
+                                            color: catStyle.color,
+                                            border: `1.5px solid ${catStyle.color}44`,
+                                            background: `rgba(255, 255, 255, 0.9)`,
+                                            zIndex: 2
+                                          }}>
+                                            <span style={{ fontSize: '1.2em' }}>{catStyle.icon}</span>
+                                            <span>{s.category}</span>
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    // 画像がない場合はアイコンを表示
+                                    return (
+                                      <div className="category-icon-thumb" style={{ 
+                                        background: catStyle.color,
+                                        border: `2px solid ${catStyle.color}44`
+                                      }}>
+                                        {catStyle.icon}
+                                      </div>
+                                    );
+                                  })()}
+                                  <div className="survey-item-content">
+                                    <div className="survey-item-info">
+                                      <span className="survey-item-title" style={{
+                                        backgroundColor: 'transparent',
+                                        padding: '4px 0',
+                                        borderRadius: '0',
+                                        display: 'block',
+                                        marginBottom: '10px',
+                                        boxShadow: 'none',
+                                        border: 'none',
+                                        color: '#1e293b'
+                                      }}>
+                                        {showBadge && (realIdx === 0 ? '👑 ' : realIdx === 1 ? '🥈 ' : '🥉 ')}
+                                        {s.tags?.includes('お知らせ') && s.title.includes('||') 
+                                          ? s.title.split('||')[0].trim() 
+                                          : s.title}
+                                        {s.tags?.includes('お知らせ') && (
+                                          <span style={{ marginLeft: '8px', fontSize: '1.2rem', display: 'inline-block', animation: 'glitter 2s infinite ease-in-out', verticalAlign: 'middle' }}>✨</span>
+                                        )}
+                                      </span>
+                                    {/* 💡 お知らせの本文は一覧では非表示にし、詳細画面でのみ表示するらび！ */}
+                                    <div className="card-right-actions">
+                                      <button className={`watch-star-btn ${watchedIds.includes(s.id) ? 'active' : ''}`} onClick={(e) => toggleWatch(e, s.id)}>{watchedIds.includes(s.id) ? '★' : '☆'}</button>
+                                      <span className={`status-badge ${isEnded ? 'ended' : 'active'}`}>{isEnded ? '終了' : '受付中'}</span>
+                                    </div>
+                                  </div>
+                                  <div className="survey-item-meta-row">
+                                    {showBadge && <span className="popular-score-badge">{badgeLabel}</span>}
+                                    <span className="survey-item-created-at" title="作成日時">🐣 {formatWithDay(s.created_at)}</span>
+                                    {s.deadline && <span className="survey-item-deadline">〆: {formatWithDay(s.deadline)}</span>}
+                                    <div className="card-stats-row">
+                                      <span className="survey-item-votes" title="投票数">🗳️ {s.total_votes || 0}</span>
+                                      <span className="survey-item-views" title="閲覧数">👁️ {s.view_count || 0}</span>
+                                      <span className="survey-item-likes" title="いいね数">👍 {s.likes_count || 0}</span>
+                                      <span className="survey-item-comments" title="コメント数">💬 {s.comment_count || 0}</span>
+                                    </div>
+                                  </div>
+                                  {s.tags && s.tags.length > 0 && (
+                                    <div className="tag-bubble-row" onClick={e => e.stopPropagation()}>
+                                      {s.tags.map(tag => (
+                                        <span key={tag} className={`tag-bubble ${filterTag === tag ? 'active' : ''}`} onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>#{tag}</span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              {/* 💎 9個目（3行）ごとに広告を差し込む魔法 */}
+                              {(idx + 1) % 9 === 0 && (
+                                <AdSenseBox slot={`list_feed_slot_${Math.floor(idx / 9)}`} affiliateType="amazon" />
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* 📁 アーカイブ・ダイジェスト（メイン広場の下の方にひっそり展示） */}
+                {sortMode === 'latest' && searchQuery === '' && filterCategory === 'すべて' && !filterTag && currentPage === 1 && (
+                  <div className="archive-digest-section" style={{ marginTop: '40px', padding: '24px', background: '#f8fafc', borderRadius: '24px', border: '2px dashed #cbd5e1' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#64748b' }}>📁 アーカイブ・ダイジェスト</h3>
+                      <button onClick={() => setSortMode('ended')} style={{ background: 'none', border: 'none', color: '#7c3aed', fontWeight: 'bold', cursor: 'pointer' }}>もっと見る ⇠</button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      {surveys
+                        .filter(s => (s.deadline && new Date(s.deadline) < new Date()))
+                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                        .slice(0, 3)
+                        .map(s => (
+                          <div key={s.id} className="archive-mini-card" onClick={() => navigateTo('details', s)} style={{ background: 'white', padding: '12px', borderRadius: '16px', cursor: 'pointer', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}>
+                            <div style={{ fontWeight: 'bold', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>🗳️ {s.total_votes || 0} 票 / 💬 {s.comment_count || 0}</div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pagination-container-outer">
+                  {(() => {
+                    const filtered = surveys
+                      .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()) && (filterCategory === 'すべて' || s.category === filterCategory))
+                      .filter(s => !filterTag || (s.tags && s.tags.includes(filterTag)))
+                      .filter(s => {
+                        // ⚖️ 公式・ユーザー切り替えタブのフィルタ背景（検索中などは無効）
+                        // ⚖️ 公式・ユーザー切り替えタブのフィルタ背景（検索中などは無効）
+                        if (!searchQuery /* && filterCategory === 'すべて' */ && !filterTag) {
+                          if (activeTab === 'official') {
+                            if (!s.is_official) return false;
+                          } else if (activeTab === 'user') {
+                            if (s.is_official) return false;
+                          }
+                        }
+
+                        const ageMs = new Date() - new Date(s.created_at);
+                        const isAutoEnded = ageMs > 30 * 24 * 60 * 60 * 1000;
+                        const isEnded = isAutoEnded || (s.deadline && new Date(s.deadline) < new Date());
+
+                        if (sortMode === 'today') {
+                          const createdDate = new Date(s.created_at);
+                          const today = new Date();
+                          return (
+                            createdDate.getFullYear() === today.getFullYear() &&
+                            createdDate.getMonth() === today.getMonth() &&
+                            createdDate.getDate() === today.getDate()
+                          ) && !isEnded;
+                        }
+
+                        if (isEnded) {
+                          if (sortMode === 'ended' || sortMode === 'mine') return true;
+                          return false;
+                        }
+                        if (sortMode === 'ended') return false;
+                        if (sortMode === 'watching') return watchedIds.includes(s.id);
+                        if (sortMode === 'mine') return user && s.user_id === user.id;
+                        return true;
+                      });
+                    const ITEMS_PER_PAGE = 15;
+                    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+                    return <Pagination current={currentPage} total={totalPages} onPageChange={(p) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />;
+                  })()}
+                </div>
+              </>
             )}
 
             {view === 'create' && (
               <div className="score-card">
                 <h2 className="setup-title">📝 新しく作る</h2>
                 <div className="create-form">
-                  <div className="setting-item-block">
-                    <label>お題（タイトル）:</label>
-                    <input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" />
-                  </div>
+                  <div className="setting-item-block"><label>お題（タイトル）:</label><input className="title-input" value={surveyTitle} onChange={e => setSurveyTitle(e.target.value)} placeholder="例：今日のおやつは何がいい？" /></div>
                   <div className="setting-item-block">
                     <label>📝 解説文 / 参考記事URL:</label>
                     <textarea 
@@ -1769,14 +2007,10 @@ function App() {
                       placeholder="例：このニュースの詳細はここからチェック！ https://...&#10;アンケートの背景などを自由に書いてね 🐰🥕" 
                     />
                   </div>
-                  <div className="setting-item-block">
-                    <label>📺 YouTube/ニコニコ動画（URL）:</label>
-                    <input className="title-input" value={surveyYoutube} onChange={e => setSurveyYoutube(e.target.value)} placeholder="例：https://www.youtube.com/watch?v=..." />
-                  </div>
-                  <div className="setting-item-block">
-                    <label>カテゴリ:</label>
+                  <div className="setting-item-block"><label>📺 YouTube動画を貼る（URL）:</label><input className="title-input" value={surveyYoutube} onChange={e => setSurveyYoutube(e.target.value)} placeholder="例：https://www.youtube.com/watch?v=..." /></div>
+                  <div className="setting-item-block"><label>カテゴリ:</label>
                     <div className="category-selector">
-                      {(isAdmin ? ['ニュース', 'レビュー', 'コラム', 'ネタ', 'らび', 'その他'] : ['ニュース', 'レビュー', 'コラム', 'ネタ', 'その他']).map(cat => (
+                      {(isAdmin ? ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
                         <button key={cat} className={`cat-btn ${surveyCategory === cat ? 'active' : ''}`} onClick={() => setSurveyCategory(cat)}>{cat}</button>
                       ))}
                     </div>
@@ -1812,6 +2046,10 @@ function App() {
                       {deadline && <button className="deadline-clear-btn" onClick={() => setDeadline('')}>✕ クリア</button>}
                     </div>
                   </div>
+                  <button className="start-button" onClick={handleStartSurvey}>公開する！</button>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginTop: '8px' }}>
+                    ※ 終了したアンケートは、広場の歴史として<span style={{ fontWeight: 'bold', color: '#7c3aed' }}>アーカイブ（永久保存）</span>されます。🐰💎
+                  </p>
                   <div className="setting-item-block">
                     <label>🏷️ タグ（アンケートのキーワード）:</label>
                     <div className="setup-add-container">
@@ -1828,126 +2066,556 @@ function App() {
                       </div>
                     )}
                   </div>
-                  <button className="start-button" onClick={handleStartSurvey} style={{ marginTop: '20px' }}>世界に公開する！🚀</button>
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', textAlign: 'center', marginTop: '12px' }}>
-                    ※ 終了したアンケートは、広場の歴史として<span style={{ fontWeight: 'bold', color: '#7c3aed' }}>アーカイブ（永久保存）</span>されます。🐰💎
-                  </p>
                 </div>
               </div>
             )}
 
             {view === 'details' && currentSurvey && (
-              <SurveyDetailView
-                currentSurvey={currentSurvey}
-                setCurrentSurvey={setCurrentSurvey}
-                surveyOnlineCount={surveyOnlineCount}
-                isTimeUp={isTimeUp}
-                setIsTimeUp={setIsTimeUp}
-                votedOption={votedOption}
-                options={options}
-                isTotalVotes={options.reduce((sum, o) => sum + (o.votes || 0), 0)}
-                handleVote={handleVote}
-                handleLikeSurvey={handleLikeSurvey}
-                handleShareResult={handleShareResult}
-                likedSurveys={likedSurveys}
-                user={user}
-                isAdmin={isAdmin}
-                isEditingCategory={isEditingCategory}
-                setIsEditingCategory={setIsEditingCategory}
-                isEditingTags={isEditingTags}
-                setIsEditingTags={setIsEditingTags}
-                tagEditValue={tagEditValue}
-                setTagEditValue={setTagEditValue}
-                handleUpdateCategory={handleUpdateCategory}
-                handleUpdateTags={handleUpdateTags}
-                handleUpdateVisibility={handleUpdateVisibility}
-                handleDeleteSurvey={handleDeleteSurvey}
-                handleReportContent={handleReportContent}
-                navigateTo={navigateTo}
-                comments={comments}
-                commentName={commentName}
-                setCommentName={setCommentName}
-                commentContent={commentContent}
-                setCommentContent={setCommentContent}
-                handlePostComment={handlePostComment}
-                isPostingComment={isPostingComment}
-                currentCommentPage={currentCommentPage}
-                setCurrentCommentPage={setCurrentCommentPage}
-                editingCommentId={editingCommentId}
-                editContent={editContent}
-                setEditContent={setEditContent}
-                handleUpdateComment={handleUpdateComment}
-                handleDeleteComment={handleDeleteComment}
-                isActionLoading={isActionLoading}
-                startEditComment={startEditComment}
-                myCommentKeys={myCommentKeys}
-                myReactions={myReactions}
-                handleReaction={handleReaction}
-                renderCommentContent={renderCommentContent}
-                formatWithDay={formatWithDay}
-                CountdownTimer={CountdownTimer}
-                AnimatedCounter={AnimatedCounter}
-                Pagination={Pagination}
-                AdSenseBox={AdSenseBox}
-                CATEGORY_ICON_STYLE={CATEGORY_ICON_STYLE}
-                supabase={supabase}
-                setSurveys={setSurveys}
-              />
+              <div className="score-card">
+                {/* ヒーロー画像を削除 */}
+                <div className="detail-header">
+                  <h1 className="survey-title">
+                    {currentSurvey.tags?.includes('お知らせ') && currentSurvey.title.includes('||') 
+                      ? currentSurvey.title.split('||')[0].trim() 
+                      : currentSurvey.title}
+                  </h1>
+                  
+
+
+
+                   {/* 📺 動画プレイヤーの埋め込み (YouTube / ニコニコ) */}
+                  {currentSurvey.image_url && (currentSurvey.image_url.includes('yt:') || currentSurvey.image_url.includes('nico:')) ? (() => {
+                    // 各動画（yt:ID または nico:ID）をカンマで分割して個別に判定
+                    const videoEntries = currentSurvey.image_url.split(',').map(s => s.trim()).filter(Boolean);
+                    
+                    if (videoEntries.length === 0) return null;
+
+                    return (
+                      <div className="video-multi-container" style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', margin: '30px auto', width: '100%', maxWidth: '900px', textAlign: 'center',
+                        minHeight: '200px'
+                      }}>
+                        {videoEntries.map((entry, idx) => {
+                          const isNico = entry.startsWith('nico:');
+                          const isYT = entry.startsWith('yt:');
+                          if (!isNico && !isYT) return null;
+
+                          // プレフィックスを飛ばした後の実際のIDを取得
+                          const videoId = isNico ? entry.substring(5) : entry.substring(3);
+                          
+                          return (
+                            <div key={idx} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div className="video-multi-item" style={{
+                                position: 'relative', width: '100%', aspectRatio: '16/9',
+                                borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
+                                background: '#000', margin: '0 auto', border: '1px solid rgba(255,255,255,0.1)'
+                              }}>
+                                {isNico ? (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://embed.nicovideo.jp/watch/${videoId}`}
+                                    title={`Nico Nico video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allowFullScreen
+                                  ></iframe>
+                                ) : (
+                                  <iframe
+                                    loading="lazy"
+                                    src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                                    title={`YouTube video player ${idx + 1}`}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                  ></iframe>
+                                )}
+                              </div>
+                              <div style={{ marginTop: '15px' }}>
+                                <button
+                                  onClick={() => window.open(isNico ? `https://www.nicovideo.jp/watch/${videoId}` : `https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer')}
+                                  className="video-direct-link-btn"
+                                  style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '10px',
+                                    padding: '10px 24px', background: '#ffffff', color: isNico ? '#333' : '#ef4444',
+                                    borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem',
+                                    fontWeight: '900', border: `2px solid ${isNico ? '#e2e8f0' : '#fee2e2'}`, transition: 'all 0.2s',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                                  }}
+                                  onMouseOver={(e) => { 
+                                    e.currentTarget.style.background = isNico ? '#333' : '#ef4444'; 
+                                    e.currentTarget.style.color = '#ffffff';
+                                    e.currentTarget.style.boxShadow = `0 6px 15px rgba(${isNico ? '51,51,51' : '239,68,68'}, 0.3)`;
+                                  }}
+                                  onMouseOut={(e) => { 
+                                    e.currentTarget.style.background = '#ffffff'; 
+                                    e.currentTarget.style.color = isNico ? '#333' : '#ef4444';
+                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+                                  }}
+                                >
+                                  <span style={{ fontSize: '1.2rem' }}>📺</span> {isNico ? 'ニコニコ動画' : 'YouTube'}で直接見る (再生できない場合)
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })() : null}
+
+                  <div className="detail-meta-bar">
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>👀 いま {surveyOnlineCount} 人がチェック中！</span>
+                    <span>👁️ {currentSurvey.view_count || 0} 閲覧</span>
+                    <span>👍 {currentSurvey.likes_count || 0} いいね</span>
+                    {currentSurvey.category && <span>🏷️ {currentSurvey.category}</span>}
+                  </div>
+                  {currentSurvey.deadline && (
+                    <div className="deadline-info-block">
+                      <div className="absolute-deadline">締切：{new Date(currentSurvey.deadline).getFullYear()}年{formatWithDay(currentSurvey.deadline)}</div>
+                      {!isTimeUp ? (
+                        <CountdownTimer deadline={currentSurvey.deadline} onTimeUp={() => setIsTimeUp(true)} />
+                      ) : (
+                        <div className="countdown-display ended">
+                          投票受付終了
+                          <div style={{ fontSize: '0.8rem', marginTop: '6px', fontWeight: 'normal', opacity: 0.9, lineHeight: '1.4' }}>
+                            🗑️ 自動削除予定日：<br />
+                            <span style={{ color: '#fb7185', fontWeight: 'bold' }}>
+                              {(() => {
+                                const d = new Date(currentSurvey.deadline);
+                                d.setDate(d.getDate() + 7);
+                                return `${d.getFullYear()}/${formatWithDay(d.toISOString())}`;
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+
+                {/* 🆕 description を下部コンポーネントで表示らび！ */}
+                <SurveyDescription 
+                  description={currentSurvey.tags?.includes('お知らせ') && currentSurvey.title?.includes('||') 
+                    ? currentSurvey.title.split('||')[1].trim() 
+                    : currentSurvey.description} 
+                  renderCommentContent={renderCommentContent} 
+                />
+
+                <div className="options-container">
+                  {options.map((opt, index) => {
+                    const perc = isTotalVotes > 0 ? Math.round((opt.votes / isTotalVotes) * 100) : 0;
+                    return (
+                      <div key={opt.id} className="result-bar-container">
+                        {votedOption || isTimeUp ? (
+                          <>
+                            <div className="result-info">
+                              <span className="choice-name">
+                                {opt.name.startsWith(`${index + 1}.`) ? opt.name : `${index + 1}. ${opt.name}`}
+                                {(String(votedOption) === String(opt.id) || votedOption === opt.name) && ' ✅'}
+                              </span>
+                              <span className="vote-count-meta">
+                                <span className="vote-count-num">{opt.votes || 0}票</span>
+                                <span className="vote-count-perc">({perc}%)</span>
+                              </span>
+                            </div>
+                            <div className="result-bar-bg"><div className="result-bar-fill" style={{ width: `${perc}%` }}></div></div>
+                          </>
+                        ) : <button className="option-button" onClick={() => handleVote(opt)}>{opt.name.startsWith(`${index + 1}.`) ? opt.name : `${index + 1}. ${opt.name}`}</button>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 🎊 投票完了！お祝い＆シェアカードらび！ */}
+                {votedOption && !isTimeUp && (
+                  <div className="vote-completion-card">
+                    <div className="completion-title">
+                      <span className="glitter-icon">✨</span>
+                      投票完了らびっ！
+                      <span className="glitter-icon">✨</span>
+                    </div>
+                    <p className="completion-msg">
+                      あなたの1票が広場の歴史に刻まれたよっ！🐰💎<br />
+                      今の盛り上がりをみんなにも教えてあげようらび！
+                    </p>
+                    <button className="big-x-share-btn" onClick={() => handleShareResult('x')}>
+                      <span>𝕏</span> 結果をシェアする！
+                    </button>
+                  </div>
+                )}
+                <div className="share-result-area">
+                  <button
+                    className={`like-survey-btn ${likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? 'liked' : ''}`}
+                    onClick={handleLikeSurvey}
+                    style={{
+                      background: likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? '#ec4899' : '#fbcfe8',
+                      color: likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? 'white' : '#be185d',
+                      border: 'none', padding: '12px 24px', borderRadius: '24px', cursor: 'pointer',
+                      fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
+                      transition: 'all 0.2s', boxShadow: '0 4px 6px -1px rgba(236,72,153,0.3)',
+                    }}
+                  >
+                    {likedSurveys.some(id => String(id) === String(currentSurvey.id)) ? '👍 いいね！ (' : '🤍 いいね！ ('} {currentSurvey.likes_count || 0} )
+                  </button>
+                  <button className="share-copy-btn" onClick={() => handleShareResult('copy')}>📋 結果をコピー</button>
+                  <button className="share-x-btn" onClick={() => handleShareResult('x')}>𝕏 シェア</button>
+                  {user && (
+                    <button className="report-content-btn" onClick={() => handleReportContent('アンケート', currentSurvey.id, currentSurvey.title)} style={{
+                      background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '24px', cursor: 'pointer',
+                      fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'all 0.2s'
+                    }}>🚩 通報</button>
+                  )}
+                  {(user && (currentSurvey.user_id === user.id || isAdmin)) && (
+                    <div className="admin-actions-group" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '10px' }}>
+                      {currentSurvey.user_id === user.id && (
+                        <>
+                          <button className="delete-survey-btn" onClick={async () => {
+                            const input = window.prompt("どれくらい延長しますか？\n例: 「1d12h30m」で1日と12時間30分、「3d」や「3」で3日延長\n※未入力の場合は1日延長されます", "1d");
+                            if (input !== null) {
+                              const valStr = input.trim() || '1d';
+                              // まずは数字のみかをチェック
+                              let addMs = 0;
+                              let displayStr = "";
+                              if (/^\d+$/.test(valStr)) {
+                                addMs = parseInt(valStr, 10) * 24 * 60 * 60 * 1000;
+                                displayStr = `${valStr}日 `;
+                              } else {
+                                // d, h, m の各要素を取り出す
+                                const dMatch = valStr.match(/(\d+)d/i);
+                                const hMatch = valStr.match(/(\d+)h/i);
+                                const mMatch = valStr.match(/(\d+)m/i);
+
+                                if (!dMatch && !hMatch && !mMatch) return alert("😿 入力形式が正しくありません。(例: 1d12h30m, 3d, 3)");
+
+                                const d = dMatch ? parseInt(dMatch[1], 10) : 0;
+                                const h = hMatch ? parseInt(hMatch[1], 10) : 0;
+                                const m = mMatch ? parseInt(mMatch[1], 10) : 0;
+
+                                addMs = (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000) + (m * 60 * 1000);
+
+                                if (d > 0) displayStr += `${d}日 `;
+                                if (h > 0) displayStr += `${h}時間 `;
+                                if (m > 0) displayStr += `${m}分 `;
+                              }
+
+                              const currentDeadline = currentSurvey.deadline ? new Date(currentSurvey.deadline) : new Date();
+                              currentDeadline.setTime(currentDeadline.getTime() + addMs);
+
+                              const newIso = currentDeadline.toISOString();
+
+                              const { error } = await supabase.from('surveys').update({ deadline: newIso }).eq('id', currentSurvey.id);
+                              if (!error) {
+                                setCurrentSurvey({ ...currentSurvey, deadline: newIso });
+                                setIsTimeUp(currentDeadline < new Date());
+                                alert(`⏳ ${displayStr.trim()} 延長しました！`);
+                              } else {
+                                alert("😿 延長に失敗しました");
+                              }
+                            }
+                          }}>⏳ 延長する</button>
+                          
+                          <button className="end-survey-btn" style={{
+                            background: '#fff1f2', color: '#e11d48', border: '1px solid #fda4af', padding: '12px 20px', borderRadius: '24px', cursor: 'pointer',
+                            fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', transition: 'all 0.2s'
+                          }} onClick={async () => {
+                            if (window.confirm("本当にこのアンケートの受付を今すぐ終了しますか？\n（終了すると新たな投票ができなくなります）")) {
+                              const nowIso = new Date().toISOString();
+                              const { error } = await supabase.from('surveys').update({ deadline: nowIso }).eq('id', currentSurvey.id);
+                              if (!error) {
+                                setCurrentSurvey({ ...currentSurvey, deadline: nowIso });
+                                setIsTimeUp(true);
+                                alert("🛑 アンケートの受付を終了しました！");
+                              } else {
+                                alert("😿 終了処理に失敗しました");
+                              }
+                            }
+                          }}>🛑 今すぐ終了</button>
+                        </>
+                      )}
+                      
+                      <button className="delete-survey-btn" onClick={() => handleDeleteSurvey(currentSurvey.id)}>🗑️ 削除{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}</button>
+                    </div>
+                  )}
+                </div>
+                <AdSenseBox slot="detail_after_votes_placeholder" affiliateType="amazon" />
+                {user && (currentSurvey.user_id === user.id || isAdmin) && (
+                  <div className="owner-admin-panel" style={{ marginTop: '30px', borderTop: '2px solid #f1f5f9', paddingTop: '20px' }}>
+                    <div className="owner-visibility-panel">
+                      <span className="owner-vis-label">🔒 公開設定変更{isAdmin && currentSurvey.user_id !== user.id && ' (管理)'}:</span>
+                      <div className="visibility-selector">
+                        {[{ val: 'public', label: '🌐 公開' }, { val: 'limited', label: '🔗 限定公開' }, { val: 'private', label: '🔒 非公開' }].map(v => (
+                          <button key={v.val}
+                            className={`vis-btn ${currentSurvey.visibility === v.val ? 'active' : ''}`}
+                            onClick={() => handleUpdateVisibility(v.val)}>
+                            {v.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="owner-category-panel" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px dashed #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                        <span className="owner-vis-label">🏷️ カテゴリ: <strong>{currentSurvey.category}</strong></span>
+                        {!isEditingCategory && (
+                          <button className="edit-cat-toggle-btn" onClick={() => setIsEditingCategory(true)} style={{
+                            padding: '6px 16px', borderRadius: '12px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 'bold', color: '#475569'
+                          }}>変更する</button>
+                        )}
+                      </div>
+                      
+                      {isEditingCategory && (
+                        <div className="edit-category-selector" style={{ background: '#f8fafc', padding: '20px', borderRadius: '24px', border: '2px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                          <div className="category-selector" style={{ gap: '8px' }}>
+                            {(isAdmin ? ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'らび', 'その他'] : ['ニュース・経済', 'エンタメ', '音楽', 'アニメ', 'グルメ', 'スポーツ', 'トレンド', '自然', 'IT・テクノロジー', '生活', 'ゲーム', 'その他']).map(cat => (
+                              <button key={cat} 
+                                className={`cat-btn ${currentSurvey.category === cat ? 'active' : ''}`} 
+                                onClick={() => handleUpdateCategory(cat)}
+                                style={{ fontSize: '0.85rem', padding: '10px 14px' }}
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                          <button onClick={() => setIsEditingCategory(false)} style={{
+                            marginTop: '15px', width: '100%', padding: '10px', borderRadius: '15px', background: '#ffffff', border: '1px solid #e2e8f0', fontSize: '0.9rem', cursor: 'pointer', color: '#64748b'
+                          }}>キャンセル</button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="owner-tags-panel" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px dashed #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                        <span className="owner-vis-label">🏷️ タグ: <strong>{currentSurvey.tags?.join(', ') || 'なし'}</strong></span>
+                        {!isEditingTags && (
+                          <button className="edit-tags-toggle-btn" onClick={() => {
+                            setIsEditingTags(true);
+                            setTagEditValue(currentSurvey.tags?.join(', ') || '');
+                          }} style={{
+                            padding: '6px 16px', borderRadius: '12px', background: '#f1f5f9', border: '1px solid #e2e8f0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 'bold', color: '#475569'
+                          }}>変更する</button>
+                        )}
+                      </div>
+
+                      {isEditingTags && (
+                        <div className="edit-tags-input-area" style={{ background: '#f8fafc', padding: '20px', borderRadius: '24px', border: '2px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                          <input
+                            type="text"
+                            value={tagEditValue}
+                            onChange={e => setTagEditValue(e.target.value)}
+                            placeholder="タグ1, タグ2 (カンマ区切り)"
+                            style={{
+                              width: '100%', padding: '12px 20px', borderRadius: '16px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', transition: 'all 0.2s', marginBottom: '15px'
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={handleUpdateTags} style={{
+                              flex: 2, padding: '10px', borderRadius: '15px', background: '#7c3aed', color: 'white', border: 'none', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 'bold'
+                            }}>タグを保存する</button>
+                            <button onClick={() => setIsEditingTags(false)} style={{
+                              flex: 1, padding: '10px', borderRadius: '15px', background: '#ffffff', border: '1px solid #e2e8f0', fontSize: '0.9rem', cursor: 'pointer', color: '#64748b'
+                            }}>キャンセル</button>
+                          </div>
+                          <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '10px', marginLeft: '5px' }}>※カンマ（または読点）で区切ると複数のタグを設定できます</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <button className="back-to-list-link" onClick={() => navigateTo('list')}>← 戻る</button>
+
+                {/* 💬 コメント（掲示板）セクション */}
+                <div className="comments-section-area">
+                  <h3 className="comments-title">💬 みんなのコメント</h3>
+
+                  {/* 投稿フォーム */}
+                  <div className="comment-form-card">
+                    <input
+                      type="text"
+                      placeholder="名無し"
+                      value={commentName}
+                      onChange={e => setCommentName(e.target.value)}
+                      className="comment-name-input"
+                      autoComplete="off"
+                      name="comment-author-name-random-str"
+                    />
+                    <textarea
+                      placeholder="コメントを書いてね！みんなでワイワイ話そう🐰✨"
+                      value={commentContent}
+                      onChange={e => setCommentContent(e.target.value)}
+                      className="comment-textarea"
+                    />
+                    <button
+                      className="comment-submit-btn"
+                      onClick={handlePostComment}
+                      disabled={isPostingComment}
+                    >
+                      {isPostingComment ? '送信中...' : 'コメントを投稿する'}
+                    </button>
+                  </div>
+
+                  {/* コメントリスト */}
+                  <div className="comments-list">
+                    {/* 📄 コメントのページネーションロジック */}
+                    {(() => {
+                      const itemsPerPage = 5; // 5件ごとにページを分けるよ！🐰✨
+                      const totalPages = Math.ceil(comments.length / itemsPerPage);
+                      const startIndex = (currentCommentPage - 1) * itemsPerPage;
+                      const paginatedComments = comments.slice(startIndex, startIndex + itemsPerPage);
+
+                      return (
+                        <>
+                          {paginatedComments.length > 0 ? paginatedComments.map((c, localIdx) => {
+                            const index = startIndex + localIdx;
+                            return (
+                              <div key={c.id} className={`comment-item-card ${c.user_name?.includes('らび🐰') ? 'comment-labi' : ''}`}>
+                                <div className="comment-item-header">
+                                  <div className="comment-author-wrap">
+                                    <span className="comment-res-num" onClick={() => {
+                                      setCommentContent(prev => prev + `>>${comments.length - index} `);
+                                    }}>
+                                      {comments.length - index}
+                                    </span>
+                                    <span className="comment-author">👤 {c.user_name}</span>
+                                    {myCommentKeys[c.id] && (
+                                      <span className="my-comment-badge" title="このブラウザで投稿した内容です（ログイン不要で修正・削除が可能）">
+                                        ★ あなたの投稿
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="comment-date">{new Date(c.created_at).toLocaleString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+
+                                {editingCommentId === c.id ? (
+                                  <div className="comment-edit-form">
+                                    <textarea
+                                      className="comment-edit-textarea"
+                                      value={editContent}
+                                      onChange={(e) => setEditContent(e.target.value)}
+                                    />
+                                    <div className="comment-edit-actions">
+                                      <button className="comment-edit-save" onClick={handleUpdateComment} disabled={isActionLoading}>保存</button>
+                                      <button className="comment-edit-cancel" onClick={() => setEditingCommentId(null)}>キャンセル</button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={`comment-item-body ${c.content === '[[DELETED]]' ? 'deleted-text' : ''}`}>
+                                    {c.content === '[[DELETED]]' ? (
+                                      <span style={{ color: '#ef4444', fontWeight: '500' }}>⚠️ このコメントは削除されました。</span>
+                                    ) : (
+                                      renderCommentContent(c.content)
+                                    )}
+                                  </div>
+                                )}
+
+                                {c.content !== '[[DELETED]]' && (
+                                  <div className="comment-footer-row">
+                                    <div className="comment-reactions">
+                                      <button
+                                        className={`reaction-btn up ${myReactions[`${c.id}_up`] ? 'active' : ''}`}
+                                        onClick={() => handleReaction(c.id, 'up')}
+                                      >
+                                        👍 {c.reactions?.up || 0}
+                                      </button>
+                                      <button
+                                        className={`reaction-btn down ${myReactions[`${c.id}_down`] ? 'active' : ''}`}
+                                        onClick={() => handleReaction(c.id, 'down')}
+                                      >
+                                        👎 {c.reactions?.down || 0}
+                                      </button>
+                                      {user && (
+                                        <button className="comment-report-btn" onClick={() => handleReportContent('コメント', c.id, c.content.slice(0, 30), `アンケート: ${currentSurvey.title}\nレス番号: ${comments.length - index}`)} style={{
+                                          background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px'
+                                        }}>🚩</button>
+                                      )}
+                                    </div>
+                                    {(myCommentKeys[c.id] || isAdmin) && !editingCommentId && (
+                                      <div className="comment-owner-actions">
+                                        {myCommentKeys[c.id] && <button className="comment-owner-edit" onClick={() => startEditComment(c)}>修正</button>}
+                                        <button className="comment-owner-delete" onClick={() => handleDeleteComment(c.id)}>削除{isAdmin && !myCommentKeys[c.id] && ' (管理)'}</button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }) : (
+                            <div className="no-comments-msg">まだコメントはないよ。一番乗りで書いてみない？🐰🥕</div>
+                          )}
+
+                          <Pagination
+                            current={currentCommentPage}
+                            total={totalPages}
+                            onPageChange={(p) => {
+                              setCurrentCommentPage(p);
+                              const target = document.querySelector('.comments-section-area');
+                              if (target) {
+                                target.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }}
+                          />
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-
           <Sidebar />
         </div>
       </div>
 
-      <footer className="main-footer">
-        <div className="footer-content">
-          <div className="footer-about">
-            <h4>📢 アンケート広場について</h4>
-            <p>アンケート広場は、誰でもかんたんに匿名（またはGoogleログイン）でアンケートを作成・投票できる場所です。<br />
-              みんなの「ちょっと気になる」を集めて、楽しく意見を共有しましょう！</p>
-          </div>
-          <div className="footer-links">
-            <div className="footer-link-group">
-              <h5>📚 サイト情報</h5>
-              <ul>
-                <li onClick={() => setShowingAbout(true)} className="footer-link-item">🌟 このサイトについて</li>
-                <li onClick={() => setShowingTerms(true)} className="footer-link-item">📖 利用規約</li>
-                <li onClick={() => setShowingPrivacy(true)} className="footer-link-item">📄 プライバシーポリシー</li>
-                <li onClick={() => setShowingContact(true)} className="footer-link-item">📩 お問い合わせ</li>
-              </ul>
+      {/* 🏁 プレミアムフッター復元 */}
+      {(view === 'list' || view === 'details') && (
+        <footer className="main-footer">
+          <div className="footer-content">
+            <div className="footer-about">
+              <h4>📢 アンケート広場について</h4>
+              <p>アンケート広場は、誰でもかんたんに匿名（またはGoogleログイン）でアンケートを作成・投票できる場所です。<br />
+                みんなの「ちょっと気になる」を集めて、楽しく意見を共有しましょう！</p>
             </div>
-            <div className="footer-link-group">
-              <h5>💡 使い方・ルール</h5>
-              <ul>
-                <li>不適切な投稿は控えてね</li>
-                <li>楽しく安全に使いましょう</li>
-                <li>限定公開なら身内だけで楽しめるよ</li>
-              </ul>
+            <div className="footer-links">
+              <div className="footer-link-group">
+                <h5>📚 サイト情報</h5>
+                <ul>
+                  <li className="footer-link-item"><a href="/about.html" onClick={e => { e.preventDefault(); setShowingAbout(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>🌟 このサイトについて</a></li>
+                  <li className="footer-link-item"><a href="/terms.html" onClick={e => { e.preventDefault(); setShowingTerms(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>📖 利用規約</a></li>
+                  <li className="footer-link-item"><a href="/privacy.html" onClick={e => { e.preventDefault(); setShowingPrivacy(true); }} style={{ color: 'inherit', textDecoration: 'none' }}>📄 プライバシーポリシー</a></li>
+                  <li className="footer-link-item" onClick={() => setShowingContact(true)}>📩 お問い合わせ</li>
+                </ul>
+              </div>
+              <div className="footer-link-group">
+                <h5>💡 使い方・ルール</h5>
+                <ul>
+                  <li>不適切な投稿は控えてね</li>
+                  <li>楽しく安全に使いましょう</li>
+                  <li>限定公開なら身内だけで楽しめるよ</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 🥕 らびの応援コーナー */}
-        <div className="footer-support-section" style={{
-          padding: '20px', borderTop: '1px solid rgba(226, 232, 240, 0.6)',
-          textAlign: 'center', background: 'linear-gradient(to right, transparent, #fff5f7, transparent)'
-        }}>
-          <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ec4899', fontWeight: 'bold' }}>🐰 うさぎのらびを応援する 🥕</p>
-          <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="footer-ofuse-btn" style={{
-            display: 'inline-block', padding: '10px 24px', background: '#db2777', color: '#fff',
-            borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1rem',
-            boxShadow: '0 4px 12px rgba(219, 39, 119, 0.3)', transition: 'transform 0.2s'
-          }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-            OFUSEで応援メッセージを送る ✨
-          </a>
-        </div>
+          {/* 🥕 らびの応援コーナー */}
+          <div className="footer-support-section" style={{
+            padding: '20px', borderTop: '1px solid rgba(226, 232, 240, 0.6)',
+            textAlign: 'center', background: 'linear-gradient(to right, transparent, #fff5f7, transparent)'
+          }}>
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#ec4899', fontWeight: 'bold' }}>🐰 うさぎのらびを応援する 🥕</p>
+            <a href="https://ofuse.me/olipi" target="_blank" rel="noopener noreferrer" className="footer-ofuse-btn" style={{
+              display: 'inline-block', padding: '10px 24px', background: '#db2777', color: '#fff',
+              borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1rem',
+              boxShadow: '0 4px 12px rgba(219, 39, 119, 0.3)', transition: 'transform 0.2s'
+            }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+              OFUSEで応援メッセージを送る ✨
+            </a>
+          </div>
 
-        <div className="footer-bottom">© 2026 アンケート広場 / Powered by olipi projects</div>
-      </footer>
+          <div className="footer-bottom">© 2026 アンケート広場 / Powered by olipi projects</div>
+        </footer>
+      )}
 
-      <FooterModals
+      {/* 📖 各種モーダル復元 (別コンポーネントに分離) */}
+      <FooterModals 
         showingTerms={showingTerms} setShowingTerms={setShowingTerms}
         showingPrivacy={showingPrivacy} setShowingPrivacy={setShowingPrivacy}
         showingAbout={showingAbout} setShowingAbout={setShowingAbout}
