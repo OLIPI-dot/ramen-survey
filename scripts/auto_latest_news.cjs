@@ -133,6 +133,10 @@ async function startAutoPosting() {
                 continue;
             }
 
+            const description = (ogp.description && ogp.description.length > (news.description || '').length) ? ogp.description : (news.description || '');
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 7);
+
             // 動的なカテゴリ判定の強化
             let finalCategory = news.category;
             if (news.title.includes('株') || news.title.includes('円') || news.title.includes('経済') || news.title.includes('金利') || news.title.includes('原油')) {
