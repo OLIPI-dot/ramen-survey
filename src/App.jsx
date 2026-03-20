@@ -1227,12 +1227,30 @@ function App() {
     fetchSurveys(user);
   };
 
-  const handleVote = async (option) => {
+  const handleVote = (option) => {
     if (isTimeUp || votedOption) return;
-    await supabase.from('options').update({ votes: option.votes + 1 }).eq('id', option.id);
-    // IDを保存するように変更（同名回避のため）
+    
+    // 🆙 投票数をDBへ反映（非同期で待ち合わせないらび！）
+    supabase.from('options').update({ votes: (option.votes || 0) + 1 }).eq('id', option.id);
+
+    // 💎 UX改善: 瞬時にUIを更新するらび！
     localStorage.setItem(`voted_survey_${currentSurvey.id}`, String(option.id));
     setVotedOption(String(option.id));
+
+    // 1. 現在表示中のアンケートの選択肢と合計票数を更新
+    const updatedOptions = (currentSurvey.options || []).map(o => o.id === option.id ? { ...o, votes: (o.votes || 0) + 1 } : o);
+    const updatedSurvey = {
+      ...currentSurvey,
+      total_votes: (currentSurvey.total_votes || 0) + 1,
+      options: updatedOptions
+    };
+    setCurrentSurvey(updatedSurvey);
+
+    // 2. 広場の総票数マップ(voteMap)も更新しておく
+    voteMap[currentSurvey.id] = (voteMap[currentSurvey.id] || 0) + 1;
+
+    // 3. 全体リストの中のデータもつじつまを合わせる
+    setSurveys(prev => prev.map(s => s.id === currentSurvey.id ? { ...s, total_votes: (s.total_votes || 0) + 1 } : s));
   };
 
   const handleLikeSurvey = async () => {
@@ -1257,15 +1275,11 @@ function App() {
     setLikedSurveys(newLikedIds);
     localStorage.setItem('liked_surveys', JSON.stringify(newLikedIds));
 
-    // 🛡️ DBを更新：RPCを使用して確実に増減させる（レースコンディション回避）
-    const { error } = await supabase.rpc('increment_survey_like', {
+    // 🛡️ DBを更新：RPCを使用して確実に増減させる（非同期で待ち合わせない！）
+    supabase.rpc('increment_survey_like', {
       survey_id: currentSurvey.id,
       increment_val: isLiked ? -1 : 1
     });
-
-    if (error) {
-      console.warn("⚠️ いいねのDB保存に失敗しました（RPC未設定など）:", error.message);
-    }
   };
 
   const toggleWatch = (e, id) => {
