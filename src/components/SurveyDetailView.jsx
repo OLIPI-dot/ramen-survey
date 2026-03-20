@@ -100,7 +100,7 @@ const SurveyDetailView = ({
               )}
 
               {youtubeId && (
-                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <div style={{ textAlign: 'center', marginTop: '24px', marginBottom: '24px' }}>
                   <a
                     href={`https://www.youtube.com/watch?v=${youtubeId}`}
                     target="_blank"
