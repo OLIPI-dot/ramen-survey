@@ -238,10 +238,19 @@ const SurveyDetailView = ({
       {/* 🔥 関連アンケートセクション (回遊性アップ！) */}
       {relatedSurveys && relatedSurveys.length > 0 && (
         <div className="related-surveys-section" style={{ marginTop: '60px', paddingTop: '40px', borderTop: '2px solid #f1f5f9' }}>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#1e293b', marginBottom: '24px', textAlign: 'center' }}>
-            🔥 この話題、みんなはどう思ってる？
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#1e293b', marginBottom: '24px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <span>🔥</span> この話題、みんなはどう思ってる？
           </h3>
-          <div className="related-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          <div className="related-scroll-container" style={{ 
+            display: 'flex', 
+            overflowX: 'auto', 
+            gap: '20px',
+            paddingBottom: '20px',
+            paddingLeft: '4px',
+            paddingRight: '4px',
+            WebkitOverflowScrolling: 'touch',
+            scrollSnapType: 'x proximity'
+          }}>
             {relatedSurveys.map(s => {
               // サムネイル抽出
               let thumb = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=400';
@@ -255,7 +264,10 @@ const SurveyDetailView = ({
                 <div key={s.id} className="related-card" onClick={() => navigateTo('details', s)} style={{
                   background: '#fff', borderRadius: '20px', overflow: 'hidden', cursor: 'pointer',
                   boxShadow: '0 4px 15px rgba(0,0,0,0.05)', transition: 'all 0.3s ease',
-                  border: '1px solid #f1f5f9'
+                  border: '1px solid #f1f5f9',
+                  minWidth: '280px',
+                  flex: '0 0 280px',
+                  scrollSnapAlign: 'start'
                 }} onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 12px 25px rgba(0,0,0,0.1)'; }} onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)'; }}>
                   <div style={{ width: '100%', height: '140px', overflow: 'hidden', position: 'relative' }}>
                     <img src={thumb} alt={s.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -281,6 +293,12 @@ const SurveyDetailView = ({
               );
             })}
           </div>
+          <style>{`
+            .related-scroll-container::-webkit-scrollbar { height: 6px; }
+            .related-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+            .related-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+            .related-scroll-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+          `}</style>
         </div>
       )}
 

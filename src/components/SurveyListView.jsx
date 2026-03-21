@@ -167,16 +167,21 @@ const SurveyListView = ({
       
       {/* 🏷️ 人気のタグバー（おりぴさんリクエスト） */}
       <div className="tag-filter-bar" style={{
-        display: 'flex', overflowX: 'auto', gap: '8px', padding: '0 10px 20px',
-        marginBottom: '5px', WebkitOverflowScrolling: 'touch'
+        display: 'flex', overflowX: 'auto', gap: '10px', padding: '0 10px 16px',
+        marginBottom: '5px', WebkitOverflowScrolling: 'touch',
+        scrollSnapType: 'x proximity',
+        scrollbarWidth: 'thin'
       }}>
-        {['Switch', 'PS5', 'Steam', 'AI', 'グルメ', 'アニメ', 'YouTuber', 'VTuber', 'スマホ', 'ライフハック'].map(tag => (
+        {['Switch', 'PS5', 'Steam', 'AI', 'グルメ', 'アニメ', 'YouTuber', 'VTuber', 'スマホ', 'ライフハック', '映画', 'マンガ', 'VTuber', 'ライフスタイル', '経済'].reduce((acc, tag) => {
+          if (!acc.includes(tag)) acc.push(tag);
+          return acc;
+        }, []).map(tag => (
           <span
             key={tag}
             className={`tag-bubble ${filterTag === tag ? 'active' : ''}`}
             style={{
               cursor: 'pointer',
-              padding: '8px 16px',
+              padding: '8px 18px',
               borderRadius: '25px',
               fontSize: '0.82rem',
               fontWeight: '900',
@@ -186,7 +191,9 @@ const SurveyListView = ({
               color: filterTag === tag ? '#fff' : '#64748b',
               border: filterTag === tag ? 'none' : '1.5px solid #e2e8f0',
               boxShadow: filterTag === tag ? '0 4px 12px rgba(76, 29, 149, 0.25)' : 'none',
-              transform: filterTag === tag ? 'scale(1.05)' : 'scale(1)'
+              transform: filterTag === tag ? 'scale(1.05)' : 'scale(1)',
+              scrollSnapAlign: 'start',
+              flex: '0 0 auto'
             }}
             onClick={() => {
               const nextTag = filterTag === tag ? '' : tag;
@@ -201,6 +208,12 @@ const SurveyListView = ({
             #{tag}
           </span>
         ))}
+        <style>{`
+          .tag-filter-bar::-webkit-scrollbar { height: 4px; }
+          .tag-filter-bar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+          .tag-filter-bar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+          .tag-filter-bar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        `}</style>
       </div>
 
       {/* ✨ あなたへのおすすめセクション */}

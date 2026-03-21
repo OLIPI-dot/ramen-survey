@@ -1657,7 +1657,7 @@ function App() {
         const scoreB = (b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0);
         return scoreB - scoreA;
       })
-      .slice(0, 4);
+      .slice(0, 12);
   }, [surveys]);
 
   // 🔥 関連アンケート（同じカテゴリ or 類似タグ）
@@ -1670,7 +1670,7 @@ function App() {
         s.tags?.some(t => currentSurvey.tags?.includes(t))
       )
       .sort((a, b) => (b.total_votes || 0) - (a.total_votes || 0))
-      .slice(0, 4);
+      .slice(0, 12);
   }, [surveys, currentSurvey?.id]);
 
   const Sidebar = () => (

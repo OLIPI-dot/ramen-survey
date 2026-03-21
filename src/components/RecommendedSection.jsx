@@ -19,10 +19,13 @@ const RecommendedSection = ({ surveys, navigateTo }) => {
         </h2>
       </div>
 
-      <div className="recommended-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        gap: '16px'
+      <div className="recommended-scroll-container" style={{
+        display: 'flex',
+        overflowX: 'auto',
+        gap: '16px',
+        paddingBottom: '16px',
+        WebkitOverflowScrolling: 'touch',
+        scrollSnapType: 'x proximity'
       }}>
         {surveys.map(s => {
           let thumb = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=400';
@@ -46,7 +49,10 @@ const RecommendedSection = ({ surveys, navigateTo }) => {
                 border: '1px solid rgba(139, 92, 246, 0.1)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '10px'
+                gap: '10px',
+                minWidth: '220px',
+                flex: '0 0 220px',
+                scrollSnapAlign: 'start'
               }}
             >
               <div style={{ width: '100%', height: '100px', borderRadius: '14px', overflow: 'hidden' }}>
@@ -77,6 +83,10 @@ const RecommendedSection = ({ surveys, navigateTo }) => {
       </div>
 
       <style>{`
+        .recommended-scroll-container::-webkit-scrollbar { height: 6px; }
+        .recommended-scroll-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .recommended-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .recommended-scroll-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .rec-card:hover {
           transform: translateY(-6px);
           box-shadow: 0 12px 24px rgba(139, 92, 246, 0.15);
@@ -85,11 +95,6 @@ const RecommendedSection = ({ surveys, navigateTo }) => {
         @keyframes fadeInRecommend {
           from { opacity: 0; transform: translateY(15px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 600px) {
-          .recommended-grid {
-            grid-template-columns: 1fr 1fr !important;
-          }
         }
       `}</style>
     </div>
