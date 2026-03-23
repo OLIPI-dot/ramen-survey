@@ -73,10 +73,16 @@ function stripHtml(str) {
 }
 
 /**
- * 💡 2026/03/20 パーフェクト版 カテゴリ判定エンジン
+ * 🕵️ ニュースの内容から最適なカテゴリを分類するロジックらび！
  */
 function classifyNews(title, content) {
-    const text = (title + ' ' + content).toLowerCase();
+    // 🏆 【】や [] 内のカテゴリ名を最優先でチェックするらび！ (3/23 判定強化)
+    const bracketMatch = title.match(/^[【\[](コラム|レビュー|ネタ|話題|ニュース|エンタメ)[】\]]/);
+    if (bracketMatch) {
+        return bracketMatch[1];
+    }
+
+    const textLower = (title + ' ' + content).toLowerCase();
     
     // カテゴリスコア定義
     const scores = {
@@ -88,8 +94,6 @@ function classifyNews(title, content) {
         'ネタ': 0,
         'らび': 0
     };
-
-    const textLower = text.toLowerCase();
 
     // 1. レビュー (感想, 評価, 検証)
     if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(textLower)) {

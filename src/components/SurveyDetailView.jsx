@@ -145,7 +145,18 @@ const SurveyDetailView = ({
           <span style={{ background: '#f8fafc', padding: '4px 12px', borderRadius: '20px', color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
             🗳️ <AnimatedCounter value={isTotalVotes || 0} /> 票
           </span>
-          {currentSurvey.category && <span style={{ background: '#eff6ff', padding: '4px 12px', borderRadius: '20px', color: '#3b82f6', fontWeight: 'bold' }}>🏷️ {currentSurvey.category}</span>}
+          {currentSurvey.category && (
+            <span style={{ 
+              background: (CATEGORY_ICON_STYLE[currentSurvey.category]?.color || '#3b82f6') + '15', 
+              padding: '4px 12px', 
+              borderRadius: '20px', 
+              color: CATEGORY_ICON_STYLE[currentSurvey.category]?.color || '#3b82f6', 
+              fontWeight: 'bold',
+              border: `1.5px solid ${CATEGORY_ICON_STYLE[currentSurvey.category]?.color || '#3b82f6'}44`
+            }}>
+              {CATEGORY_ICON_STYLE[currentSurvey.category]?.icon || '🏷️'} {currentSurvey.category}
+            </span>
+          )}
         </div>
         {currentSurvey.tags && currentSurvey.tags.length > 0 && (
           <div className="detail-tags-row" style={{ marginTop: '25px', marginBottom: '15px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
