@@ -35,7 +35,7 @@ const RSS_FEEDS = [
     'https://news.yahoo.co.jp/rss/categories/entertainment.xml',
     'https://gigazine.net/news/rss_2.0/',
     'https://rss.itmedia.co.jp/rss/2.0/itlab_all.xml',
-    'https://www3.nhk.or.jp/rss/news/shuyo.xml'
+    'https://rss.itmedia.co.jp/rss/2.0/itlab_all.xml'
 ];
 
 async function searchYouTubeVideo(query) {
@@ -291,8 +291,8 @@ async function startAutoPosting() {
 
                 if (!title || !link) continue;
 
-                // 📝 説明文が空または短すぎる場合はOGPから取得を試みる
-                if (!description || description.length < 30) {
+                // 📝 説明文が短すぎる（切り詰められている可能性が高い）場合はOGPから取得を試みるらび！
+                if (!description || description.length < 200) {
                     const ogpDesc = await fetchOgpDescription(link);
                     if (ogpDesc && ogpDesc.length > (description || '').length) {
                         description = ogpDesc;
@@ -350,18 +350,35 @@ async function startAutoPosting() {
                 continue;
             }
 
-            if (IS_DRY_RUN) {
-                log(`[DRY RUN] 投稿: ${news.title} [${news.category}] Tags:[${news.tags.join(', ')}]`);
-                count++;
-                continue;
-            }
-
             const surveyTitle = news.title.slice(0, 100);
             const deadline = new Date();
             deadline.setDate(deadline.getDate() + 7);
 
+            // 📝 説明文を少し長めにしつつ、キリのいいところで切る魔法 🪄
+            const smartTruncate = (text, limit = 400) => {
+                if (!text || text.length <= limit) return text;
+                const sub = text.slice(0, limit);
+                // 文末（。！？）を探して、そこで切るらび！
+                const lastPunct = Math.max(
+                    sub.lastIndexOf('。'),
+                    sub.lastIndexOf('！'),
+                    sub.lastIndexOf('？'),
+                    sub.lastIndexOf('?'),
+                    sub.lastIndexOf('!')
+                );
+                return lastPunct > limit * 0.5 ? sub.slice(0, lastPunct + 1) : sub;
+            };
+
+            const truncatedDescription = smartTruncate(news.description || '', 400);
+
             // 📝 説明文の末尾に「[続きを読む](URL)」を挿入するらび！ (UI側で装飾されるよ)
-            const finalDescription = (news.description || '') + `\n\n[続きを読む](${news.link})`;
+            const finalDescription = truncatedDescription + `\n\n[続きを読む](${news.link})`;
+
+            if (IS_DRY_RUN) {
+                log(`[DRY RUN] 投稿: ${news.title} [${news.category}]`);
+                count++;
+                continue;
+            }
 
             const { data: sData, error: sErr } = await supabase.from('surveys').insert([{
                 title: surveyTitle,

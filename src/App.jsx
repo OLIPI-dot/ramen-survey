@@ -1730,16 +1730,30 @@ function App() {
     return base;
   }, [surveys, searchQuery, filterCategory, filterTag, sortMode, watchedIds, user, isAdmin]);
 
-  // 💎 あなたへのおすすめ（高スコアな数件）
+  // 💎 鮮度重視 ＆ ランダム性のある「あなたへのおすすめ」 🐰✨
   const recommendedSurveys = useMemo(() => {
+    const now = new Date();
     return [...surveys]
       .filter(s => s.visibility === 'public')
-      .sort((a, b) => {
-        const scoreA = (a.total_votes || 0) * SCORE_VOTE_WEIGHT + (a.view_count || 0);
-        const scoreB = (b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0);
-        return scoreB - scoreA;
+      // 💡 期間が終了したものは除外するらび！
+      .filter(s => {
+        const isEnded = s.deadline && new Date(s.deadline) < now;
+        return !isEnded;
       })
-      .slice(0, 12);
+      .map(s => {
+        // 📈 基本スコア (投票数 + 閲覧数)
+        const baseScore = (s.total_votes || 0) * SCORE_VOTE_WEIGHT + (s.view_count || 0);
+        
+        // 🕒 鮮度ボーナス (新しいほど高得点！ 48時間以内の投稿に最大ボーナス)
+        const ageHours = (now - new Date(s.created_at)) / (1000 * 60 * 60);
+        const freshnessBonus = Math.max(0, 150 - ageHours * 3); // 48時間で0になるくらい
+        
+        return { ...s, _finalScore: baseScore + freshnessBonus };
+      })
+      .sort((a, b) => b._finalScore - a._finalScore)
+      .slice(0, 24) // 優秀な候補を24件選んで...
+      .sort(() => Math.random() - 0.5) // シャッフルするらび！🔀
+      .slice(0, 12); // その中から12件を表示
   }, [surveys]);
 
   // 🔥 関連アンケート（同じカテゴリ or 類似タグ）

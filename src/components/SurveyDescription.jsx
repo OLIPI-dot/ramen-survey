@@ -71,14 +71,26 @@ const SurveyDescription = ({ description, renderCommentContent }) => {
           pointerEvents: 'none'
         }} />
 
-        {/* 本文 💡 */}
+        {/* 本文 💡 (おりぴさんリクエスト: ホワイトアウト演出) */}
         <div style={{ 
           position: 'relative', 
           zIndex: 1, 
+          maxHeight: '240px', // ここで長さを制限
+          overflow: 'hidden',
           marginBottom: displayLink ? '32px' : '0',
           color: '#334155'
         }}>
           {cleanBody}
+          {/* 下部でジワ〜ッと消えていくエフェクトらび！✨ */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '80px',
+            background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.95) 90%)',
+            pointerEvents: 'none'
+          }} />
         </div>
 
         {/* 🔗 プレミアム・ソースボタン */}
