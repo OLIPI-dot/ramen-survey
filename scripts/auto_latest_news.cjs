@@ -223,11 +223,13 @@ function generateTags(title, content) {
     }
 
     // 5. 🧪 カタカナ固有名詞の簡易抽出（3文字以上のカタカナ連続）
-    const katakanaRegex = /[ァ-ヶー]{3,10}/g;
+    const katakanaRegex = /[ァ-ヶー]{3,20}/g; // 20文字まで拡張らび！
+    const noiseWords = ['ショット', 'ニュース', '話題', '最新', '公開', '決定', '開始', '終了', '更新', '一覧', '比較', 'ランキング', 'まとめ', 'ちゃん', 'くん', 'さん'];
+    
     while ((match = katakanaRegex.exec(title)) !== null) {
         const word = match[0];
-        // 既に登録済みのタグ（ジャンル名など）でなければ追加
-        if (word !== 'ニュース' && word !== '話題' && word !== 'レビュー') {
+        // ノイズワードでなければ追加
+        if (!noiseWords.includes(word) && !/レビュー|考察|解説/.test(word)) {
             addTag(word, 5);
         }
     }
