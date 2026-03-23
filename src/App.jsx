@@ -1043,7 +1043,7 @@ function App() {
         if (view !== 'list') {
           setView('list');
           setCurrentSurvey(null);
-          window.scrollTo(0, 0);
+          setTimeout(() => window.scrollTo(0, 0), 10);
         }
         if (categoryFilter) setFilterCategory(categoryFilter);
         if (tagFilter) setFilterTag(tagFilter);
@@ -1078,7 +1078,7 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       loadFromUrl();
-      window.scrollTo(0, 0);
+      setTimeout(() => window.scrollTo(0, 0), 10);
     };
     window.addEventListener('popstate', handlePopState);
     loadFromUrl(); // 初回読み込み
@@ -1126,7 +1126,7 @@ function App() {
       setFilterTag(''); // リストに戻る際にタグフィルタをリセット
     }
     setView(nextView);
-    window.scrollTo(0, 0);
+    setTimeout(() => window.scrollTo(0, 0), 10);
   };
 
   const fetchSurveys = async (currentUser, silent = false) => {
