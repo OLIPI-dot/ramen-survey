@@ -33,9 +33,8 @@ const RSS_FEEDS = [
     'https://news.yahoo.co.jp/rss/topics/top-picks.xml',
     'https://news.yahoo.co.jp/rss/categories/it.xml',
     'https://news.yahoo.co.jp/rss/categories/entertainment.xml',
-    'https://gigazine.net/news/rss_2.0/',
-    'https://rss.itmedia.co.jp/rss/2.0/itlab_all.xml',
-    'https://rss.itmedia.co.jp/rss/2.0/itlab_all.xml'
+    'https://logtube.jp/feed/',
+    'https://realsound.jp/tech/index.xml'
 ];
 
 async function searchYouTubeVideo(query) {
@@ -75,16 +74,8 @@ function stripHtml(str) {
 /**
  * 🕵️ ニュースの内容から最適なカテゴリを分類するロジックらび！
  */
-function classifyNews(title, content) {
-    // 🏆 【】や [] 内のカテゴリ名を最優先でチェックするらび！ (3/23 判定強化)
-    const bracketMatch = title.match(/^[【\[](コラム|レビュー|ネタ|話題|ニュース|エンタメ)[】\]]/);
-    if (bracketMatch) {
-        return bracketMatch[1];
-    }
-
-    const textLower = (title + ' ' + content).toLowerCase();
-    
-    // カテゴリスコア定義
+function classifyNews(title, description) {
+    const textLower = (title + ' ' + (description || '')).toLowerCase();
     const scores = {
         'ニュース': 10,
         'エンタメ': 0,
@@ -92,8 +83,15 @@ function classifyNews(title, content) {
         'レビュー': 0,
         'コラム': 0,
         'ネタ': 0,
+        'YouTuber': 0,
         'らび': 0
     };
+
+    // 0. YouTuber (特定のサイト or キーワード)
+    const isYouTuberSite = /logtube\.jp|realsound\.jp\/tech/.test(description || '');
+    if (isYouTuberSite || /(youtuber|youtube|ユーチューバー|配信者|実況者|ヒカキン|hikakin|はじめしゃちょー|ヒカル|フィッシャーズ|東海オンエア|スカイピース|コムドット|平成フラミンゴ|キヨ|レトルト|ぽきん|ポッキー|兄者弟者|壱百満天原サロメ|にじさんじ|ホロライブ|vtuber|ブレイキングダウン|朝倉未来)/i.test(textLower)) {
+        scores['YouTuber'] += 100;
+    }
 
     // 1. レビュー (感想, 評価, 検証)
     if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(textLower)) {
@@ -168,7 +166,8 @@ function generateTags(title, content) {
         { name: 'エンタメ', keywords: ['映画', 'ドラマ', 'アニメ', '芸能', '俳優', 'アイドル', 'アーティスト', 'ライブ', 'イベント', '声優', 'プロデュース', 'asmr'] },
         { name: '経済', keywords: ['株価', 'ビジネス', '投資', '円安', '賃上げ', '決算', '銀行', '市場'] },
         { name: 'ライフスタイル', keywords: ['グルメ', '料理', '健康', '掃除', '節約', '旅行', 'ファッション', '子育て'] },
-        { name: 'スポーツ', keywords: ['プロ野球', '大谷', 'サッカー', 'ゴルフ', 'テニス', '五輪', 'マラソン', '格闘技'] }
+        { name: 'スポーツ', keywords: ['プロ野球', '大谷', 'サッカー', 'ゴルフ', 'テニス', '五輪', 'マラソン', '格闘技'] },
+        { name: 'YouTuber', keywords: ['youtuber', 'youtube', 'ユーチューバー', '配信者', '実況者', 'uuum', 'クリエイター'] }
     ];
 
     genres.forEach(g => {
@@ -180,6 +179,15 @@ function generateTags(title, content) {
 
     // 2. 🔍 サブタグ（詳細・ブランド名など）
     const subTags = [
+        { name: 'ヒカキン', keywords: ['ヒカキン', 'hikakin', 'まるお', 'もふこ'] },
+        { name: 'はじめしゃちょー', keywords: ['はじめしゃちょー', 'hajime'] },
+        { name: 'ヒカル', keywords: ['ヒカル', 'hikaru', 'nextstage', 'ネクステ'] },
+        { name: '東海オンエア', keywords: ['東海オンエア', 'てつや', 'しばゆー', 'りょう', 'としみつ', 'ゆめまる', '虫眼鏡'] },
+        { name: 'フィッシャーズ', keywords: ['フィッシャーズ', 'fischers', 'シルク'] },
+        { name: 'コムドット', keywords: ['コムドット', 'やまと'] },
+        { name: 'にじさんじ', keywords: ['にじさんじ', 'nijisanji', '葛葉', '叶', 'サロメ'] },
+        { name: 'ホロライブ', keywords: ['ホロライブ', 'hololive', 'ぺこら', 'マリン', 'フブキ'] },
+        { name: 'VTuber', keywords: ['vtuber', 'ブイチューバー', 'バーチャルyoutuber'] },
         { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'mac', 'macbook', 'watch'] },
         { name: 'Google', keywords: ['google', 'android', 'pixel', 'youtube', 'gemini', 'workspace'] },
         { name: 'Nothing', keywords: ['nothing', 'phone', 'ear'] },
@@ -281,7 +289,10 @@ async function startAutoPosting() {
 
     for (const feed of RSS_FEEDS) {
         try {
-            const res = await axios.get(feed, { timeout: 10000 });
+            const res = await axios.get(feed, { 
+                timeout: 10000,
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+            });
             const items = res.data.match(/<item>([\s\S]*?)<\/item>/g) || [];
 
             for (const item of items) {

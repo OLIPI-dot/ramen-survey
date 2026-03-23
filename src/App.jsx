@@ -65,6 +65,7 @@ const CATEGORY_ICON_STYLE = {
   "レビュー": { icon: "⭐", color: "#f59e0b" },
   "コラム": { icon: "🖊️", color: "#3b82f6" },
   "ネタ": { icon: "😂", color: "#f97316" },
+  "YouTuber": { icon: "📺", color: "#ef4444" },
   "らび": { icon: "🐰", color: "#f472b6" },
   "その他": { icon: "🏷️", color: "#94a3b8" },
   "マイアンケート": { icon: "👤", color: "#94a3b8" }
