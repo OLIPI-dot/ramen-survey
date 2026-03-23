@@ -1133,6 +1133,8 @@ function App() {
     }
 
     try {
+      const isActuallyAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
+
       // 🚀 爆速化: 最初は最新200件程度に絞って取得するらび！ (全件取得は重すぎる)
       const { data: sData, error: sError } = await supabase.from('surveys')
         .select('*')
@@ -1159,8 +1161,6 @@ function App() {
         if (s && s.id) uniqueMap.set(String(s.id), s);
       });
       const allSurveys = Array.from(uniqueMap.values());
-      
-      const isActuallyAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
 
       if (allSurveys.length > 0) {
         const updatedList = allSurveys.map(s => {
