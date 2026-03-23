@@ -1196,7 +1196,7 @@ function App() {
             ...s,
             category: effectiveCategory, // 以降の全コンポーネントでこの正規化後のカテゴリを使うらび
             is_official: isOfficialPattern,
-            total_votes: voteMap[sId] ?? s.total_votes ?? 0,
+            total_votes: s.total_votes ?? 0,
             likes_count: s.likes_count ?? 0,
             view_count: s.view_count ?? 0,
             comment_count: s.comment_count ?? 0
