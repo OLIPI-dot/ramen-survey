@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-// Deploy Kick: 2026-03-18 21:24 🚀🐰
+// Deploy Kick: 2026-03-23 12:16 🚀🐰
 import { createClient } from '@supabase/supabase-js';
 import emailjs from '@emailjs/browser';
 import FooterModals from './components/FooterModals';
@@ -60,11 +60,13 @@ const LABI_RESPONSES = {
 const CATEGORY_ICON_STYLE = {
   "すべて": { icon: "📂", color: "#64748b" },
   "ニュース": { icon: "⚡", color: "#0ea5e9" },
+  "話題": { icon: "✨", color: "#8b5cf6" },
+  "エンタメ": { icon: "🎭", color: "#ec4899" },
   "レビュー": { icon: "⭐", color: "#f59e0b" },
-  "コラム": { icon: "🖋️", color: "#6366f1" },
+  "コラム": { icon: "🖋️", color: "#6b7280" },
   "ネタ": { icon: "😂", color: "#f97316" },
-  "らび": { icon: "🐰", color: "#ec4899" },
-  "その他": { icon: "❓", color: "#94a3b8" },
+  "らび": { icon: "🐰", color: "#f472b6" },
+  "その他": { icon: "🏷️", color: "#94a3b8" },
   "マイアンケート": { icon: "👤", color: "#94a3b8" }
 };
 

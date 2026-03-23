@@ -80,24 +80,35 @@ function classifyNews(title, content) {
     
     // カテゴリスコア定義
     const scores = {
-        'ニュース': 10, // 基本値
+        'ニュース': 10,
+        'エンタメ': 0,
+        '話題': 0,
         'レビュー': 0,
         'コラム': 0,
         'ネタ': 0,
         'らび': 0
     };
 
-    // 1. レビュー (感想, 評価, 検証, プレイレポ)
-    if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(text)) scores['レビュー'] += 50;
+    // 1. レビュー (感想, 評価, 検証)
+    if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(text)) {
+        if (/(号泣|ショット|反響|話題|SNS|共感|ファン|衝撃)/.test(text)) scores['話題'] += 40; 
+        else scores['レビュー'] += 50;
+    }
     
-    // 2. コラム (解説, 考察, 分析, 読み物, 理由, なぜ)
+    // 2. エンタメ (芸能, 映画, 音楽, アニメ, ドラマ)
+    if (/(芸能|映画|音楽|アニメ|ドラマ|出演|放送|主演|監督|ライブ|アイドル)/.test(text)) scores['エンタメ'] += 45;
+
+    // 3. コラム (解説, 考察, 分析, 読み物, 理由, なぜ)
     if (/(解説|考察|分析|読み物|理由|なぜ|とは|仕組み|背景)/.test(text)) scores['コラム'] += 40;
     
-    // 3. ネタ (面白い, 話題, 驚き, 謎, 爆笑, 癒やし, 衝撃)
-    if (/(面白い|話題|驚き|謎|爆笑|癒やし|衝撃|不思議|あるある|SNSで)/.test(text)) scores['ネタ'] += 30;
+    // 4. ネタ・話題 (面白い, 話題, 驚き, 謎, 爆笑, 癒やし, 衝撃)
+    if (/(面白い|話題|驚き|謎|爆笑|癒やし|衝撃|不思議|あるある|SNSで)/.test(text)) scores['話題'] += 35;
 
-    // 4. らび (うさぎ, 人参, 癒やし, 可愛い)
-    if (/(うさぎ|人参|にんじん|可愛い|もふもふ)/.test(text)) scores['らび'] += 100;
+    // 5. らび (うさぎ, 人参, 運営, 広場, 目標)
+    if (/(うさぎ|人参|にんじん|広場を盛り上げ|運営方針|らびのひとりごと|みんなの投票広場)/.test(text)) scores['らび'] += 100;
+
+    // 💡 2026/03/23 追加: 「可愛い」だけでは「らび」にしない
+    // ニュースの中に「可愛い」があっても、それはらびではなく対象（芸能人など）のことならび！
 
     // スコアが最大のものを採用。同点ならニュース
     let finalCategory = 'ニュース';
@@ -108,6 +119,11 @@ function classifyNews(title, content) {
             maxScore = score;
             finalCategory = cat;
         }
+    }
+
+    // 🛡️ 最終防御: 内容に「可愛い」が入っていても、芸能やニュース寄りのキーワードがあれば「ニュース」に引き戻す
+    if (finalCategory === 'らび' && /(芸能|ニュース|事件|事故|話題|SNS|トレンド)/.test(text)) {
+        finalCategory = 'ニュース';
     }
 
     return finalCategory;
@@ -259,7 +275,12 @@ async function startAutoPosting() {
 
             // YouTube検索
             let video = await searchYouTubeVideo(news.title);
-            const imageUrl = video || '';
+            let imageUrl = video || '';
+
+            // 📰 動画が見つからない場合のデフォルト画像 (ニュースカテゴリのみ)
+            if (!imageUrl && news.category === 'ニュース') {
+                imageUrl = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=1000';
+            }
 
             if (IS_DRY_RUN) {
                 log(`[DRY RUN] 投稿: ${news.title} [${news.category}] Tags:[${news.tags.join(', ')}]`);

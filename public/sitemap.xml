@@ -356,18 +356,21 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/606</loc>
     <lastmod>2026-03-22</lastmod>
+<<<<<<< HEAD
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/550</loc>
     <lastmod>2026-03-21</lastmod>
+=======
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://minna-no-vote-square.vercel.app/s/153</loc>
-    <lastmod>2026-03-09</lastmod>
+    <loc>https://minna-no-vote-square.vercel.app/s/550</loc>
+    <lastmod>2026-03-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -402,12 +405,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://minna-no-vote-square.vercel.app/s/561</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://minna-no-vote-square.vercel.app/s/356</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
@@ -416,6 +413,12 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/357</loc>
     <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/153</loc>
+    <lastmod>2026-03-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -980,6 +983,8 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/565</loc>
     <lastmod>2026-03-22</lastmod>
+<<<<<<< HEAD
+=======
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -998,18 +1003,34 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/446</loc>
     <lastmod>2026-03-20</lastmod>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
+    <loc>https://minna-no-vote-square.vercel.app/s/610</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/612</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/446</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+=======
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <loc>https://minna-no-vote-square.vercel.app/s/324</loc>
     <lastmod>2026-03-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://minna-no-vote-square.vercel.app/s/160</loc>
-    <lastmod>2026-03-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1062,6 +1083,15 @@
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/160</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <loc>https://minna-no-vote-square.vercel.app/s/290</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>weekly</changefreq>
@@ -1562,6 +1592,7 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/573</loc>
     <lastmod>2026-03-22</lastmod>
+<<<<<<< HEAD
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1574,12 +1605,20 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/179</loc>
     <lastmod>2026-03-12</lastmod>
+=======
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://minna-no-vote-square.vercel.app/s/159</loc>
-    <lastmod>2026-03-11</lastmod>
+    <loc>https://minna-no-vote-square.vercel.app/s/620</loc>
+    <lastmod>2026-03-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/179</loc>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1628,6 +1667,18 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/574</loc>
     <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/574</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/621</loc>
+    <lastmod>2026-03-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1686,6 +1737,15 @@
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/561</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <loc>https://minna-no-vote-square.vercel.app/s/575</loc>
     <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -1824,6 +1884,15 @@
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/159</loc>
+    <lastmod>2026-03-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <loc>https://minna-no-vote-square.vercel.app/s/269</loc>
     <lastmod>2026-03-17</lastmod>
     <changefreq>weekly</changefreq>
@@ -1832,12 +1901,6 @@
   <url>
     <loc>https://minna-no-vote-square.vercel.app/s/165</loc>
     <lastmod>2026-03-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://minna-no-vote-square.vercel.app/s/170</loc>
-    <lastmod>2026-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1890,6 +1953,15 @@
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/170</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <loc>https://minna-no-vote-square.vercel.app/s/488</loc>
     <lastmod>2026-03-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -1968,13 +2040,21 @@
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
     <loc>https://minna-no-vote-square.vercel.app/s/585</loc>
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/588</loc>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
+<<<<<<< HEAD
     <loc>https://minna-no-vote-square.vercel.app/s/588</loc>
+=======
+    <loc>https://minna-no-vote-square.vercel.app/s/585</loc>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
     <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -2147,4 +2227,13 @@
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+<<<<<<< HEAD
+=======
+  <url>
+    <loc>https://minna-no-vote-square.vercel.app/s/605</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+>>>>>>> 88c7216 (feat: refine categorization, streamline UI categories, and add news image fallbacks)
 </urlset>

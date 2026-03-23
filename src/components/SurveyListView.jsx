@@ -170,7 +170,7 @@ const SurveyListView = ({
         marginBottom: '20px', WebkitOverflowScrolling: 'touch',
         scrollSnapType: 'x proximity', borderBottom: '1px solid #f1f5f9'
       }}>
-        {['すべて', 'ニュース', 'レビュー', 'コラム', 'ネタ', 'らび', 'その他'].map(cat => (
+        {['すべて', 'ニュース', '話題', 'エンタメ', 'レビュー', 'コラム', 'ネタ', 'らび', 'その他'].map(cat => (
           <button
             key={cat}
             style={{
@@ -399,16 +399,19 @@ const SurveyListView = ({
                           <div className="thumb-category-badge" style={{
                             color: catStyle.color,
                             border: `1.5px solid ${catStyle.color}44`,
-                            background: 'rgba(255, 255, 255, 0.9)', zIndex: 2
+                            background: 'rgba(255, 255, 255, 0.95)', zIndex: 2
                           }}>
                             <span style={{ fontSize: '1.2em' }}>{catStyle.icon}</span>
-                            <span>{s.category}</span>
+                            <span>{s.category || 'その他'}</span>
                           </div>
                         </div>
                       ) : (
                         <div className="category-icon-thumb" style={{
-                          background: catStyle.color, border: `2px solid ${catStyle.color}44`
-                        }}>{catStyle.icon}</div>
+                          background: catStyle.color, border: `2px solid ${catStyle.color}44`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                          <div style={{ fontSize: '2.8rem' }}>{catStyle.icon}</div>
+                        </div>
                       )}
 
                       <div className="survey-item-content">
