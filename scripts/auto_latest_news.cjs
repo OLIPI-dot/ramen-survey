@@ -308,25 +308,50 @@ async function startAutoPosting() {
         }
     }
 
-    // 🛡️ SEO強化: 重複チェック (過去1000件まで拡大 & 正規化マッチング)
+    // 🛡️ SEO強化: 重複チェック (URL ＆ タイトル正規化)
+    // 過去1000件のタイトルと説明文を取得してURLを抽出するらび！
     const { data: recentSurveys } = await supabase
         .from('surveys')
-        .select('title')
+        .select('title, description')
         .order('created_at', { ascending: false })
         .limit(1000);
 
-    const normalize = (t) => (t || '').replace(/[\s\t\n\r、。！？「」『』“”"‘’!?,.．．…—―-]/g, '').toLowerCase();
+    // タイトルの正規化関数 (記号や空白を消して小文字に)
+    const normalize = (t) => {
+        let text = t || '';
+        // 決まり文句のプレフィックスを削除
+        text = text.replace(/^【(速報|更新|最新|注目|重要)】/i, '');
+        text = text.replace(/^\[(新着|修正|告知)\]/i, '');
+        // 記号類をすべて削除
+        return text.replace(/[\s\t\n\r、。！？「」『』“”"‘’!?,.．．…—―‐－\(\)（）\[\]［］【】]/g, '').toLowerCase();
+    };
+
     const recentNormTitles = new Set(recentSurveys?.map(s => normalize(s.title)) || []);
-    const recentFullTitles = new Set(recentSurveys?.map(s => (s.title || '').trim()) || []);
+    
+    // 説明文の最後にある [続きを読む](URL) からURLを抽出するらび！
+    const recentLinks = new Set(recentSurveys?.map(s => {
+        const match = s.description?.match(/\[続きを読む\]\((.*?)\)/);
+        return match ? match[1].trim() : null;
+    }).filter(l => l) || []);
 
     let count = 0;
     const categoryCounts = {};
 
     for (const news of allNews) {
-        if (count >= 8) break; // 💡 投稿数を少し絞って質を上げるらび
+        if (count >= 8) break; 
         
-        // 重複チェック
-        if (recentNormTitles.has(normalize(news.title))) continue;
+        // 1. URLによる絶対的な重複チェック
+        if (recentLinks.has(news.link.trim())) {
+            log(`[Skip] URLが重複しています: ${news.title}`);
+            continue;
+        }
+
+        // 2. 正規化タイトルによる重複チェック
+        const normCurrent = normalize(news.title);
+        if (recentNormTitles.has(normCurrent)) {
+            log(`[Skip] タイトルが実質的に重複しています: ${news.title}`);
+            continue;
+        }
 
         // 📝 内容が薄すぎるものはスキップ (SEO対策)
         if (!news.description || news.description.length < 50) continue;
