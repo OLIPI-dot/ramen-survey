@@ -1043,6 +1043,7 @@ function App() {
         if (view !== 'list') {
           setView('list');
           setCurrentSurvey(null);
+          window.scrollTo(0, 0);
         }
         if (categoryFilter) setFilterCategory(categoryFilter);
         if (tagFilter) setFilterTag(tagFilter);
@@ -1075,7 +1076,10 @@ function App() {
 
   // ブラウザの戻る・進むボタンに対応するセンサー センサーを追加！
   useEffect(() => {
-    const handlePopState = () => loadFromUrl();
+    const handlePopState = () => {
+      loadFromUrl();
+      window.scrollTo(0, 0);
+    };
     window.addEventListener('popstate', handlePopState);
     loadFromUrl(); // 初回読み込み
     return () => window.removeEventListener('popstate', handlePopState);
