@@ -1105,6 +1105,7 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [user]); // userが変わった時も再チェック
 
+  const navigateTo = async (nextView, survey = null) => {
     // 現在のスクロール位置を「しおり」として記録するらび！
     if (view === 'list') {
       window.history.replaceState({ view: 'list', scrollY: window.pageYOffset }, '', window.location.href);
