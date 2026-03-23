@@ -89,26 +89,38 @@ function classifyNews(title, content) {
         'らび': 0
     };
 
+    const textLower = text.toLowerCase();
+
     // 1. レビュー (感想, 評価, 検証)
-    if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(text)) {
-        if (/(号泣|ショット|反響|話題|SNS|共感|ファン|衝撃)/.test(text)) scores['話題'] += 40; 
-        else scores['レビュー'] += 50;
+    if (/(感想|レビュー|評価|検証|使ってみた|プレイレポ|徹底比較|実機)/.test(textLower)) {
+        if (/(号泣|ショット|反響|話題|sns|共感|ファン|衝撃)/.test(textLower)) {
+            scores['話題'] += 40; 
+        } else {
+            // タイトルに「レビュー」があれば最優先
+            if (textLower.includes('レビュー')) scores['レビュー'] += 100;
+            else scores['レビュー'] += 50;
+        }
     }
     
     // 2. エンタメ (芸能, 映画, 音楽, アニメ, ドラマ)
-    if (/(芸能|映画|音楽|アニメ|ドラマ|出演|放送|主演|監督|ライブ|アイドル)/.test(text)) scores['エンタメ'] += 45;
+    if (/(芸能|映画|音楽|アニメ|ドラマ|出演|放送|主演|監督|ライブ|アイドル|舞台|声優)/.test(textLower)) {
+        scores['エンタメ'] += 45;
+    }
 
-    // 3. コラム (解説, 考察, 分析, 読み物, 理由, なぜ)
-    if (/(解説|考察|分析|読み物|理由|なぜ|とは|仕組み|背景)/.test(text)) scores['コラム'] += 40;
+    // 3. コラム (解説, 考察, 分析, 読み物, 理由, なぜ, 背景, 仕組み)
+    if (/(解説|考察|分析|読み物|理由|なぜ|とは|仕組み|背景|ヒント|秘話)/.test(textLower)) {
+        scores['コラム'] += 45;
+    }
     
     // 4. ネタ・話題 (面白い, 話題, 驚き, 謎, 爆笑, 癒やし, 衝撃)
-    if (/(面白い|話題|驚き|謎|爆笑|癒やし|衝撃|不思議|あるある|SNSで)/.test(text)) scores['話題'] += 35;
+    if (/(面白い|話題|驚き|謎|爆笑|癒やし|衝撃|不思議|あるある|snsで|バズ|物議)/.test(textLower)) {
+        scores['話題'] += 35;
+    }
 
     // 5. らび (うさぎ, 人参, 運営, 広場, 目標)
-    if (/(うさぎ|人参|にんじん|広場を盛り上げ|運営方針|らびのひとりごと|みんなの投票広場)/.test(text)) scores['らび'] += 100;
-
-    // 💡 2026/03/23 追加: 「可愛い」だけでは「らび」にしない
-    // ニュースの中に「可愛い」があっても、それはらびではなく対象（芸能人など）のことならび！
+    if (/(うさぎ|人参|にんじん|広場を盛り上げ|運営方針|らびのひとりごと|みんなの投票広場)/.test(textLower)) {
+        scores['らび'] += 100;
+    }
 
     // スコアが最大のものを採用。同点ならニュース
     let finalCategory = 'ニュース';
@@ -122,7 +134,7 @@ function classifyNews(title, content) {
     }
 
     // 🛡️ 最終防御: 内容に「可愛い」が入っていても、芸能やニュース寄りのキーワードがあれば「ニュース」に引き戻す
-    if (finalCategory === 'らび' && /(芸能|ニュース|事件|事故|話題|SNS|トレンド)/.test(text)) {
+    if (finalCategory === 'らび' && /(芸能|ニュース|事件|事故|話題|sns|トレンド)/.test(textLower)) {
         finalCategory = 'ニュース';
     }
 
@@ -130,7 +142,7 @@ function classifyNews(title, content) {
 }
 
 /**
- * 🏷️ カテゴリとタグを賢く導き出す魔法らび！（チャッピー式・強化版）
+ * 🏷️ カテゴリとタグを賢く導き出す魔法らび！（チャッピー式・強化版2.0）
  */
 function generateTags(title, content) {
     const titleLower = title.toLowerCase();
@@ -142,55 +154,56 @@ function generateTags(title, content) {
         tagScores[tag] = (tagScores[tag] || 0) + score;
     };
 
-    // 1. 🔍 ジャンル（大項目）の検出: スコア 2
+    // 1. 🔍 ジャンル（大項目）の検出
     const genres = [
-        { name: 'ゲーム', keywords: ['ゲーム', '新作', '発売', 'プレイ', '攻略', 'switch', 'ps5', 'xbox', 'steam', 'スマホゲー'] },
-        { name: 'IT・技術', keywords: ['ai', 'スマホ', 'アプリ', 'ガジェット', 'web', '開発', 'openai', 'google', 'apple', 'microsoft'] },
-        { name: 'エンタメ', keywords: ['映画', 'ドラマ', 'アニメ', '芸能', '俳優', 'アイドル', 'youtuber', 'vtuber', 'ライブ', 'イベント'] },
-        { name: '経済', keywords: ['株価', 'ビジネス', '投資', '円安', '賃上げ', '決算', '銀行'] },
-        { name: 'ライフスタイル', keywords: ['グルメ', '料理', '健康', '掃除', '節約', '旅行', 'ファッション'] },
-        { name: 'スポーツ', keywords: ['プロ野球', '大谷', 'サッカー', 'ゴルフ', 'テニス', '五輪', 'マラソン'] }
+        { name: 'AI', keywords: ['ai', '人工知能', '生成ai', 'gpt', 'llm', 'openai', 'claude', 'gemini', '深層学習'] },
+        { name: 'ゲーム', keywords: ['新作ゲーム', 'ゲーム攻略', 'プレイ動画', 'eスポーツ', 'ニンテンドー', 'プレイステーション'] },
+        { name: 'スマホ', keywords: ['スマホ', 'スマートフォン', 'iphone', 'android', 'pixel', 'galaxy', 'xperia', 'nothing'] },
+        { name: 'IT・技術', keywords: ['アプリ', 'ガジェット', 'web', '開発', 'プログラミング', 'クラウド', 'サイバー'] },
+        { name: 'エンタメ', keywords: ['映画', 'ドラマ', 'アニメ', '芸能', '俳優', 'アイドル', 'アーティスト', 'ライブ', 'イベント'] },
+        { name: '経済', keywords: ['株価', 'ビジネス', '投資', '円安', '賃上げ', '決算', '銀行', '市場'] },
+        { name: 'ライフスタイル', keywords: ['グルメ', '料理', '健康', '掃除', '節約', '旅行', 'ファッション', '子育て'] },
+        { name: 'スポーツ', keywords: ['プロ野球', '大谷', 'サッカー', 'ゴルフ', 'テニス', '五輪', 'マラソン', '格闘技'] }
     ];
 
     genres.forEach(g => {
         g.keywords.forEach(kw => {
-            if (titleLower.includes(kw)) addTag(g.name, 4); // タイトルなら強力
-            else if (contentLower.includes(kw)) addTag(g.name, 2);
+            if (titleLower.includes(kw)) addTag(g.name, 10); // タイトルなら超強力
+            else if (contentLower.includes(kw)) addTag(g.name, 3);
         });
     });
 
-    // 2. 🔍 サブタグ（詳細）の検出: スコア 3
+    // 2. 🔍 サブタグ（詳細・ブランド名など）
     const subTags = [
-        { name: 'Switch', keywords: ['switch', 'スイッチ'] },
-        { name: 'PS5', keywords: ['ps5', 'playstation', 'プレステ'] },
-        { name: 'Steam', keywords: ['steam'] },
-        { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'mac'] },
-        { name: 'Google', keywords: ['google', 'android', 'pixel'] },
-        { name: '任天堂', keywords: ['nintendo', '任天堂', 'ポケモン', 'マリオ', 'ピクミン'] },
-        { name: 'ソニー', keywords: ['sony', 'ソニー'] },
-        { name: 'Microsoft', keywords: ['microsoft', 'windows', 'xbox'] },
-        { name: 'YouTuber', keywords: ['youtuber', 'ユーチューバー'] },
-        { name: 'VTuber', keywords: ['vtuber', 'ブイチューバー'] }
+        { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'mac', 'macbook', 'watch'] },
+        { name: 'Google', keywords: ['google', 'android', 'pixel', 'youtube', 'gemini', 'workspace'] },
+        { name: 'Nothing', keywords: ['nothing', 'phone', 'ear'] },
+        { name: 'Sony', keywords: ['sony', 'ソニー', 'ps5', 'playstation', 'ウォークマン'] },
+        { name: 'Nintendo', keywords: ['nintendo', '任天堂', 'スイッチ', 'switch', 'ポケモン', 'マリオ'] },
+        { name: 'Microsoft', keywords: ['microsoft', 'windows', 'xbox', 'copilot', 'azure'] },
+        { name: 'OpenAI', keywords: ['openai', 'chatgpt', 'dall-e', 'sora'] },
+        { name: 'Amazon', keywords: ['amazon', 'kindle', 'prime', 'aws'] },
+        { name: 'イーロン・マスク', keywords: ['マスク', 'musk', 'tesla', 'spacex', 'x.com'] }
     ];
 
     subTags.forEach(s => {
         s.keywords.forEach(kw => {
-            if (titleLower.includes(kw)) addTag(s.name, 5); // タイトルなら激強
-            else if (contentLower.includes(kw)) addTag(s.name, 3);
+            if (titleLower.includes(kw)) addTag(s.name, 12); // タイトルなら最強
+            else if (contentLower.includes(kw)) addTag(s.name, 5);
         });
     });
 
-    // 3. 🛡️ ニュース速報性の検出
-    const isBreaking = ['発表', '決定', '公開', '発売', '開始', '解禁', '速報'].some(kw => fullText.includes(kw));
-    if (isBreaking) addTag('ニュース', 2);
+    // 3. 🛡️ 特別アクション（レビュー等）
+    if (titleLower.includes('レビュー')) addTag('レビュー', 8);
+    if (titleLower.includes('解説') || titleLower.includes('考察')) addTag('考察', 5);
 
-    // 4. 🏆 【】内の固有名詞抽出: スコア 3 (ノイズ除去)
+    // 4. 🏆 【】内の固有名詞抽出（ノイズ除去）
     const brackets = title.match(/【([^】]+)】/g);
     if (brackets) {
         brackets.forEach(b => {
             const word = b.replace(/[【】]/g, '').trim();
-            if (word.length >= 2 && word.length <= 12 && !/速報|まとめ|更新|一覧/.test(word)) {
-                addTag(word, 3);
+            if (word.length >= 2 && word.length <= 12 && !/速報|まとめ|更新|一覧|動画/.test(word)) {
+                addTag(word, 8);
             }
         });
     }
@@ -201,8 +214,8 @@ function generateTags(title, content) {
         .map(([tag]) => tag);
 
     // 6. 🛡️ 最低2タグ保証
-    if (sortedTags.length < 1) sortedTags.push('ニュース');
-    if (sortedTags.length < 2) sortedTags.push('話題');
+    if (sortedTags.length < 1) sortedTags.push('話題');
+    if (sortedTags.length < 2) sortedTags.push('ニュース');
 
     // 最大4個
     return sortedTags.slice(0, 4);
