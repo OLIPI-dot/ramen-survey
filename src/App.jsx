@@ -896,9 +896,12 @@ function App() {
     // ガード1: 詳細画面なのに対象アンケートがまだ読み込まれていない場合はスキップ
     if (view === 'details' && !currentSurvey) return;
 
-    // ガード2: 初期ロード時、URLにアンケートIDがあるのにまだ詳細画面に切り替わっていない間はスキップ
+    // 🔄 URL統一魔法: ?s=ID で来たら /s/ID にリダイレクトするらび！
     const params = new URLSearchParams(window.location.search);
-    if (params.get('s') && view === 'list') return;
+    const sId = params.get('s');
+    if (sId) {
+      window.history.replaceState(null, '', `/s/${sId}`);
+    }
 
     window.scrollTo(0, 0);
 
@@ -916,7 +919,7 @@ function App() {
       : 'みんなのアンケート広場は、誰でもかんたんに匿名でアンケートを作成・投票できる場所です。日常の疑問や本音を共有して、みんなの意見を楽しく集約しましょう！';
 
     const currentUrl = currentSurvey 
-      ? `https://minna-no-vote-square.vercel.app/?s=${currentSurvey.id}` 
+      ? `https://minna-no-vote-square.vercel.app/s/${currentSurvey.id}` 
       : (view === 'list' ? 'https://minna-no-vote-square.vercel.app/' : 'https://minna-no-vote-square.vercel.app/create');
 
     // 動画サムネイルがあればOGP画像にする魔法 📸
@@ -996,7 +999,7 @@ function App() {
         "itemListElement": surveys.slice(0, 10).map((sv, index) => ({
           "@type": "ListItem",
           "position": index + 1,
-          "url": `https://minna-no-vote-square.vercel.app/?s=${sv.id}`,
+          "url": `https://minna-no-vote-square.vercel.app/s/${sv.id}`,
           "name": sv.title
         }))
       };
@@ -1621,7 +1624,7 @@ function App() {
       const name = opt.name.length > 8 ? opt.name.slice(0, 8) + '…' : opt.name;
       return `${index + 1}. ${name} ${bar(perc)} ${perc}%`;
     });
-    const url = `${window.location.origin}/?s=${currentSurvey.id}`;
+    const url = `${window.location.origin}/s/${currentSurvey.id}`;
 
     const shareUrl = `${window.location.origin}/s/${currentSurvey.id}`;
 
