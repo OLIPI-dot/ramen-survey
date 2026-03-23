@@ -5,10 +5,6 @@
       "destination": "/api/og"
     },
     {
-      "source": "/s/:id",
-      "destination": "/api/og?s=:id"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

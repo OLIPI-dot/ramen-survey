@@ -3,15 +3,25 @@ const path = require('path');
 
 // 環境変数の取得
 const getEnv = (key) => {
+    // 1. すでに環境変数にあるならそれを使う（GitHub Actionsなど）
     if (process.env[key]) return process.env[key];
-    let envFile = '';
-    const localEnv = path.join(__dirname, '../.env.local');
-    const rootEnv = path.join(__dirname, '../.env');
-    if (fs.existsSync(localEnv)) envFile = fs.readFileSync(localEnv, 'utf8');
-    else if (fs.existsSync(rootEnv)) envFile = fs.readFileSync(rootEnv, 'utf8');
 
-    const match = envFile.split('\n').find(line => line.startsWith(`${key}=`));
-    if (match) return match.split('=')[1].trim().replace(/^["'](.*)["']$/, '$1');
+    // 2. なければ .env 系ファイルを探すらび！
+    let envFile = '';
+    const locations = [
+        path.join(__dirname, '../.env.local'),
+        path.join(__dirname, '../.env'),
+        path.join(__dirname, '.env.local'),
+        path.join(__dirname, '.env')
+    ];
+
+    for (const loc of locations) {
+        if (fs.existsSync(loc)) {
+            envFile = fs.readFileSync(loc, 'utf8');
+            const match = envFile.split('\n').find(line => line.trim().startsWith(`${key}=`));
+            if (match) return match.split('=')[1].trim().replace(/^["'](.*)["']$/, '$1');
+        }
+    }
     return null;
 };
 

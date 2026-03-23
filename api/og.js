@@ -61,15 +61,8 @@ export default async function handler(req, res) {
   <p>${description}</p>
   <img src="${imageUrl}" alt="Eye-catch" style="max-width: 100%;" />
   <hr />
-  <p>魔法発動中...🪄 (Survey ID: ${s})</p>
-  <script>
-    // magic=1 の時はデバッグのためにリダイレクトしない
-    if (!window.location.search.includes('magic=1')) {
-      window.location.href = "/s/${s}";
-    } else {
-      console.log("Debug mode: Redirection skipped.");
-    }
-  </script>
+  <p>魔法発動中...🪄</p>
+  <p>読み込みに時間がかかる場合は <a href="/s/${s}">こちらをクリック</a> してね！🐰🥕</p>
 </body>
 </html>`;
 
