@@ -206,7 +206,7 @@ function generateTags(title, content) {
         { name: 'ホロライブ', keywords: ['ホロライブ', 'hololive', 'ぺこら', 'マリン', 'フブキ'] },
         { name: 'VTuber', keywords: ['vtuber', 'ブイチューバー', 'バーチャルyoutuber'] },
         { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'mac', 'macbook', 'watch'] },
-        { name: 'Google', keywords: ['google', 'android', 'pixel', 'youtube', 'gemini', 'workspace'] },
+        { name: 'Google', keywords: ['google', 'android', 'pixel', 'gemini', 'workspace'] },
         { name: 'Nothing', keywords: ['nothing', 'phone', 'ear'] },
         { name: 'Sony', keywords: ['sony', 'ソニー', 'ps5', 'playstation', 'ウォークマン'] },
         { name: 'Nintendo', keywords: ['nintendo', '任天堂', 'スイッチ', 'switch'] },
