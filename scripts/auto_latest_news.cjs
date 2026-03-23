@@ -355,7 +355,7 @@ async function startAutoPosting() {
             deadline.setDate(deadline.getDate() + 7);
 
             // 📝 説明文を少し長めにしつつ、キリのいいところで切る魔法 🪄
-            const smartTruncate = (text, limit = 400) => {
+            const smartTruncate = (text, limit = 600) => {
                 if (!text || text.length <= limit) return text;
                 const sub = text.slice(0, limit);
                 // 文末（。！？）を探して、そこで切るらび！
@@ -369,7 +369,7 @@ async function startAutoPosting() {
                 return lastPunct > limit * 0.5 ? sub.slice(0, lastPunct + 1) : sub;
             };
 
-            const truncatedDescription = smartTruncate(news.description || '', 400);
+            const truncatedDescription = smartTruncate(news.description || '', 600);
 
             // 📝 説明文の末尾に「[続きを読む](URL)」を挿入するらび！ (UI側で装飾されるよ)
             const finalDescription = truncatedDescription + `\n\n[続きを読む](${news.link})`;

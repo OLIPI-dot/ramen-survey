@@ -75,7 +75,7 @@ const SurveyDescription = ({ description, renderCommentContent }) => {
         <div style={{ 
           position: 'relative', 
           zIndex: 1, 
-          maxHeight: '240px', // ここで長さを制限
+          maxHeight: '320px', // ここを少し広げて600文字程度まで対応
           overflow: 'hidden',
           marginBottom: displayLink ? '32px' : '0',
           color: '#334155'
@@ -87,7 +87,7 @@ const SurveyDescription = ({ description, renderCommentContent }) => {
             bottom: 0,
             left: 0,
             right: 0,
-            height: '80px',
+            height: '100px', // グラデーションも少し広げてより滑らかに
             background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.95) 90%)',
             pointerEvents: 'none'
           }} />
