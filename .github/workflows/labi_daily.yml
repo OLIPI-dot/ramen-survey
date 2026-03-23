@@ -5,9 +5,12 @@ on:
     branches:
       - main
   schedule:
-    # 毎日 2:00-4:00 JST (UTC 17:00-19:00) を除いて実行らびっ！
-    - cron: '0 0-16,20-23 * * *'
-  workflow_dispatch: # 手動実行も可能らびっ！
+    # 毎日 JST 08:00 (朝), 12:00 (昼), 20:00 (夜) に実行らびっ！
+    # UTC: 前日23:00, 03:00, 11:00
+    - cron: '0 23 * * *'
+    - cron: '0 3 * * *'
+    - cron: '0 11 * * *'
+  workflow_dispatch: # 手動実行も可能らび！
 
 permissions:
   contents: read
