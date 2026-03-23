@@ -1089,6 +1089,9 @@ function App() {
         if (e.state.view === 'list') {
           setView('list');
           setCurrentSurvey(null);
+          if (e.state.scrollY !== undefined) {
+            setTimeout(() => window.scrollTo(0, e.state.scrollY), 20); // 少し待ってから戻すらび！
+          }
         } else if (e.state.view === 'details' && e.state.surveyId) {
           loadFromUrl();
         }
@@ -1102,8 +1105,11 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [user]); // userが変わった時も再チェック
 
-  const navigateTo = async (nextView, survey = null) => {
-    const url = new URL(window.location.origin + window.location.pathname);
+    // 現在のスクロール位置を「しおり」として記録するらび！
+    if (view === 'list') {
+      window.history.replaceState({ view: 'list', scrollY: window.pageYOffset }, '', window.location.href);
+    }
+
     if (nextView === 'details' && survey) {
       if (survey.visibility === 'private' && (!user || user.id !== survey.user_id)) {
         return alert('非公開です🔒');
