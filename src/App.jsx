@@ -1417,6 +1417,7 @@ function App() {
       options: updatedOptions
     };
 
+    setOptions(updatedOptions);
     setCurrentSurvey(updatedSurvey);
     const mapper = s => String(s.id) === String(currentSurvey.id) ? updatedSurvey : s;
     setSurveys(prev => prev.map(mapper));
