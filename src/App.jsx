@@ -1042,9 +1042,12 @@ function App() {
 
       if (!surveyId || surveyId === 'null' || surveyId === 'undefined') {
         console.log("🏘️ loadFromUrl: Resetting to list view.");
-        setView('list');
-        setCurrentSurvey(null);
-        setTimeout(() => window.scrollTo(0, 0), 10);
+        if (view !== 'list') {
+          setView('list');
+          setCurrentSurvey(null);
+          window.history.replaceState({ view: 'list' }, '', window.location.href);
+          setTimeout(() => window.scrollTo(0, 0), 10);
+        }
         if (categoryFilter) setFilterCategory(categoryFilter);
         if (tagFilter) setFilterTag(tagFilter);
         return;
@@ -1065,6 +1068,7 @@ function App() {
 
       setCurrentSurvey(sv);
       setIsTimeUp(sv.deadline && new Date(sv.deadline) < new Date());
+      window.history.replaceState({ view: 'details', surveyId: sv.id }, '', window.location.href);
       setView('details');
     } catch (err) {
       console.error("❌ loadFromUrl CRASHED:", err);
@@ -1080,8 +1084,19 @@ function App() {
       window.history.scrollRestoration = 'manual';
     }
     const handlePopState = (e) => {
-      console.log("↩️ popstate event fired! State:", e.state);
-      loadFromUrl();
+      console.log("↩️ popstate event fired!", e.state);
+      if (e.state && e.state.view) {
+        if (e.state.view === 'list') {
+          setView('list');
+          setCurrentSurvey(null);
+        } else if (e.state.view === 'details' && e.state.surveyId) {
+          // 詳細画面への復元が必要な場合は、既存の読み込み魔法を呼ぶらび！
+          loadFromUrl();
+        }
+      } else {
+        // ラベルがない場合はこれまで通りURLから判断！
+        loadFromUrl();
+      }
       setTimeout(() => window.scrollTo(0, 0), 10);
     };
     window.addEventListener('popstate', handlePopState);
@@ -1095,8 +1110,8 @@ function App() {
       if (survey.visibility === 'private' && (!user || user.id !== survey.user_id)) {
         return alert('非公開です🔒');
       }
-      // 🔗 OGPが確実に効くように、パスベースのURL (/s/ID) を優先するらび！
-      window.history.pushState({ surveyId: survey.id }, '', `/s/${survey.id}`);
+      // 🔗 履歴に「詳細だよ！」という確実なラベルを貼るらび！
+      window.history.pushState({ view: 'details', surveyId: survey.id }, '', `/s/${survey.id}`);
       setCurrentSurvey(survey);
       setIsTimeUp(survey.deadline && new Date(survey.deadline) < new Date());
 
@@ -1123,7 +1138,7 @@ function App() {
         })();
       }
     } else if (nextView === 'list') {
-      // 🏘️ 広場に戻る時はURLをルート（/）にリセットするらび！
+      // 🏘️ 広場に戻る時は「広場だよ！」というラベルを貼ってURLをリセット！
       window.history.pushState({ view: 'list' }, '', '/');
       setCurrentSurvey(null);
       setFilterCategory('すべて'); // リストに戻る際にカテゴリフィルタをリセット
