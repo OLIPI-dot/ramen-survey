@@ -35,8 +35,12 @@ const SurveyListView = ({
   surveyTags, setSurveyTags,
   tempTag, setTempTag,
   handleStartSurvey,
-  supabase,
+  totalOfficialCount,
+  totalUserCount,
   recommendedSurveys,
+  debouncedSearchQuery,
+  searchStats = { categories: {}, official: 0, user: 0 },
+  supabase,
 }) => {
   const ITEMS_PER_PAGE = 15;
   const listRef = React.useRef(null);
@@ -56,39 +60,20 @@ const SurveyListView = ({
       .slice(0, 5); // 上位5件をピックアップ
   }, [surveys]);
 
+  // ⚡ サーバー側でフィルタ・ソート済みの surveys をそのまま使うらび！
+  // ただし、公式/ユーザー切り替えタブの client-side filtering だけは残すらび（将来的にサーバーへ移行可能）
   const finalItems = React.useMemo(() => {
-    return filteredBaseSurveys
+    return surveys
       .filter(s => {
-        if (!searchQuery && !filterTag) {
+        // ⚡ 検索中（デバウンス後）やタグフィルタ中以外は、タブごとの出し分けを確実に維持するらび！
+        // 検索中まで制限しちゃうと「HITしない」と混乱しちゃうので、わざと緩めるらび🥕
+        if (!debouncedSearchQuery && !filterTag) {
           if (activeTab === 'official' && !s.is_official) return false;
           if (activeTab === 'user' && s.is_official) return false;
         }
-        if (sortMode === 'popular' && s.tags?.includes('お知らせ')) return false;
         return true;
-      })
-      .sort((a, b) => {
-        const isAnnounceA = a.tags?.includes('お知らせ');
-        const isAnnounceB = b.tags?.includes('お知らせ');
-        if (sortMode !== 'popular') {
-          if (isAnnounceA && !isAnnounceB) return -1;
-          if (!isAnnounceA && isAnnounceB) return 1;
-        }
-        if (sortMode !== 'popular') return new Date(b.created_at) - new Date(a.created_at);
-        if (popularMode === 'trending') {
-          const ageA = Math.max(0.5, (new Date() - new Date(a.created_at)) / 3600000);
-          const ageB = Math.max(0.5, (new Date() - new Date(b.created_at)) / 3600000);
-          return (((b.total_votes || 0) * 10 + (b.view_count || 0)) / Math.pow(ageB + 2, 1.2)) -
-                 (((a.total_votes || 0) * 10 + (a.view_count || 0)) / Math.pow(ageA + 2, 1.2));
-        }
-        if (popularMode === 'score') {
-          return ((b.total_votes || 0) * SCORE_VOTE_WEIGHT + (b.view_count || 0)) -
-                 ((a.total_votes || 0) * SCORE_VOTE_WEIGHT + (a.view_count || 0));
-        }
-        return popularMode === 'votes'
-          ? (b.total_votes || 0) - (a.total_votes || 0)
-          : (b.view_count || 0) - (a.view_count || 0);
       });
-  }, [filteredBaseSurveys, searchQuery, filterTag, activeTab, sortMode, popularMode]);
+  }, [surveys, debouncedSearchQuery, filterTag, activeTab]);
 
   return (
     <>
@@ -138,15 +123,24 @@ const SurveyListView = ({
           onChange={e => setSearchQuery(e.target.value)}
           className="search-input"
         />
+        {searchQuery && (
+          <button 
+            className="search-clear" 
+            onClick={() => setSearchQuery('')}
+            title="検索をクリア"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* 📌 タブ切り替え */}
       <div className="tab-switcher">
-        <button className={sortMode === 'today' ? 'active' : ''} onClick={() => setSortMode('today')}>☀️ 今日の話題</button>
-        <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>🆕 新着順</button>
-        <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気</button>
+        <button className={sortMode === 'today' ? 'active' : ''} onClick={() => setSortMode('today')}>☀️ 今日の話題 {searchQuery && (searchStats?.sortModes?.today || 0) > 0 && <span className="tab-hit-badge">{searchStats.sortModes.today}</span>}</button>
+        <button className={sortMode === 'latest' ? 'active' : ''} onClick={() => setSortMode('latest')}>🆕 新着順 {searchQuery && (searchStats?.sortModes?.latest || 0) > 0 && <span className="tab-hit-badge">{searchStats.sortModes.latest}</span>}</button>
+        <button className={sortMode === 'popular' ? 'active' : ''} onClick={() => setSortMode('popular')}>🔥 人気 {searchQuery && (searchStats?.sortModes?.popular || 0) > 0 && <span className="tab-hit-badge">{searchStats.sortModes.popular}</span>}</button>
         <button className={sortMode === 'watching' ? 'active' : ''} onClick={() => setSortMode('watching')}>⭐ ウォッチ中</button>
-        <button className={sortMode === 'ended' ? 'active' : ''} onClick={() => setSortMode('ended')}>📁 アーカイブ</button>
+        <button className={sortMode === 'ended' ? 'active' : ''} onClick={() => setSortMode('ended')}>📁 アーカイブ {searchQuery && (searchStats?.sortModes?.ended || 0) > 0 && <span className="tab-hit-badge">{searchStats.sortModes.ended}</span>}</button>
         <button
           className={sortMode === 'mine' ? 'active' : ''}
           onClick={() => {
@@ -205,7 +199,29 @@ const SurveyListView = ({
             <span style={{ fontSize: filterCategory === cat ? '1.8rem' : '1.4rem', transition: 'font-size 0.3s' }}>
               {CATEGORY_ICON_STYLE[cat]?.icon || '📁'}
             </span>
-            <span style={{ lineHeight: 1.2 }}>{cat}</span>
+            <span style={{ lineHeight: 1.2, position: 'relative' }}>
+              {cat}
+              {searchStats?.categories[cat] > 0 && (
+                <span className="cat-hit-count" style={{
+                  position: 'absolute',
+                  top: '-18px',
+                  right: '-18px',
+                  background: filterCategory === cat ? '#fff' : (CATEGORY_ICON_STYLE[cat]?.color || '#8b5cf6'),
+                  color: filterCategory === cat ? (CATEGORY_ICON_STYLE[cat]?.color || '#8b5cf6') : '#fff',
+                  fontSize: '0.7rem',
+                  padding: '1px 5px',
+                  minWidth: '18px',
+                  height: '18px',
+                  borderRadius: '10px',
+                  fontWeight: '900',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                  zIndex: 2
+                }}>{searchStats.categories[cat]}</span>
+              )}
+            </span>
           </button>
         ))}
         <style>{`
@@ -274,8 +290,8 @@ const SurveyListView = ({
         `}</style>
       </div>
 
-      {/* ✨ あなたへのおすすめセクション */}
-      {!searchQuery && !filterTag && filterCategory === 'すべて' && (
+      {/* ✨ あなたへのおすすめセクション (検索が確定するまでは表示を維持してガタつきを防ぐらび！) */}
+      {!debouncedSearchQuery && !filterTag && filterCategory === 'すべて' && (
         <>
           <TrendingHeadline 
             surveys={trendingHeadlineSurveys} 
@@ -288,9 +304,8 @@ const SurveyListView = ({
         </>
       )}
 
-      {/* ⚖️ 公式・ユーザー切り替えタブ */}
-      {!searchQuery && !filterTag && (
-        <div className="official-tab-navigation" style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '2px solid #f1f5f9', paddingBottom: '4px' }}>
+      {/* ⚖️ 公式・ユーザー切り替えタブ (常に表示してレイアウトを安定させるらび！) */}
+      <div className="official-tab-navigation" style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '2px solid #f1f5f9', paddingBottom: '4px' }}>
           <button
             onClick={() => setActiveTab('official')}
             className={`tab-btn ${activeTab === 'official' ? 'active' : ''}`}
@@ -302,7 +317,7 @@ const SurveyListView = ({
               cursor: 'pointer', transition: 'all 0.2s', position: 'relative'
             }}
           >
-            📢 公式・ニュース ({filteredBaseSurveys.filter(s => s.is_official).length})
+            📢 公式・ニュース ({totalOfficialCount})
             {activeTab === 'official' && (
               <span style={{ position: 'absolute', top: '-4px', right: '-8px', fontSize: '0.7rem', background: '#ec4899', color: '#fff', borderRadius: '10px', padding: '1px 5px' }}>HOT</span>
             )}
@@ -318,18 +333,33 @@ const SurveyListView = ({
               cursor: 'pointer', transition: 'all 0.2s'
             }}
           >
-            👥 みんなの投稿 ({filteredBaseSurveys.filter(s => !s.is_official).length})
+            👥 みんなの投稿 ({totalUserCount})
           </button>
-        </div>
-      )}
+      </div>
 
       {/* 📋 アンケートリスト */}
       <div className="survey-list" ref={listRef}>
         {isLoading ? (
-          <div className="empty-msg">読み込み中...🐰🥕</div>
+          <div className="skeleton-container" style={{ width: '100%', minHeight: '500px' }}>
+            {[...Array(15)].map((_, n) => (
+              <div key={`skel-${n}`} className="skeleton-card">
+                <div className="skeleton skeleton-thumb"></div>
+                <div className="skeleton-content">
+                  <div className="skeleton skeleton-title"></div>
+                  <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+                  <div className="skeleton-meta">
+                    <div className="skeleton skeleton-meta-item"></div>
+                    <div className="skeleton skeleton-meta-item"></div>
+                    <div className="skeleton skeleton-meta-item"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (() => {
-          const totalPages = Math.ceil(finalItems.length / ITEMS_PER_PAGE);
-          const currentItems = finalItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+          const countToUse = activeTab === 'official' ? totalOfficialCount : totalUserCount;
+          const totalPages = Math.ceil(countToUse / ITEMS_PER_PAGE);
+          const currentItems = finalItems; // finalItems は既に 15件になっているはずらび！
 
           if (currentItems.length === 0) {
             return <div className="empty-msg">該当するアンケートがないよ〜🐰🥕</div>;
@@ -363,7 +393,11 @@ const SurveyListView = ({
                   const yt = entries.find(v => v.startsWith('yt:'));
                   const nico = entries.find(v => v.startsWith('nico:'));
                   if (yt) thumbSrc = `https://img.youtube.com/vi/${yt.substring(3)}/hqdefault.jpg`;
-                  else if (nico) thumbSrc = `https://snapshot.cdn.nicovideo.jp/snapshots/i/${nico.substring(5)}`;
+                  else if (nico) {
+                    const fullId = nico.substring(5);
+                    const numericId = fullId.replace(/^[a-z]+/, '');
+                    thumbSrc = `https://nicovideo.cdn.nimg.jp/thumbnails/${numericId}/${numericId}`;
+                  }
                   else if (entries[0]) thumbSrc = entries[0]; // コロンが含まれていても画像URLなら採用
                 }
 
@@ -388,13 +422,19 @@ const SurveyListView = ({
                           <div className="category-icon-thumb placeholder-base" style={{
                             position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                             background: catStyle.color, opacity: 0.1, zIndex: 0,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem'
-                          }}>{catStyle.icon}</div>
+                            borderRadius: 'inherit'
+                          }} />
                           <img
                             src={thumbSrc} alt="サムネイル"
                             className="survey-item-thumb" loading="lazy"
                             onLoad={e => e.target.classList.add('ready')}
-                            onError={e => { e.target.style.display = 'none'; }}
+                            onError={e => {
+                               if (!e.target.src.includes('nico_fallback.jpg')) {
+                                 e.target.src = '/assets/images/nico_fallback.jpg';
+                               } else {
+                                 e.target.style.display = 'none';
+                               }
+                             }}
                             style={{ position: 'relative', zIndex: 1 }}
                           />
                           <div className="thumb-category-badge" style={{
@@ -530,16 +570,7 @@ const SurveyListView = ({
       <div className="pagination-container-outer">
         <Pagination
           current={currentPage}
-          total={Math.ceil(
-            filteredBaseSurveys
-              .filter(s => {
-                if (!searchQuery && !filterTag) {
-                  if (activeTab === 'official' && !s.is_official) return false;
-                  if (activeTab === 'user' && s.is_official) return false;
-                }
-                return true;
-              }).length / ITEMS_PER_PAGE
-          )}
+          total={Math.ceil((activeTab === 'official' ? totalOfficialCount : totalUserCount) / ITEMS_PER_PAGE)}
           onPageChange={p => { 
             setCurrentPage(p); 
             if (listRef.current) {

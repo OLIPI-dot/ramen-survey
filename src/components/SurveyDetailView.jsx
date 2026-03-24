@@ -2,6 +2,83 @@ import React from 'react';
 import AnimatedCounter from './AnimatedCounter';
 import SurveyDescription from './SurveyDescription';
 
+const VideoPlayer = ({ entry, idx }) => {
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const isNico = entry.startsWith('nico:');
+  const videoId = isNico ? entry.substring(5) : entry.substring(3);
+
+  if (isPlaying) {
+    return (
+      <div key={`vid-${idx}`} style={{ width: '100%', aspectRatio: '16/9', borderRadius: '24px', overflow: 'hidden', background: '#000', boxShadow: '0 15px 45px rgba(0,0,0,0.15)' }}>
+        <iframe 
+          src={isNico ? `https://embed.nicovideo.jp/watch/${videoId}?jsapi=1` : `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1`} 
+          style={{ width: '100%', height: '100%', border: 'none' }} 
+          allowFullScreen 
+          allow="autoplay; encrypted-media"
+          title={`video-${idx}`}
+        ></iframe>
+      </div>
+    );
+  }
+
+  const thumbUrl = isNico 
+    ? `https://snapshot.cdn.nicovideo.jp/snapshots/i/${videoId}` 
+    : `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+  return (
+    <div 
+      key={`vid-${idx}`} 
+      onClick={() => setIsPlaying(true)}
+      className="video-facade-container"
+      style={{ 
+        width: '100%', 
+        aspectRatio: '16/9', 
+        borderRadius: '24px', 
+        overflow: 'hidden', 
+        background: '#000', 
+        boxShadow: '0 15px 45px rgba(0,0,0,0.15)',
+        position: 'relative',
+        cursor: 'pointer'
+      }}
+    >
+      <img src={thumbUrl} alt="video thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
+      <div className="play-button-overlay" style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '80px',
+        height: '80px',
+        background: 'rgba(239, 68, 68, 0.9)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 30px rgba(239, 68, 68, 0.5)',
+        transition: 'all 0.2s'
+      }}>
+        <svg viewBox="0 0 24 24" style={{ width: '40px', height: '40px', fill: 'white', marginLeft: '4px' }}>
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '20px',
+        background: 'rgba(0,0,0,0.6)',
+        color: 'white',
+        padding: '4px 12px',
+        borderRadius: '20px',
+        fontSize: '0.8rem',
+        backdropFilter: 'blur(4px)',
+        fontWeight: 'bold'
+      }}>
+        {isNico ? '📺 ニコニコ動画を再生' : '📺 YouTubeを再生'}
+      </div>
+    </div>
+  );
+};
+
 const SurveyDetailView = ({ 
   currentSurvey, 
   surveyOnlineCount, 
@@ -89,15 +166,9 @@ const SurveyDetailView = ({
               {/* 動画がある場合は動画を表示 */}
               {videoEntries.length > 0 && (
                 <div className="video-multi-container" style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: imageEntries.length > 0 ? '20px' : '0' }}>
-                  {videoEntries.map((entry, idx) => {
-                    const isNico = entry.startsWith('nico:');
-                    const videoId = isNico ? entry.substring(5) : entry.substring(3);
-                    return (
-                      <div key={`vid-${idx}`} style={{ width: '100%', aspectRatio: '16/9', borderRadius: '24px', overflow: 'hidden', background: '#000', boxShadow: '0 15px 45px rgba(0,0,0,0.15)' }}>
-                        <iframe src={isNico ? `https://embed.nicovideo.jp/watch/${videoId}` : `https://www.youtube.com/embed/${videoId}?rel=0`} style={{ width: '100%', height: '100%', border: 'none' }} allowFullScreen title={`video-${idx}`}></iframe>
-                      </div>
-                    );
-                  })}
+                  {videoEntries.map((entry, idx) => (
+                    <VideoPlayer key={`vid-${idx}`} entry={entry} idx={idx} />
+                  ))}
                 </div>
               )}
               {/* 動画がない、あるいは画像も表示したい場合（現在は動画優先で、動画がない時のみ画像を表示する構成が一般的ですが、複数対応） */}

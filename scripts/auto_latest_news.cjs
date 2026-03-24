@@ -67,7 +67,8 @@ function stripHtml(str) {
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
         .replace(/&#45;/g, '-')
-        .replace(/(\s*(?:続きを読む|続きを[読よ]む|詳細はこちら|詳細を見る|Read more|…|[\. ]{2,}|[\s\.\-]+$))+/gi, '') // 💡 文末だけでなく全体から「続きを読む」的なものを消去
+        .replace(/(\s*(?:続きを読む|続きを[読よ]む|詳細はこちら|詳細を見る|Read more|…|[\. ]{2,}|[\s\.\-]+$))+/gi, '')
+        .replace(/\s+/g, ' ') // 💡 余分な空白を1つにまとめるらび！
         .trim();
 }
 
@@ -87,10 +88,21 @@ function classifyNews(title, description) {
         'らび': 0
     };
 
+    // 🛡️ 大手テック・ガジェット配信サイトの保護 (誤ってYouTuberにならないようにするらび！)
+    const isTrustedTechSite = /watch\.impress\.co\.jp|itmedia\.co\.jp|mynavi\.jp|ascii\.jp|gizmodo\.jp|phileweb\.com|digitallife\.jp/.test(description || '');
+    if (isTrustedTechSite) {
+        scores['ニュース'] += 80;
+    }
+
     // 0. YouTuber (特定のサイト or キーワード)
     const isYouTuberSite = /logtube\.jp|realsound\.jp\/tech/.test(description || '');
     if (isYouTuberSite) {
-        scores['YouTuber'] += 100;
+        // 💡 サイト名だけで決めつけず、本文にYouTube要素があるか確認らび！
+        if (/(youtuber|youtube|ユーチューバー|配信者|実況者|動画撮影|動画投稿|チャンネル登録)/i.test(textLower)) {
+            scores['YouTuber'] += 100;
+        } else {
+            scores['ニュース'] += 50; // ITニュース寄りにする
+        }
     } else if (/(ヒカキン|hikakin|はじめしゃちょー|ヒカル|フィッシャーズ|東海オンエア|スカイピース|コムドット|平成フラミンゴ|キヨ|レトルト|ぽきん|ポッキー|兄者弟者|壱百満天原サロメ|にじさんじ|ホロライブ|vtuber|ブレイキングダウン|朝倉未来|ばんばんざい|中町綾|とうあ|しなこ|むくえな|すとぷり|騎士a|ちょんまげ小僧|バンカラジオ|フォーエイト|48|いれいす|あざみ|あまぷた|アンプタック|キヨ|レトルト|牛沢|ガッチマン|加藤純一|うんこちゃん|もこう|shaka|関優太|stylishnoob|kuzuha|葛葉|叶|ぺこら|マリン|サロメ|三枝明那|ローレン|不破湊|湊あくあ|キズナアイ|桐崎栄二|ウチら3姉妹|水溜りボンド|pds|めぐみ|瀬戸弘司|カズチャンネル|よりひと|コレコレ|ポケカメン|まぜ太|あっと|てるとくん|ばぁう|そうま|しゆん)/i.test(textLower)) {
         // 🛡️ 芸能人・有名人フィルタ: YouTuberとしても有名だが、俳優・アイドル等の側面が強い人はエンタメを優先
         if (/(前田敦子|指原莉乃|中川翔子|本田翼|広瀬アリス|橋本環奈|川口春奈|江頭)/.test(textLower)) {
@@ -101,7 +113,10 @@ function classifyNews(title, description) {
             scores['YouTuber'] += 100; // 専業YouTuberなら自信を持って！
         }
     } else if (/(youtuber|youtube|ユーチューバー|配信者|実況者|動画撮影|動画投稿|チャンネル登録)/i.test(textLower)) {
-        scores['YouTuber'] += 40;
+        // 大手テックサイトなら、キーワードだけではYouTuberにしないらび
+        if (!isTrustedTechSite) {
+            scores['YouTuber'] += 30; 
+        }
     }
 
     // 1. ニュース / IT・ガジェット (iphone, スマホ, 発表, 発売)
@@ -205,7 +220,7 @@ function generateTags(title, content) {
         { name: 'にじさんじ', keywords: ['にじさんじ', 'nijisanji', '葛葉', '叶', 'サロメ'] },
         { name: 'ホロライブ', keywords: ['ホロライブ', 'hololive', 'ぺこら', 'マリン', 'フブキ'] },
         { name: 'VTuber', keywords: ['vtuber', 'ブイチューバー', 'バーチャルyoutuber'] },
-        { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'mac', 'macbook', 'watch'] },
+        { name: 'Apple', keywords: ['apple', 'iphone', 'ipad', 'macbook', 'mac mini', 'mac studio', 'imac', 'apple watch', 'iwatch', 'ios', 'macos'] },
         { name: 'Google', keywords: ['google', 'android', 'pixel', 'gemini', 'workspace'] },
         { name: 'Nothing', keywords: ['nothing', 'phone', 'ear'] },
         { name: 'Sony', keywords: ['sony', 'ソニー', 'ps5', 'playstation', 'ウォークマン'] },
@@ -365,8 +380,35 @@ async function startAutoPosting() {
     let count = 0;
     const categoryCounts = {};
 
+    // 🕒 JST（日本時間）の現在時刻を取得して投稿数を調整するらび！
+    const now = new Date();
+    const jstHour = (now.getUTCHours() + 9) % 24;
+    
+    let maxPosts = 8;
+    let maxPerCategory = 1;
+    let newsMax = 2;
+
+    if (jstHour >= 19 && jstHour <= 23) {
+        // ✨ 夜のゴールデンタイム！一気に盛り上げるらび！
+        maxPosts = 15;
+        maxPerCategory = 3;
+        newsMax = 4;
+    } else if (jstHour === 12 || (jstHour >= 7 && jstHour <= 8)) {
+        // 🍱 ランチ or 朝の通勤タイム！多めに流すらび！
+        maxPosts = 12;
+        maxPerCategory = 2;
+        newsMax = 3;
+    } else if (jstHour >= 2 && jstHour <= 5) {
+        // 😴 深夜はお休みモードらび…
+        maxPosts = 3;
+        maxPerCategory = 1;
+        newsMax = 1;
+    }
+
+    log(`[Dynamic Limit] JST ${jstHour}時なので、最大 ${maxPosts}件（ニュースは${newsMax}件まで）投稿するらび！`);
+
     for (const news of allNews) {
-        if (count >= 8) break; 
+        if (count >= maxPosts) break; 
         
         // 1. URLによる絶対的な重複チェック
         if (recentLinks.has(news.link.trim())) {
@@ -386,8 +428,9 @@ async function startAutoPosting() {
 
         try {
             const cat = news.category;
-            // 💡 1回の実行で各カテゴリの数を制限
-            if (categoryCounts[cat] >= (cat === 'ニュース' ? 2 : 1)) continue;
+            // 💡 実行時のダイナミックリミットを適用
+            const currentCatMax = (cat === 'ニュース' ? newsMax : maxPerCategory);
+            if (categoryCounts[cat] >= currentCatMax) continue;
 
             // YouTube検索
             let video = await searchYouTubeVideo(news.title);
@@ -443,7 +486,7 @@ async function startAutoPosting() {
                 visibility: 'public',
                 is_official: true,
                 tags: news.tags || []
-            }]).select();
+            }]).select('id');
 
             if (sErr) throw sErr;
             const surveyId = sData[0].id;

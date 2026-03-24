@@ -78,7 +78,7 @@ async function postDailySurvey() {
         is_official: true
     };
 
-    const res = await fetch(`${url}/rest/v1/surveys`, {
+    const res = await fetch(`${url}/rest/v1/surveys?select=id`, {
         method: 'POST',
         headers: {
             'apikey': key,
