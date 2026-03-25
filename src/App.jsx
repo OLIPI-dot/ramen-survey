@@ -1211,11 +1211,12 @@ function App() {
             if (hasOfficialTag || hasOfficialTitle) isOfficialPattern = true;
           }
 
-          const effectiveCategory = (s.category === 'YouTuber' || s.category === '話題' || s.category === 'エンタメ' || s.category === 'レビュー' || s.category === 'コラム' || s.category === 'ネタ')
-                                   ? ((s.title || '').includes('【コラム】') ? 'コラム' : 
+          // 💡 カテゴリの正規化（存在しない古いカテゴリを適切に読み替えるらび！）
+          const effectiveCategory = (s.category === 'YouTuber' || s.category === '話題' || s.category === 'エンタメ' || s.category === 'レビュー' || s.category === 'コラム' || s.category === 'ネタ' || s.category === 'ニュース' || s.category === 'らび')
+                                   ? s.category 
+                                   : ((s.title || '').includes('【コラム】') ? 'コラム' : 
                                       (s.title || '').includes('【レビュー】') ? 'レビュー' :
-                                      (s.title || '').includes('【ネタ】') ? 'ネタ' : 'ニュース')
-                                   : (s.category || 'その他');
+                                      (s.title || '').includes('【ネタ】') ? 'ネタ' : (s.category || 'その他'));
 
           return {
             ...s,
