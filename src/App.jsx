@@ -1173,11 +1173,19 @@ function App() {
         if (query && sData.length === 0) {
           console.warn("⚠️ fetchSurveys: Search returned 0 results for:", query);
         }
-        // 📊 タブのカウント表示を現在のフィルタ結果に合わせるらび！
-        if (!query.trim()) {
-          if (currentTab === 'official') setTotalOfficialCount(count || 0);
-          else if (currentTab === 'user') setTotalUserCount(count || 0);
-        }
+      // 📊 タブのカウント表示を同期するらび！
+      if (!query.trim()) {
+        // 💡 片方のタブにいても、両方の最新件数を裏でサクッと数えておくらび！
+        (async () => {
+          const [{ count: offCount }, { count: uCount }] = await Promise.all([
+            supabase.from('surveys').select('*', { count: 'exact', head: true }).eq('visibility', 'public').eq('is_official', true),
+            supabase.from('surveys').select('*', { count: 'exact', head: true }).eq('visibility', 'public').eq('is_official', false)
+          ]);
+          setTotalOfficialCount(offCount || 0);
+          setTotalUserCount(uCount || 0);
+          console.log(`🔢 Initial Counts Updated: Official(${offCount}), User(${uCount})`);
+        })();
+      }
       }
 
       // ログイン中なら自分の非公開/限定公開アンケートも別枠で取得（とりあえず最新20件）
