@@ -1205,16 +1205,17 @@ function App() {
           let isOfficialPattern = s.is_official === true;
           const isLegacy = new Date(s.created_at) < new Date('2026-03-19T00:00:00Z');
           
-          if (!isOfficialPattern && isLegacy) {
+          if (isLegacy && !isOfficialPattern) {
             const hasOfficialTag = s.tags && s.tags.some(tag => ['お知らせ', 'ニュース', '話題', '速報', '注目', '2chまとめアンテナ'].includes(tag) || tag.includes('トピックス') || tag.includes('新聞'));
             const hasOfficialTitle = s.title && /^(【.*?】|「.*?」)/.test(s.title);
             if (hasOfficialTag || hasOfficialTitle) isOfficialPattern = true;
           }
 
-          const effectiveCategory = (s.title || '').includes('【コラム】') ? 'コラム' : 
-                                   (s.title || '').includes('【レビュー】') ? 'レビュー' :
-                                   (s.title || '').includes('【ネタ】') ? 'ネタ' :
-                                   (s.title || '').includes('【話題】') ? '話題' : (s.category || 'その他');
+          const effectiveCategory = (s.category === 'YouTuber' || s.category === '話題' || s.category === 'エンタメ' || s.category === 'レビュー' || s.category === 'コラム' || s.category === 'ネタ')
+                                   ? ((s.title || '').includes('【コラム】') ? 'コラム' : 
+                                      (s.title || '').includes('【レビュー】') ? 'レビュー' :
+                                      (s.title || '').includes('【ネタ】') ? 'ネタ' : 'ニュース')
+                                   : (s.category || 'その他');
 
           return {
             ...s,

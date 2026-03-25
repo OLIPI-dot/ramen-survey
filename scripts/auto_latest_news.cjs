@@ -428,8 +428,9 @@ async function startAutoPosting() {
 
         try {
             const cat = news.category;
-            // 💡 実行時のダイナミックリミットを適用
-            const currentCatMax = (cat === 'ニュース' ? newsMax : maxPerCategory);
+            // 💡 実行時のダイナミックリミットを適用 (ニュースを優先)
+            const isNewsLike = (cat === 'ニュース' || cat === 'その他');
+            const currentCatMax = (isNewsLike ? newsMax : maxPerCategory);
             if (categoryCounts[cat] >= currentCatMax) continue;
 
             // YouTube検索
