@@ -1175,15 +1175,32 @@ function App() {
         }
       // 📊 タブのカウント表示を同期するらび！
       if (!query.trim()) {
-        // 💡 片方のタブにいても、両方の最新件数を裏でサクッと数えておくらび！
         (async () => {
+          // 💡 現在のソートやカテゴリの条件を、カウント用クエリにも反映させるらび！
+          const getCountQuery = (isOff) => {
+            let q = supabase.from('surveys').select('*', { count: 'exact', head: true }).eq('visibility', 'public').eq('is_official', isOff);
+            if (category && category !== 'すべて') q = q.eq('category', category);
+            
+            const now = new Date();
+            if (sort === 'today') {
+              const todayStart = new Date();
+              todayStart.setHours(0, 0, 0, 0);
+              q = q.gte('created_at', todayStart.toISOString());
+              q = q.or(`deadline.is.null,deadline.gt.${now.toISOString()}`);
+            } else if (sort === 'ended') {
+              const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+              q = q.or(`deadline.lt.${now.toISOString()},created_at.lt.${thirtyDaysAgo.toISOString()}`);
+            }
+            return q;
+          };
+
           const [{ count: offCount }, { count: uCount }] = await Promise.all([
-            supabase.from('surveys').select('*', { count: 'exact', head: true }).eq('visibility', 'public').eq('is_official', true),
-            supabase.from('surveys').select('*', { count: 'exact', head: true }).eq('visibility', 'public').eq('is_official', false)
+            getCountQuery(true),
+            getCountQuery(false)
           ]);
           setTotalOfficialCount(offCount || 0);
           setTotalUserCount(uCount || 0);
-          console.log(`🔢 Initial Counts Updated: Official(${offCount}), User(${uCount})`);
+          console.log(`🔢 Filtered Counts Updated: Official(${offCount}), User(${uCount}) [Sort: ${sort}, Cat: ${category}]`);
         })();
       }
       }
