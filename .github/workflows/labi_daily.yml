@@ -5,9 +5,9 @@ on:
     branches:
       - main
   schedule:
-    # 毎日概ね1時間に1回実行らびっ！ 🐰🚀
+    # 30分に1回実行らびっ！ 🐰🚀
     # (JST 02:00-04:00 以外)
-    - cron: '0 0-16,20-23 * * *'
+    - cron: '0,30 0-16,20-23 * * *'
   workflow_dispatch: # 手動実行も可能らび！
 
 permissions:
