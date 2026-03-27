@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 // Deploy Kick: 2026-03-26 18:45 🚀🐰 (Category Fix Forced)
 import { createClient } from '@supabase/supabase-js';
-import emailjs from '@emailjs/browser';
 import FooterModals from './components/FooterModals';
 import AnimatedCounter from './components/AnimatedCounter';
 import {
@@ -1696,7 +1695,9 @@ function App() {
       const templateId = 'template_4wpor27';
       const publicKey = 'wEjNAL8NrmlxBHc6k';
 
-      // 念のため初期化を実行
+      // 🚀 動的インポートに変更して初期バンドルサイズを削減らび！
+      const emailjsModule = await import('@emailjs/browser');
+      const emailjs = emailjsModule.default;
       emailjs.init(publicKey);
 
       try {
@@ -1815,6 +1816,9 @@ function App() {
       const serviceId = 'service_mkhbkz3';
       const templateId = 'template_4wpor27';
       const publicKey = 'wEjNAL8NrmlxBHc6k';
+      
+      const emailjsModule = await import('@emailjs/browser');
+      const emailjs = emailjsModule.default;
       emailjs.init(publicKey);
 
       await emailjs.send(serviceId, templateId, {
