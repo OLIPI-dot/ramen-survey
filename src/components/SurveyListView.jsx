@@ -435,8 +435,8 @@ const SurveyListView = ({
                             src={thumbSrc} 
                             alt={`${s.title} のサムネイル`}
                             className="survey-item-thumb" 
-                            loading={idx < 2 ? "eager" : "lazy"}
-                            {...(idx < 2 ? { fetchpriority: "high" } : {})}
+                            loading={idx < 4 ? "eager" : "lazy"}
+                            {...(idx < 4 ? { fetchpriority: "high" } : {})}
                             onLoad={e => e.target.classList.add('ready')}
                             onError={e => {
                                if (!e.target.src.includes('nico_fallback.jpg')) {

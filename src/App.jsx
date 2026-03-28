@@ -931,7 +931,8 @@ function App() {
 
   // 📥 アンケートデータを取得する (サーバーサイド・ページネーション & フィルタ対応)
   const fetchSurveys = async (currentUser, silent = false, page = 1, category = null, query = '', currentTab = 'official', sort = 'latest', pop = 'trending') => {
-    let safetyTimeoutId;
+    const isFirstLoad = !silent && page === 1 && !category && !query && currentTab === 'official' && sort === 'latest';
+    
     if (!silent) {
        setIsLoading(true);
        safetyTimeoutId = setTimeout(() => {
@@ -941,6 +942,17 @@ function App() {
     }
 
     try {
+      let sData = null;
+      let sError = null;
+      let count = 0;
+
+      // 🚀 Early Fetch (index.htmlで開始したリクエスト) を活用するらび！
+      if (isFirstLoad && window.__INITIAL_DATA_PROMISE__) {
+        console.log("⚡ fetchSurveys: Using EARLY FETCH data from window.__INITIAL_DATA_PROMISE__");
+        sData = await window.__INITIAL_DATA_PROMISE__;
+        window.__INITIAL_DATA_PROMISE__ = null; // 一度使ったらクリア
+        count = sData ? sData.length : 0; // 暫定カウント
+      }
       const isActuallyAdmin = currentUser && ADMIN_EMAILS.includes(currentUser.email);
       const ITEMS_PER_PAGE = 15;
       const start = (page - 1) * ITEMS_PER_PAGE;
@@ -995,7 +1007,12 @@ function App() {
         baseQuery = baseQuery.order('created_at', { ascending: false });
       }
 
-      const { data: sData, error: sError, count } = await baseQuery.range(start, end);
+      if (!sData) {
+        const { data, error, count: c } = await baseQuery.range(start, end);
+        sData = data;
+        sError = error;
+        count = c;
+      }
       
       if (sError) console.error("❌ fetchSurveys: PUBLIC FETCH ERROR:", sError);
       if (sData) {
