@@ -932,7 +932,7 @@ function App() {
   // 📥 アンケートデータを取得する (サーバーサイド・ページネーション & フィルタ対応)
   const fetchSurveys = async (currentUser, silent = false, page = 1, category = null, query = '', currentTab = 'official', sort = 'latest', pop = 'trending') => {
     // 🚀 Early Fetch を使う条件: 初回ロード ＆ フィルタなし ＆ 新着順
-    const isFirstLoad = !silent && page === 1 && (!category || category === 'すべて') && !query && activeTab === 'official' && sort === 'latest';
+    const isFirstLoad = !silent && page === 1 && (!category || category === 'すべて') && !query && currentTab === 'official' && sort === 'latest';
     
     if (!silent) {
        setIsLoading(true);
