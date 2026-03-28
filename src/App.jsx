@@ -132,6 +132,7 @@ function App() {
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [tagEditValue, setTagEditValue] = useState('');
   const isVotingProcessingRef = useRef(false); // 🛡️ 投票中の連打ガード
+  const isInitialMountRef = useRef(true); // 🚀 初回マウント時の一度きりガード
 
   // 📡 リアルタイム人数
   const [globalOnlineCount, setGlobalOnlineCount] = useState(1);
@@ -140,7 +141,7 @@ function App() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortMode, searchQuery, filterCategory, filterTag, popularMode]);
+  }, [sortMode, searchQuery, filterCategory, filterTag, popularMode, activeTab]);
 
   // ▼ページネーションUIコンポーネント (メモ化してパフォーマンス向上らび！✨)
   const Pagination = useCallback(({ current, total, onPageChange }) => {
@@ -934,6 +935,7 @@ function App() {
     // 🚀 Early Fetch を使う条件: 初回ロード ＆ フィルタなし ＆ 新着順
     const isFirstLoad = !silent && page === 1 && (!category || category === 'すべて') && !query && currentTab === 'official' && sort === 'latest';
     
+    let safetyTimeoutId = null;
     if (!silent) {
        setIsLoading(true);
        safetyTimeoutId = setTimeout(() => {
@@ -1014,6 +1016,8 @@ function App() {
         sError = error;
         count = c;
       }
+
+      if (safetyTimeoutId) clearTimeout(safetyTimeoutId);
       
       if (sError) console.error("❌ fetchSurveys: PUBLIC FETCH ERROR:", sError);
       if (sData) {
@@ -1077,11 +1081,11 @@ function App() {
         const updatedList = allSurveys.map(s => {
           let isOfficialPattern = s.is_official === true;
           const isLegacy = new Date(s.created_at) < new Date('2026-03-19T00:00:00Z');
-          
           if (isLegacy && !isOfficialPattern) {
             const hasOfficialTag = s.tags && s.tags.some(tag => ['お知らせ', 'ニュース', '話題', '速報', '注目', '2chまとめアンテナ'].includes(tag) || tag.includes('トピックス') || tag.includes('新聞'));
             const hasOfficialTitle = s.title && /^(【.*?】|「.*?」)/.test(s.title);
-            if (hasOfficialTag || hasOfficialTitle) isOfficialPattern = true;
+            // 💡 ユーザー投稿として取得したものは、よっぽどのことがない限りユーザー投稿のままにするらび！
+            if ((hasOfficialTag || hasOfficialTitle) && currentTab !== 'user') isOfficialPattern = true;
           }
 
           // 💡 カテゴリの正規化（存在しない古いカテゴリを適切に読み替えるらび！）

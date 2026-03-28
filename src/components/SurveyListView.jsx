@@ -65,16 +65,7 @@ const SurveyListView = ({
   // ⚡ サーバー側でフィルタ・ソート済みの surveys をそのまま使うらび！
   // ただし、公式/ユーザー切り替えタブの client-side filtering だけは残すらび（将来的にサーバーへ移行可能）
   const finalItems = React.useMemo(() => {
-    return surveys
-      .filter(s => {
-        // ⚡ 検索中（デバウンス後）やタグフィルタ中以外は、タブごとの出し分けを確実に維持するらび！
-        // 検索中まで制限しちゃうと「HITしない」と混乱しちゃうので、わざと緩めるらび🥕
-        if (!debouncedSearchQuery && !filterTag) {
-          if (activeTab === 'official' && !s.is_official) return false;
-          if (activeTab === 'user' && s.is_official) return false;
-        }
-        return true;
-      });
+    return surveys;
   }, [surveys, debouncedSearchQuery, filterTag, activeTab]);
 
   return (
